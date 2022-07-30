@@ -1,0 +1,1 @@
+MIDI_FILES = "E:\PracaMagisterska\TonationRecognition\midi_files\\"
