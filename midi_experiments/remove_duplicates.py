@@ -1,8 +1,5 @@
-import os
-
 from mido import MidiFile
-import paths as pth
-
+from functions import paths as pth
 
 cv1 = MidiFile(pth.MIDI_FILES + 'VampireKillerCV1.mid', clip=True)
 

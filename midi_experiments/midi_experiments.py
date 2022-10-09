@@ -1,6 +1,6 @@
 from mido import MidiFile
-import paths as pth
-from functions.signature_of_fifths_functions import SignatureOfFifthsUtility
+from functions import paths as pth
+from signature.signature_of_fifths_functions import SignatureOfFifthsUtility
 
 mid = MidiFile(pth.MIDI_FILES + 'VampireKillerCV1.mid', clip=True)
 print(mid)
