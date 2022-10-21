@@ -1,7 +1,9 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView
 from PyQt5 import uic, QtWidgets
+from PyQt5.QtGui import QPainter, QBrush, QPen, QTransform
+from PyQt5.QtCore import Qt
 
 from midi_handling.midi_reader import MidiReader
 
@@ -37,12 +39,15 @@ class UI_FileLoadingPage(QMainWindow):
 
     def change_to_signature_display_page(self):
         widget.setCurrentWidget(signature_display_page)
+        widget.currentWidget().draw_signature_graphics_view()
 
 
 class UI_SignatureDisplayPage(QMainWindow):
     def __init__(self):
         super(UI_SignatureDisplayPage, self).__init__()
         uic.loadUi(SIGNATURE_DISPLAY_PAGE, self)
+
+        self.signature_graphics_view = self.findChild(QGraphicsView, "signatureGraphicsView")
 
         self.show()
 
@@ -55,5 +60,8 @@ file_loading_page = UI_FileLoadingPage()
 widget.addWidget(file_loading_page)
 signature_display_page = UI_SignatureDisplayPage()
 widget.addWidget(signature_display_page)
+w = 800
+h = 500
+widget.resize(w, h)
 widget.show()
 app.exec_()
