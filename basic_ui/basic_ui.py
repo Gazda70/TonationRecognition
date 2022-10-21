@@ -54,6 +54,28 @@ class UI_SignatureDisplayPage(QMainWindow):
     def change_to_file_loading_page(self):
         widget.setCurrentWidget(file_loading_page)
 
+    def draw_signature_graphics_view(self):
+        scene = QGraphicsScene()
+
+        brush = QBrush(Qt.green)
+
+        pen = QPen(Qt.red)
+
+        self.signature_graphics_view.setScene(scene)
+
+        rec_start_x = -200
+        rec_start_y = -200
+        rec_end_x = 400
+        rec_end_y = 400
+        scene.addEllipse(rec_start_x, rec_start_y, rec_end_x, rec_end_y, pen, brush)
+
+        for angle in range(0, 360, 30):
+            transform = QTransform()
+            line = scene.addLine(0, 0, 0, rec_start_y, pen)
+            transform.rotate(angle)
+            line.setTransform(transform)
+
+
 app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()
 file_loading_page = UI_FileLoadingPage()
