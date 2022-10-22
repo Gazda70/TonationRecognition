@@ -2,13 +2,14 @@ import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView
 from PyQt5 import uic, QtWidgets
-from PyQt5.QtGui import QPainter, QBrush, QPen, QTransform
+from PyQt5.QtGui import QPainter, QBrush, QPen, QTransform, QFont
 from PyQt5.QtCore import Qt
 
 from midi_handling.midi_reader import MidiReader
 
 FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
+TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'H', 'F#', 'C#', 'A♭', 'E♭', 'B', 'F']
 
 class UI_FileLoadingPage(QMainWindow):
     def __init__(self):
@@ -61,6 +62,8 @@ class UI_SignatureDisplayPage(QMainWindow):
 
         pen = QPen(Qt.red)
 
+        font = QFont("Helvetica", 24)
+
         self.signature_graphics_view.setScene(scene)
 
         rec_start_x = -200
@@ -69,11 +72,21 @@ class UI_SignatureDisplayPage(QMainWindow):
         rec_end_y = 400
         scene.addEllipse(rec_start_x, rec_start_y, rec_end_x, rec_end_y, pen, brush)
 
-        for angle in range(0, 360, 30):
+        for angle, note in zip(range(0, 360, 30), TONATION_NAMES):
             transform = QTransform()
             line = scene.addLine(0, 0, 0, rec_start_y, pen)
             transform.rotate(angle)
             line.setTransform(transform)
+
+            textTransform = QTransform()
+            text = scene.addText(note)
+
+            textTransform.rotate(angle)
+            move = rec_start_y - 20
+            textTransform.translate(0, move)
+            #textTransform.rotate(360 - angle)
+            text.setTransform(textTransform)
+
 
 
 app = QApplication(sys.argv)
