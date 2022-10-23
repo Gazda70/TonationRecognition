@@ -55,15 +55,9 @@ class SignatureGraphic:
         self.rec_end_y = 400
 
     def draw_vector_per_note(self):
-        #DETERMINE HOW TO PROPERLY ACCESS VALUES
-        sum_of_all_note_vector_values = sum([note.length for note in self.signature_of_fifths.signature])
-        print("sum_of_all_note_vector_values")
-
-        for note in self.signature_of_fifths.signature:
-            print("Note")
-            print(note)
-            note_vector_length_normalised = (note.value.length / sum_of_all_note_vector_values) * self.rec_start_y
-            note_vector_direction = note.value.direction
+        for name, value in zip(self.signature_of_fifths.signature.keys(), self.signature_of_fifths.signature.values()):
+            note_vector_length_normalised = value.length * self.rec_start_y
+            note_vector_direction = value.direction
             transform = QTransform()
             line = self.scene.addLine(0, 0, 0, note_vector_length_normalised, self.pen)
             transform.rotate(note_vector_direction)
