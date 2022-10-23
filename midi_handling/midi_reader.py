@@ -4,8 +4,10 @@ from signature.signature_of_fifths_functions import SignatureOfFifthsUtility
 
 
 class MidiReader:
+
     def read_file(self, midi_path):
         self.midi_file = MidiFile(midi_path, clip=True)
+        signatures_per_track = []
 
         mid = MidiFile(pth.MIDI_FILES + 'VampireKillerCV1.mid', clip=True)
         print(mid)
@@ -25,7 +27,10 @@ class MidiReader:
             for x, y in notes_dict.items():
                 print(x, y)
             signature = sig_util.calculate_signature_of_fifths(notes_dict)
+            signatures_per_track.append(signature)
             print("SIGNATURE DICT: ")
             for x, y in signature.signature.items():
                 print(x, y)
             print("\n")
+
+        return signatures_per_track

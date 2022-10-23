@@ -2,29 +2,30 @@ import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView
 from PyQt5 import uic, QtWidgets
-from PyQt5.QtGui import QPainter, QBrush, QPen, QTransform, QFont
-from PyQt5.QtCore import Qt
 
 from midi_handling.midi_reader import MidiReader
 
+from signature_drawing import CircleOfFifths, SignatureGraphic
+
 FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
-TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'H', 'F#', 'C#', 'A♭', 'E♭', 'B', 'F']
+
 
 class UI_FileLoadingPage(QMainWindow):
     def __init__(self):
         super(UI_FileLoadingPage, self).__init__()
 
         uic.loadUi(FILE_LOAD_PAGE, self)
-        #https://www.youtube.com/watch?v=gg5TepTc2Jg
+        # https://www.youtube.com/watch?v=gg5TepTc2Jg
         self.open_file_button = self.findChild(QPushButton, "openFileButton")
         self.open_file_button.clicked.connect(self.open_file_button_clicker)
 
         self.calculate_signature_button = self.findChild(QPushButton, "calculateSignatureButton")
         self.calculate_signature_button.clicked.connect(self.calculate_signature_button_clicker)
 
-        self.show()
+        self.list_of_signatures = None
 
+        self.show()
 
     def open_file_button_clicker(self):
         fname = QFileDialog.getOpenFileName()
@@ -33,13 +34,15 @@ class UI_FileLoadingPage(QMainWindow):
 
     def read_midi(self, filename):
         reader = MidiReader()
-        reader.read_file(filename)
+        self.list_of_signatures = reader.read_file(filename)
+        print(self.list_of_signatures)
 
     def calculate_signature_button_clicker(self):
         self.change_to_signature_display_page()
 
     def change_to_signature_display_page(self):
         widget.setCurrentWidget(signature_display_page)
+        widget.currentWidget().set_list_of_signatures(self.list_of_signatures)
         widget.currentWidget().draw_signature_graphics_view()
 
 
@@ -49,44 +52,26 @@ class UI_SignatureDisplayPage(QMainWindow):
         uic.loadUi(SIGNATURE_DISPLAY_PAGE, self)
 
         self.signature_graphics_view = self.findChild(QGraphicsView, "signatureGraphicsView")
+        self.scene = QGraphicsScene()
+        self.list_of_signatures = None
 
         self.show()
+
+    def set_list_of_signatures(self, list_of_signatures):
+        self.list_of_signatures = list_of_signatures
 
     def change_to_file_loading_page(self):
         widget.setCurrentWidget(file_loading_page)
 
     def draw_signature_graphics_view(self):
-        scene = QGraphicsScene()
-
-        brush = QBrush(Qt.green)
-
-        pen = QPen(Qt.red)
-
-        font = QFont("Helvetica", 24)
-
-        self.signature_graphics_view.setScene(scene)
-
-        rec_start_x = -200
-        rec_start_y = -200
-        rec_end_x = 400
-        rec_end_y = 400
-        scene.addEllipse(rec_start_x, rec_start_y, rec_end_x, rec_end_y, pen, brush)
-
-        for angle, note in zip(range(0, 360, 30), TONATION_NAMES):
-            transform = QTransform()
-            line = scene.addLine(0, 0, 0, rec_start_y, pen)
-            transform.rotate(angle)
-            line.setTransform(transform)
-
-            textTransform = QTransform()
-            text = scene.addText(note)
-
-            textTransform.rotate(angle)
-            move = rec_start_y - 20
-            textTransform.translate(0, move)
-            #textTransform.rotate(360 - angle)
-            text.setTransform(textTransform)
-
+        circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
+        circle_of_fifths.draw()
+        #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
+        print("self.list_of_signatures[3]")
+        print(self.list_of_signatures[3])
+        signature_graphic = SignatureGraphic(signature_of_fifths=self.list_of_signatures[3],
+                                             signature_graphics_view=self.signature_graphics_view, scene=self.scene)
+        signature_graphic.draw_vector_per_note()
 
 
 app = QApplication(sys.argv)
