@@ -2,6 +2,9 @@ from enum import Enum
 from collections import Counter
 from dataclasses import dataclass
 from mido import MidiFile
+import numpy as np
+
+from utils.vector_operations import add_vector_list
 
 """
     It has to be in such order because of the numeration of notes used by MIDI standard.
@@ -69,3 +72,7 @@ class SignatureOfFifthsUtility:
         for name, value in zip(notes.keys(), notes.values()):
             signature.signature[Note(name)].length = value / sum(notes.values()) if sum(notes.values()) != 0 else 0
         return signature
+
+    def calculate_cvsf(self, signature:SignatureOfFifths) -> NoteVector:
+        cvsf_vector = add_vector_list(list((note_vector.length, note_vector.direction)for note_vector in signature.signature.values()))
+        return NoteVector(cvsf_vector[0], cvsf_vector[1])

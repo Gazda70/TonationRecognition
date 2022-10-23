@@ -47,7 +47,7 @@ class SignatureGraphic:
         self.scene = scene
         self.signature_graphics_view.setScene(self.scene)
         self.brush = QBrush(Qt.green)
-        self.pen = QPen(Qt.darkBlue)
+        self.pen = QPen(Qt.blue)
         self.font = QFont("Helvetica", 24)
         self.rec_start_x = -200
         self.rec_start_y = -200
@@ -56,9 +56,17 @@ class SignatureGraphic:
 
     def draw_vector_per_note(self):
         for name, value in zip(self.signature_of_fifths.signature.keys(), self.signature_of_fifths.signature.values()):
-            note_vector_length_normalised = value.length * self.rec_start_y
-            note_vector_direction = value.direction
-            transform = QTransform()
-            line = self.scene.addLine(0, 0, 0, note_vector_length_normalised, self.pen)
-            transform.rotate(note_vector_direction)
-            line.setTransform(transform)
+            self.draw_vector(value.length, value.direction, QPen(Qt.blue))
+
+    def draw_cvsf(self):
+        sig_util = SignatureOfFifthsUtility()
+        cvsf = sig_util.calculate_cvsf(self.signature_of_fifths)
+        self.draw_vector(cvsf.length, cvsf.direction, QPen(Qt.black))
+
+    def draw_vector(self, vector_magnitude, vector_angle, pen:QPen):
+        note_vector_length_normalised = vector_magnitude * self.rec_start_y
+        note_vector_direction = vector_angle
+        transform = QTransform()
+        line = self.scene.addLine(0, 0, 0, note_vector_length_normalised, pen)
+        transform.rotate(note_vector_direction)
+        line.setTransform(transform)
