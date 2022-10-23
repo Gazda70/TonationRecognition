@@ -1,5 +1,5 @@
 from mido import MidiFile
-from functions import paths as pth
+from utils import paths as pth
 
 cv1 = MidiFile(pth.MIDI_FILES + 'new_song.mid', clip=True)
 cv3 = MidiFile(pth.MIDI_FILES + 'VampireKillerCV3.mid', clip=True)
