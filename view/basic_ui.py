@@ -52,6 +52,9 @@ class UI_SignatureDisplayPage(QMainWindow):
         uic.loadUi(SIGNATURE_DISPLAY_PAGE, self)
 
         self.signature_graphics_view = self.findChild(QGraphicsView, "signatureGraphicsView")
+        self.return_button = self.findChild(QPushButton, "returnButton")
+        self.return_button.clicked.connect(self.return_to_file_loading_page)
+
         self.scene = QGraphicsScene()
         self.list_of_signatures = None
 
@@ -73,6 +76,9 @@ class UI_SignatureDisplayPage(QMainWindow):
                                              signature_graphics_view=self.signature_graphics_view, scene=self.scene)
         signature_graphic.draw_vector_per_note()
         signature_graphic.draw_cvsf()
+
+    def return_to_file_loading_page(self):
+        widget.setCurrentWidget(file_loading_page)
 
 
 app = QApplication(sys.argv)
