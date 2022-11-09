@@ -70,7 +70,7 @@ class SignatureOfFifthsUtility:
     def calculate_signature_of_fifths(self, notes) -> SignatureOfFifths:
         signature = SignatureOfFifths()
         for name, value in zip(notes.keys(), notes.values()):
-            signature.signature[Note(name)].length = value / sum(notes.values()) if sum(notes.values()) != 0 else 0
+            signature.signature[Note(name)].length = value / max(notes.values()) if max(notes.values()) != 0 else 0
         return signature
 
     def calculate_cvsf(self, signature:SignatureOfFifths) -> NoteVector:
