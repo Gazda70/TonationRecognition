@@ -53,28 +53,24 @@ class DirectedAxis:
         self.AXIS_Fsharp_C = {"positive":[{Note.F:0},{Note.A_SHARP:0},{Note.D_SHARP:0},{Note.G_SHARP:0},
                                           {Note.C_SHARP:0},{Note.F_SHARP:0}],
                               "negative":[{Note.G:0},{Note.D:0},{Note.A:0},{Note.E:0},{Note.H:0}]}
-        self.AXIS_F_B = {"positive":[{Note.A_SHARP:0},{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
+        self.AXIS_B_F = {"positive":[{Note.A_SHARP:0},{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
                                           {Note.F_SHARP:0}],
                               "negative":[{Note.C:0},{Note.G:0},{Note.D:0},{Note.A:0},
                                      {Note.E:0}]}
-        self.AXIS_Asharp_E = {"positive":[{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
+        self.AXIS_E_Asharp = {"positive":[{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
                                           {Note.F_SHARP:0},{Note.B:0}],
                               "negative":[{Note.F:0}, {Note.C:0},{Note.G:0},{Note.D:0},{Note.A:0}]}
-        self.AXIS_Dsharp_A = {"positive":[{Note.G_SHARP:0},{Note.C_SHARP:0},
+        self.AXIS_A_Dsharp = {"positive":[{Note.G_SHARP:0},{Note.C_SHARP:0},
                                           {Note.F_SHARP:0},{Note.B:0},{Note.E:0}],
                               "negative":[{Note.A_SHARP:0}, {Note.F:0},{Note.C:0},{Note.G:0},{Note.D:0}]}
-        self.AXIS_Gsharp_D = {"positive":[{Note.C_SHARP:0},{Note.F_SHARP:0},
+        self.AXIS_D_Gsharp = {"positive":[{Note.C_SHARP:0},{Note.F_SHARP:0},
                                           {Note.B:0},{Note.E:0},{Note.A:0}],
                               "negative":[{Note.G_SHARP:0}, {Note.D_SHARP:0},{Note.A_SHARP:0},{Note.F:0},
                                           {Note.C:0}, {Note.G:0}]}
-        self.AXIS_Csharp_G = {"positive":[{Note.F_SHARP:0},{Note.B:0},
+        self.AXIS_G_Csharp = {"positive":[{Note.F_SHARP:0},{Note.B:0},
                                           {Note.E:0},{Note.A:0},{Note.D:0}],
                               "negative":[{Note.G_SHARP:0},{Note.D_SHARP:0},{Note.A_SHARP:0},
                                           {Note.F:0},{Note.C:0}]}
-        self.AXIS_C_Fsharp = {"positive":[{Note.B:0},{Note.E:0},
-                                          {Note.A:0},{Note.D:0},{Note.G:0}],
-                              "negative":[{Note.C_SHARP:0},{Note.G_SHARP:0},{Note.D_SHARP:0},
-                                          {Note.A_SHARP:0},{Note.F:0}]}
 
 
 @dataclass
