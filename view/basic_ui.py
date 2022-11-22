@@ -72,10 +72,11 @@ class UI_SignatureDisplayPage(QMainWindow):
         #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
         print("self.list_of_signatures[3]")
         print(self.list_of_signatures[3])
-        signature_graphic = SignatureGraphic(signature_of_fifths=self.list_of_signatures[3], #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
+        signature_graphic = SignatureGraphic(signature_of_fifths=self.list_of_signatures[1], #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
                                              signature_graphics_view=self.signature_graphics_view, scene=self.scene)
         signature_graphic.draw_vector_per_note()
         signature_graphic.draw_cvsf()
+        signature_graphic.draw_mdasf()
 
     def return_to_file_loading_page(self):
         widget.setCurrentWidget(file_loading_page)

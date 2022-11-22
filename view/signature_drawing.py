@@ -53,14 +53,14 @@ class SignatureGraphic:
         self.rec_start_y = -200
         self.rec_end_x = 400
         self.rec_end_y = 400
+        self.sig_util = SignatureOfFifthsUtility()
 
     def draw_vector_per_note(self):
         for name, value in zip(self.signature_of_fifths.signature.keys(), self.signature_of_fifths.signature.values()):
             self.draw_vector(value.length, value.direction, QPen(Qt.blue))
 
     def draw_cvsf(self):
-        sig_util = SignatureOfFifthsUtility()
-        cvsf = sig_util.calculate_cvsf(self.signature_of_fifths)
+        cvsf = self.sig_util.calculate_cvsf(self.signature_of_fifths)
         self.draw_vector(cvsf.length, cvsf.direction, QPen(Qt.black))
 
     def draw_vector(self, vector_magnitude, vector_angle, pen:QPen):
@@ -70,3 +70,6 @@ class SignatureGraphic:
         line = self.scene.addLine(0, 0, 0, note_vector_length_normalised, pen)
         transform.rotate(note_vector_direction)
         line.setTransform(transform)
+
+    def draw_mdasf(self):
+        self.sig_util.calculate_mdasf(self.signature_of_fifths)

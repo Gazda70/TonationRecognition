@@ -1,6 +1,6 @@
 from enum import Enum
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from mido import MidiFile
 import numpy as np
 
@@ -19,58 +19,70 @@ class NoteVectorDirection(Enum):
     A_DIR, D_DIR, G_DIR, C_DIR, F_DIR, A_SHARP_DIR, D_SHARP_DIR, G_SHARP_DIR, C_SHARP_DIR, F_SHARP_DIR, B_DIR, E_DIR = \
         range(0, 360, 30)
 
-#(Y; Z) ∈ {(C, F♯); (F, B); (B, E); (E, A); (A, D); (D, G); (F♯, C); (B, F); (E, B); (A, E); (D, A); (G, D)}
-#WHAT ABOUT THE TONATIONS THAT LIE EXACTLY ON THE AXIS ?
+
+# (Y; Z) ∈ {(C, F♯); (F, B); (B, E); (E, A); (A, D); (D, G); (F♯, C); (B, F); (E, B); (A, E); (D, A); (G, D)}
+# WHAT ABOUT THE TONATIONS THAT LIE EXACTLY ON THE AXIS ? - THEY ARE NOT COUNTED
 @dataclass
 class DirectedAxis:
-    def __init__(self):
-        self.AXIS_C_Fsharp = {"positive":[{Note.G:0},{Note.D:0},{Note.A:0},{Note.E:0},{Note.H:0}],
-                              "negative":[{Note.F:0},{Note.A_SHARP:0},{Note.D_SHARP:0},{Note.G_SHARP:0},
-                                          {Note.C_SHARP:0},{Note.F_SHARP:0}]}
-        self.AXIS_F_B = {"positive":[{Note.C:0},{Note.G:0},{Note.D:0},{Note.A:0},
-                                     {Note.E:0}],
-                              "negative":[{Note.A_SHARP:0},{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
-                                          {Note.F_SHARP:0}]}
-        self.AXIS_Asharp_E = {"positive":[{Note.F:0}, {Note.C:0},{Note.G:0},{Note.D:0},{Note.A:0}],
-                              "negative":[{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
-                                          {Note.F_SHARP:0},{Note.B:0}]}
-        self.AXIS_Dsharp_A = {"positive":[{Note.A_SHARP:0}, {Note.F:0},{Note.C:0},{Note.G:0},{Note.D:0}],
-                              "negative":[{Note.G_SHARP:0},{Note.C_SHARP:0},
-                                          {Note.F_SHARP:0},{Note.B:0},{Note.E:0}]}
-        self.AXIS_Gsharp_D = {"positive":[{Note.G_SHARP:0}, {Note.D_SHARP:0},{Note.A_SHARP:0},{Note.F:0},
-                                          {Note.C:0}, {Note.G:0}],
-                              "negative":[{Note.C_SHARP:0},{Note.F_SHARP:0},
-                                          {Note.B:0},{Note.E:0},{Note.A:0}]}
-        self.AXIS_Csharp_G = {"positive":[{Note.G_SHARP:0},{Note.D_SHARP:0},{Note.A_SHARP:0},
-                                          {Note.F:0},{Note.C:0}],
-                              "negative":[{Note.F_SHARP:0},{Note.B:0},
-                                          {Note.E:0},{Note.A:0},{Note.D:0}]}
-        self.AXIS_C_Fsharp = {"positive":[{Note.C_SHARP:0},{Note.G_SHARP:0},{Note.D_SHARP:0},
-                                          {Note.A_SHARP:0},{Note.F:0}],
-                              "negative":[{Note.B:0},{Note.E:0},
-                                          {Note.A:0},{Note.D:0},{Note.G:0}]}
+    AXIS_C_Fsharp: dict
+    AXIS_F_B: dict
+    AXIS_Asharp_E: dict
+    AXIS_Dsharp_A: dict
+    AXIS_Gsharp_D: dict
+    AXIS_Csharp_G: dict
+    AXIS_Fsharp_C: dict
+    AXIS_B_F: dict
+    AXIS_E_Asharp: dict
+    AXIS_A_Dsharp: dict
+    AXIS_D_Gsharp: dict
+    AXIS_G_Csharp: dict
 
-        self.AXIS_Fsharp_C = {"positive":[{Note.F:0},{Note.A_SHARP:0},{Note.D_SHARP:0},{Note.G_SHARP:0},
-                                          {Note.C_SHARP:0},{Note.F_SHARP:0}],
-                              "negative":[{Note.G:0},{Note.D:0},{Note.A:0},{Note.E:0},{Note.H:0}]}
-        self.AXIS_B_F = {"positive":[{Note.A_SHARP:0},{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
-                                          {Note.F_SHARP:0}],
-                              "negative":[{Note.C:0},{Note.G:0},{Note.D:0},{Note.A:0},
-                                     {Note.E:0}]}
-        self.AXIS_E_Asharp = {"positive":[{Note.D_SHARP:0},{Note.G_SHARP:0},{Note.C_SHARP:0},
-                                          {Note.F_SHARP:0},{Note.B:0}],
-                              "negative":[{Note.F:0}, {Note.C:0},{Note.G:0},{Note.D:0},{Note.A:0}]}
-        self.AXIS_A_Dsharp = {"positive":[{Note.G_SHARP:0},{Note.C_SHARP:0},
-                                          {Note.F_SHARP:0},{Note.B:0},{Note.E:0}],
-                              "negative":[{Note.A_SHARP:0}, {Note.F:0},{Note.C:0},{Note.G:0},{Note.D:0}]}
-        self.AXIS_D_Gsharp = {"positive":[{Note.C_SHARP:0},{Note.F_SHARP:0},
-                                          {Note.B:0},{Note.E:0},{Note.A:0}],
-                              "negative":[{Note.G_SHARP:0}, {Note.D_SHARP:0},{Note.A_SHARP:0},{Note.F:0},
-                                          {Note.C:0}, {Note.G:0}]}
-        self.AXIS_G_Csharp = {"positive":[{Note.F_SHARP:0},{Note.B:0},
-                                          {Note.E:0},{Note.A:0},{Note.D:0}],
-                              "negative":[{Note.G_SHARP:0},{Note.D_SHARP:0},{Note.A_SHARP:0},
-                                          {Note.F:0},{Note.C:0}]}
+
+def create_directed_axis_object():
+    return {
+        "AXIS_C_Fsharp":{"positive": [(Note.G, 0), (Note.D, 0), (Note.A, 0), (Note.E, 0), (Note.B, 0)],
+                       "negative": [(Note.F, 0), (Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0),
+                                    (Note.C_SHARP, 0), (Note.F_SHARP, 0)]},
+        "AXIS_F_B" : {"positive": [(Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0),
+                                   (Note.E, 0)],
+                  "negative": [(Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
+                               (Note.F_SHARP, 0)]},
+        "AXIS_Asharp_E" : {"positive": [(Note.F,0), (Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0)],
+                       "negative": [(Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
+                                    (Note.F_SHARP, 0), (Note.B, 0)]},
+        "AXIS_Dsharp_A" : {"positive": [(Note.A_SHARP, 0), (Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0)],
+                       "negative": [(Note.G_SHARP, 0), (Note.C_SHARP, 0),
+                                    (Note.F_SHARP, 0), (Note.B, 0), (Note.E, 0)]},
+        "AXIS_Gsharp_D" : {"positive": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0), (Note.F, 0),
+                                        (Note.C, 0), (Note.G, 0)],
+                       "negative": [(Note.C_SHARP, 0), (Note.F_SHARP, 0),
+                                    (Note.B, 0), (Note.E, 0), (Note.A, 0)]},
+        "AXIS_Csharp_G" : {"positive": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0),
+                                        (Note.F, 0), (Note.C, 0)],
+                       "negative": [(Note.F_SHARP, 0), (Note.B, 0),
+                                    (Note.E, 0), (Note.A, 0), (Note.D, 0)]},
+        "AXIS_Fsharp_C" : {"positive": [(Note.F, 0), (Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0),
+                                        (Note.C_SHARP, 0), (Note.F_SHARP, 0)],
+                       "negative": [(Note.G, 0), (Note.D, 0), (Note.A, 0), (Note.E, 0), (Note.B, 0)]},
+        "AXIS_B_F" : {"positive": [(Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
+                                   (Note.F_SHARP, 0)],
+                  "negative": [(Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0),
+                               (Note.E, 0)]},
+        "AXIS_E_Asharp" : {"positive": [(Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
+                                        (Note.F_SHARP, 0), (Note.B, 0)],
+                       "negative": [(Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0)]},
+        "AXIS_A_Dsharp" : {"positive": [(Note.G_SHARP, 0), (Note.C_SHARP, 0),
+                                        (Note.F_SHARP, 0), (Note.B, 0), (Note.E, 0)],
+                       "negative": [(Note.A_SHARP, 0), (Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0)]},
+        "AXIS_D_Gsharp" : {"positive": [(Note.C_SHARP, 0), (Note.F_SHARP, 0),
+                                        (Note.B, 0), (Note.E, 0), (Note.A, 0)],
+                       "negative": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0), (Note.F, 0),
+                                    (Note.C, 0), (Note.G, 0)]},
+        "AXIS_G_Csharp" : {"positive": [(Note.F_SHARP, 0), (Note.B, 0),
+                                        (Note.E, 0), (Note.A, 0), (Note.D, 0)],
+                       "negative": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0),
+                                    (Note.F, 0), (Note.C, 0)]}
+    }
 
 
 @dataclass
@@ -94,6 +106,30 @@ class SignatureOfFifths:
                           Note.G_SHARP: NoteVector(0, NoteVectorDirection.G_SHARP_DIR.value),
                           Note.A_SHARP: NoteVector(0, NoteVectorDirection.A_SHARP_DIR.value),
                           Note.B: NoteVector(0, NoteVectorDirection.B_DIR.value)}
+
+
+class DirectedAxisCreator:
+    def determine_from_signature(self, signature: SignatureOfFifths):
+        directed_axis_collection = create_directed_axis_object()
+        print("directed_axis_collection")
+        print(directed_axis_collection)
+        print("signature.signature.keys()")
+        print(set(signature.signature.keys()))
+        for dir_ax in directed_axis_collection.keys():
+            print("ANOTHER AXIS")
+            print(dir_ax)
+            print(type(dir_ax))
+            print([element[0] for element in directed_axis_collection[dir_ax]["positive"]])
+            print([type(element[0]) for element in directed_axis_collection[dir_ax]["positive"]])
+            positive_notes = set(signature.signature.keys()).intersection(
+                set([element[0] for element in directed_axis_collection[dir_ax]["positive"]]))
+            print("positive_notes")
+            print(positive_notes)
+
+            negative_notes = set(signature.signature.keys()).intersection(
+                set([element[0] for element in directed_axis_collection[dir_ax]["negative"]]))
+            print("negative_notes")
+            print(negative_notes)
 
 
 class SignatureOfFifthsUtility:
@@ -120,6 +156,11 @@ class SignatureOfFifthsUtility:
             signature.signature[Note(name)].length = value / max(notes.values()) if max(notes.values()) != 0 else 0
         return signature
 
-    def calculate_cvsf(self, signature:SignatureOfFifths) -> NoteVector:
-        cvsf_vector = add_vector_list(list((note_vector.length, note_vector.direction)for note_vector in signature.signature.values()))
+    def calculate_cvsf(self, signature: SignatureOfFifths) -> NoteVector:
+        cvsf_vector = add_vector_list(
+            list((note_vector.length, note_vector.direction) for note_vector in signature.signature.values()))
         return NoteVector(cvsf_vector[0], cvsf_vector[1])
+
+    def calculate_mdasf(self, signature: SignatureOfFifths):
+        creator = DirectedAxisCreator()
+        creator.determine_from_signature(signature)
