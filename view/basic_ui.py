@@ -1,6 +1,7 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
+    QComboBox
 from PyQt5 import uic, QtWidgets
 
 from midi_handling.midi_reader import MidiReader
@@ -9,25 +10,43 @@ from signature_drawing import CircleOfFifths, SignatureGraphic
 
 FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
+MAIN_UI_PAGE="main_window.ui"
 
 
-class UI_FileLoadingPage(QMainWindow):
+class UI_MainPage(QMainWindow):
     def __init__(self):
-        super(UI_FileLoadingPage, self).__init__()
+        super(UI_MainPage, self).__init__()
 
-        uic.loadUi(FILE_LOAD_PAGE, self)
+        uic.loadUi(MAIN_UI_PAGE, self)
         # https://www.youtube.com/watch?v=gg5TepTc2Jg
-        self.open_file_button = self.findChild(QPushButton, "openFileButton")
-        self.open_file_button.clicked.connect(self.open_file_button_clicker)
+        self.load_file_button = self.findChild(QPushButton, "load_files_button")
+        self.load_file_button.clicked.connect(self.load_file_button_clicker)
 
-        self.calculate_signature_button = self.findChild(QPushButton, "calculateSignatureButton")
-        self.calculate_signature_button.clicked.connect(self.calculate_signature_button_clicker)
+        self.save_results_button = self.findChild(QPushButton, "save_results_button")
+        self.save_results_button.clicked.connect(self.save_results_button_clicker)
+
+        self.algorithm_type_dropdown = self.findChild(QComboBox, "algorithm_type_dropdown")
+        self.algorithm_type_dropdown.addItem("Signature of fifths")
+
+        self.method_details_dropdown = self.findChild(QComboBox, "signature_calculation_mode")
+        self.method_details_dropdown.addItems(["Notes quantity", "Notes duration"])
+
+        self.method_details_dropdown = self.findChild(QComboBox, "tonal_profiles_type")
+
+        self.midi_channel_dropdown = self.findChild(QComboBox, "midi_channel_dropdown")
+
+        self.calculate_signature_button = self.findChild(QPushButton, "calculate_button")
+        self.calculate_signature_button.clicked.connect(self.calculate_button_clicker)
+
+        self.signature_graphics_view = self.findChild(QGraphicsView, "signatureGraphicsView")
+
+        self.scene = QGraphicsScene()
 
         self.list_of_signatures = None
 
         self.show()
 
-    def open_file_button_clicker(self):
+    def load_file_button_clicker(self):
         fname = QFileDialog.getOpenFileName()
         print(fname[0])
         self.read_midi(fname[0])
@@ -40,31 +59,8 @@ class UI_FileLoadingPage(QMainWindow):
     def calculate_signature_button_clicker(self):
         self.change_to_signature_display_page()
 
-    def change_to_signature_display_page(self):
-        widget.setCurrentWidget(signature_display_page)
-        widget.currentWidget().set_list_of_signatures(self.list_of_signatures)
-        widget.currentWidget().draw_signature_graphics_view()
-
-
-class UI_SignatureDisplayPage(QMainWindow):
-    def __init__(self):
-        super(UI_SignatureDisplayPage, self).__init__()
-        uic.loadUi(SIGNATURE_DISPLAY_PAGE, self)
-
-        self.signature_graphics_view = self.findChild(QGraphicsView, "signatureGraphicsView")
-        self.return_button = self.findChild(QPushButton, "returnButton")
-        self.return_button.clicked.connect(self.return_to_file_loading_page)
-
-        self.scene = QGraphicsScene()
-        self.list_of_signatures = None
-
-        self.show()
-
     def set_list_of_signatures(self, list_of_signatures):
         self.list_of_signatures = list_of_signatures
-
-    def change_to_file_loading_page(self):
-        widget.setCurrentWidget(file_loading_page)
 
     def draw_signature_graphics_view(self):
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
@@ -78,16 +74,20 @@ class UI_SignatureDisplayPage(QMainWindow):
         signature_graphic.draw_cvsf()
         signature_graphic.draw_mdasf()
 
-    def return_to_file_loading_page(self):
-        widget.setCurrentWidget(file_loading_page)
+    def save_results_button_clicker(self):
+        pass
+
+    def load_file_button_clicker(self):
+        pass
+
+    def calculate_button_clicker(self):
+        pass
 
 
 app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()
-file_loading_page = UI_FileLoadingPage()
-widget.addWidget(file_loading_page)
-signature_display_page = UI_SignatureDisplayPage()
-widget.addWidget(signature_display_page)
+main_ui_page = UI_MainPage()
+widget.addWidget(main_ui_page)
 w = 800
 h = 500
 widget.resize(w, h)
