@@ -56,6 +56,7 @@ class SignatureGraphic:
         self.sig_util = SignatureOfFifthsUtility()
 
     def draw_vector_per_note(self):
+        print("DRAW ME")
         for name, value in zip(self.signature_of_fifths.signature.keys(), self.signature_of_fifths.signature.values()):
             self.draw_vector(value.length, value.direction, QPen(Qt.blue))
 

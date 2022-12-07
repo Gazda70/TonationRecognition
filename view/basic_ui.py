@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox
+    QComboBox, QListWidget, QListWidgetItem, QListView
 from PyQt5 import uic, QtWidgets
 
 from midi_handling.midi_reader import MidiReader
@@ -12,6 +12,7 @@ FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
 MAIN_UI_PAGE="main_window.ui"
 
+MIDI_FILES_PATH="E:\\PracaMagisterska\\TonationRecognition\\midi_files"
 
 class UI_MainPage(QMainWindow):
     def __init__(self):
@@ -38,7 +39,9 @@ class UI_MainPage(QMainWindow):
         self.calculate_signature_button = self.findChild(QPushButton, "calculate_button")
         self.calculate_signature_button.clicked.connect(self.calculate_button_clicker)
 
-        self.signature_graphics_view = self.findChild(QGraphicsView, "signatureGraphicsView")
+        self.signature_graphics_view = self.findChild(QGraphicsView, "signature_graphic_view")
+
+        self.track_list = self.findChild(QListWidget, "track_list")
 
         self.scene = QGraphicsScene()
 
@@ -47,7 +50,7 @@ class UI_MainPage(QMainWindow):
         self.show()
 
     def load_file_button_clicker(self):
-        filename, _ = QFileDialog.getOpenFileName(self, "Open MIDI file", "c:\\", "MIDI files (*.mid);;")
+        filename, _ = QFileDialog.getOpenFileName(self, "Open MIDI file", MIDI_FILES_PATH, "MIDI files (*.mid);;")
         print(filename)
         if filename:
             self.read_midi(filename)
@@ -56,12 +59,13 @@ class UI_MainPage(QMainWindow):
         reader = MidiReader()
         self.list_of_signatures = reader.read_file(filename)
         print(self.list_of_signatures)
+        self.setup_track_list()
 
-    def calculate_signature_button_clicker(self):
-        self.change_to_signature_display_page()
+    def setup_track_list(self):
+        print("LIST LENGTH: " + str(len(self.list_of_signatures)))
+        self.track_list.clear()
+        self.track_list.addItems(["Track " + str(track_number + 1) for track_number in range(0, len(self.list_of_signatures))])
 
-    def set_list_of_signatures(self, list_of_signatures):
-        self.list_of_signatures = list_of_signatures
 
     def draw_signature_graphics_view(self):
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
@@ -79,7 +83,7 @@ class UI_MainPage(QMainWindow):
         pass
 
     def calculate_button_clicker(self):
-        pass
+        self.draw_signature_graphics_view()
 
 
 app = QApplication(sys.argv)
