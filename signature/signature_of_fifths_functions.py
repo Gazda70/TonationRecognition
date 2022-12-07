@@ -3,20 +3,20 @@ from collections import Counter
 from dataclasses import dataclass, asdict
 from mido import MidiFile
 import numpy as np
+import math
 
 from utils.vector_operations import add_vector_list
+
+NOTE_VECTOR_MAX_LENGTH = 2
 
 """
     It has to be in such order because of the numeration of notes used by MIDI standard.
 """
-
-
 class Note(Enum):
     C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B = range(12)
 
-
 class NoteVectorDirection(Enum):
-    A_DIR, D_DIR, G_DIR, C_DIR, F_DIR, A_SHARP_DIR, D_SHARP_DIR, G_SHARP_DIR, C_SHARP_DIR, F_SHARP_DIR, B_DIR, E_DIR = \
+    C_DIR, G_DIR, D_DIR, A_DIR, E_DIR, B_DIR , F_SHARP_DIR, C_SHARP_DIR, G_SHARP_DIR, D_SHARP_DIR , A_SHARP_DIR, F_DIR = \
         range(0, 360, 30)
 
 
@@ -42,46 +42,58 @@ def create_directed_axis_object():
     return {
         "AXIS_C_Fsharp":{"positive": [(Note.G, 0), (Note.D, 0), (Note.A, 0), (Note.E, 0), (Note.B, 0)],
                        "negative": [(Note.F, 0), (Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0),
-                                    (Note.C_SHARP, 0), (Note.F_SHARP, 0)]},
+                                    (Note.C_SHARP, 0), (Note.F_SHARP, 0)],
+                         "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.F_SHARP_DIR.value))},
         "AXIS_F_B" : {"positive": [(Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0),
                                    (Note.E, 0)],
                   "negative": [(Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
-                               (Note.F_SHARP, 0)]},
+                               (Note.F_SHARP, 0)],
+                      "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.B_DIR.value))},
         "AXIS_Asharp_E" : {"positive": [(Note.F,0), (Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0)],
                        "negative": [(Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
-                                    (Note.F_SHARP, 0), (Note.B, 0)]},
+                                    (Note.F_SHARP, 0), (Note.B, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.E_DIR.value))},
         "AXIS_Dsharp_A" : {"positive": [(Note.A_SHARP, 0), (Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0)],
                        "negative": [(Note.G_SHARP, 0), (Note.C_SHARP, 0),
-                                    (Note.F_SHARP, 0), (Note.B, 0), (Note.E, 0)]},
+                                    (Note.F_SHARP, 0), (Note.B, 0), (Note.E, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.A_DIR.value))},
         "AXIS_Gsharp_D" : {"positive": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0), (Note.F, 0),
                                         (Note.C, 0), (Note.G, 0)],
                        "negative": [(Note.C_SHARP, 0), (Note.F_SHARP, 0),
-                                    (Note.B, 0), (Note.E, 0), (Note.A, 0)]},
+                                    (Note.B, 0), (Note.E, 0), (Note.A, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.D_DIR.value))},
         "AXIS_Csharp_G" : {"positive": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0),
                                         (Note.F, 0), (Note.C, 0)],
                        "negative": [(Note.F_SHARP, 0), (Note.B, 0),
-                                    (Note.E, 0), (Note.A, 0), (Note.D, 0)]},
+                                    (Note.E, 0), (Note.A, 0), (Note.D, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.G_DIR.value))},
         "AXIS_Fsharp_C" : {"positive": [(Note.F, 0), (Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0),
                                         (Note.C_SHARP, 0), (Note.F_SHARP, 0)],
-                       "negative": [(Note.G, 0), (Note.D, 0), (Note.A, 0), (Note.E, 0), (Note.B, 0)]},
+                       "negative": [(Note.G, 0), (Note.D, 0), (Note.A, 0), (Note.E, 0), (Note.B, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.C_DIR.value))},
         "AXIS_B_F" : {"positive": [(Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
                                    (Note.F_SHARP, 0)],
                   "negative": [(Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0),
-                               (Note.E, 0)]},
+                               (Note.E, 0)],
+                      "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.F_DIR.value))},
         "AXIS_E_Asharp" : {"positive": [(Note.D_SHARP, 0), (Note.G_SHARP, 0), (Note.C_SHARP, 0),
                                         (Note.F_SHARP, 0), (Note.B, 0)],
-                       "negative": [(Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0)]},
+                       "negative": [(Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0), (Note.A, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.A_SHARP_DIR.value))},
         "AXIS_A_Dsharp" : {"positive": [(Note.G_SHARP, 0), (Note.C_SHARP, 0),
                                         (Note.F_SHARP, 0), (Note.B, 0), (Note.E, 0)],
-                       "negative": [(Note.A_SHARP, 0), (Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0)]},
+                       "negative": [(Note.A_SHARP, 0), (Note.F, 0), (Note.C, 0), (Note.G, 0), (Note.D, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.D_SHARP_DIR.value))},
         "AXIS_D_Gsharp" : {"positive": [(Note.C_SHARP, 0), (Note.F_SHARP, 0),
                                         (Note.B, 0), (Note.E, 0), (Note.A, 0)],
                        "negative": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0), (Note.F, 0),
-                                    (Note.C, 0), (Note.G, 0)]},
+                                    (Note.C, 0), (Note.G, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.G_SHARP_DIR.value))},
         "AXIS_G_Csharp" : {"positive": [(Note.F_SHARP, 0), (Note.B, 0),
                                         (Note.E, 0), (Note.A, 0), (Note.D, 0)],
                        "negative": [(Note.G_SHARP, 0), (Note.D_SHARP, 0), (Note.A_SHARP, 0),
-                                    (Note.F, 0), (Note.C, 0)]}
+                                    (Note.F, 0), (Note.C, 0)],
+                           "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.C_SHARP_DIR.value))}
     }
 
 
@@ -111,26 +123,39 @@ class SignatureOfFifths:
 class DirectedAxisCreator:
     def determine_from_signature(self, signature: SignatureOfFifths):
         directed_axis_collection = create_directed_axis_object()
-        print("directed_axis_collection")
-        print(directed_axis_collection)
-        print("signature.signature.keys()")
-        print(set(signature.signature.keys()))
+        # print("directed_axis_collection")
+        # print(directed_axis_collection)
+        # print("signature.signature.keys()")
+        # print(set(signature.signature.keys()))
+        max_difference = -math.inf
+        best_dir_ax = None
         for dir_ax in directed_axis_collection.keys():
-            print("ANOTHER AXIS")
-            print(dir_ax)
-            print(type(dir_ax))
-            print([element[0] for element in directed_axis_collection[dir_ax]["positive"]])
-            print([type(element[0]) for element in directed_axis_collection[dir_ax]["positive"]])
+            # print("ANOTHER AXIS")
+            # print(dir_ax)
+            # print(type(dir_ax))
+            # print([element[0] for element in directed_axis_collection[dir_ax]["positive"]])
+            # print([type(element[0]) for element in directed_axis_collection[dir_ax]["positive"]])
             positive_notes = set(signature.signature.keys()).intersection(
                 set([element[0] for element in directed_axis_collection[dir_ax]["positive"]]))
-            print("positive_notes")
-            print(positive_notes)
+            # print("positive_notes")
+            # print(positive_notes)
+            # print(type(positive_notes))
+            positive_notes_sum = sum([signature.signature[positive_note].length for positive_note in positive_notes])
 
             negative_notes = set(signature.signature.keys()).intersection(
                 set([element[0] for element in directed_axis_collection[dir_ax]["negative"]]))
-            print("negative_notes")
-            print(negative_notes)
-
+            # print("negative_notes")
+            # print(negative_notes)
+            negative_notes_sum = sum([signature.signature[negative_note].length for negative_note in negative_notes])
+            difference = positive_notes_sum - negative_notes_sum
+            if difference > max_difference:
+                max_difference = difference
+                best_dir_ax = dir_ax
+        print("Best axis")
+        print(best_dir_ax)
+        print("Max difference")
+        print(max_difference)
+        return directed_axis_collection[best_dir_ax]['note_vector']
 
 class SignatureOfFifthsUtility:
     """
@@ -143,11 +168,14 @@ class SignatureOfFifthsUtility:
         notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
         for msg in track:
+            if msg.is_cc():
+                print("CONTROL MESSAGE")
+                print(msg)
             if msg.type == 'note_on':
                 notes[Note(msg.note % 12)] += 1
                 msg_types.append(msg.type)
-        print("MESSAGE TYPES: " + str(Counter(msg_types).keys()))
-        print("MESSAGE TYPES OCCURRENCE FREQUENCY: " + str(Counter(msg_types).values()))
+        # print("MESSAGE TYPES: " + str(Counter(msg_types).keys()))
+        # print("MESSAGE TYPES OCCURRENCE FREQUENCY: " + str(Counter(msg_types).values()))
         return notes
 
     def calculate_signature_of_fifths(self, notes) -> SignatureOfFifths:
@@ -163,4 +191,4 @@ class SignatureOfFifthsUtility:
 
     def calculate_mdasf(self, signature: SignatureOfFifths):
         creator = DirectedAxisCreator()
-        creator.determine_from_signature(signature)
+        return creator.determine_from_signature(signature)

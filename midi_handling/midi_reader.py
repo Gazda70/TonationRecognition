@@ -9,19 +9,19 @@ class MidiReader:
         self.midi_file = MidiFile(midi_path, clip=True)
         signatures_per_track = []
 
-        print(self.midi_file)
-        print("MIDI type: " + str(self.midi_file.type))
+        # print(self.midi_file)
+        # print("MIDI type: " + str(self.midi_file.type))
         sig_util = SignatureOfFifthsUtility()
         print("NUMBER OF TRACKS: " + str(len(self.midi_file.tracks)))
         for i, track in enumerate(self.midi_file.tracks):
             print('Track {}: {}'.format(i, track.name))
         for track in self.midi_file.tracks:
 
-            print("\n")
-            print("TRACK\n")
-            print(track)
-            print("\n")
-            print("NOTES\n")
+            # print("\n")
+            # print("TRACK\n")
+            # print(track)
+            # print("\n")
+            # print("NOTES\n")
 
             notes_dict = sig_util.count_notes_in_track(track)
 

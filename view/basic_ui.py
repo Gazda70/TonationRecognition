@@ -47,6 +47,8 @@ class UI_MainPage(QMainWindow):
 
         self.list_of_signatures = None
 
+        self.selected_track = 0
+
         self.show()
 
     def load_file_button_clicker(self):
@@ -65,15 +67,22 @@ class UI_MainPage(QMainWindow):
         print("LIST LENGTH: " + str(len(self.list_of_signatures)))
         self.track_list.clear()
         self.track_list.addItems(["Track " + str(track_number + 1) for track_number in range(0, len(self.list_of_signatures))])
+        self.track_list.itemClicked.connect(self.track_list_selection_changed)
 
+    def track_list_selection_changed(self, item):
+        #print("Selected items: " + self.track_list.selectedItems())
+        print("List selection changed")
+        print(item.text()[-1:])
+        self.selected_track = int(item.text()[-1:])
 
     def draw_signature_graphics_view(self):
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
         circle_of_fifths.draw()
         #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
         print("self.list_of_signatures[3]")
-        print(self.list_of_signatures[3])
-        signature_graphic = SignatureGraphic(signature_of_fifths=self.list_of_signatures[1], #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
+        print(self.list_of_signatures[self.selected_track])
+        signature_graphic = SignatureGraphic(signature_of_fifths=self.list_of_signatures[self.selected_track],
+                                             #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
                                              signature_graphics_view=self.signature_graphics_view, scene=self.scene)
         signature_graphic.draw_vector_per_note()
         signature_graphic.draw_cvsf()

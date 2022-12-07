@@ -62,7 +62,7 @@ class SignatureGraphic:
 
     def draw_cvsf(self):
         cvsf = self.sig_util.calculate_cvsf(self.signature_of_fifths)
-        self.draw_vector(cvsf.length, cvsf.direction, QPen(Qt.black))
+        self.draw_vector(cvsf.length, cvsf.direction, QPen(Qt.black, 5))
 
     def draw_vector(self, vector_magnitude, vector_angle, pen:QPen):
         note_vector_length_normalised = vector_magnitude * self.rec_start_y
@@ -73,4 +73,11 @@ class SignatureGraphic:
         line.setTransform(transform)
 
     def draw_mdasf(self):
-        self.sig_util.calculate_mdasf(self.signature_of_fifths)
+        print("draw_mdasf")
+        mdasf = self.sig_util.calculate_mdasf(self.signature_of_fifths)
+        print("mdasf")
+        print(type(mdasf))
+        print("mdasf.length: " + str(mdasf.length))
+        print("mdasf.direction: " + str(mdasf.direction))
+        self.draw_vector(1.0, mdasf.direction, QPen(Qt.darkCyan, 5))
+        self.draw_vector(1.0, mdasf.direction - 180.0, QPen(Qt.darkCyan, 5))

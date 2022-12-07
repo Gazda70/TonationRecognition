@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 
 def add_two_vectors(vector_one_magnitude, vector_one_angle, vector_two_magnitude, vector_two_angle) -> (float, float):
@@ -15,7 +16,9 @@ def add_two_vectors(vector_one_magnitude, vector_one_angle, vector_two_magnitude
 
     resultant_length = np.sqrt(resultant_xy[0] ** 2 + resultant_xy[1] ** 2)
 
-    resultant_angle = np.rad2deg(np.arccos(resultant_xy[0]/resultant_length))
+    resultant_angle = 0
+    if not math.isnan(resultant_xy[0]) and not math.isnan(resultant_length) and resultant_length != 0:
+        resultant_angle = np.rad2deg(np.arccos(resultant_xy[0]/resultant_length))
 
     if resultant_xy[1] < 0:
         resultant_angle *= -1
