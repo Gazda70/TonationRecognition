@@ -47,9 +47,10 @@ class UI_MainPage(QMainWindow):
         self.show()
 
     def load_file_button_clicker(self):
-        fname = QFileDialog.getOpenFileName()
-        print(fname[0])
-        self.read_midi(fname[0])
+        filename, _ = QFileDialog.getOpenFileName(self, "Open MIDI file", "c:\\", "MIDI files (*.mid);;")
+        print(filename)
+        if filename:
+            self.read_midi(filename)
 
     def read_midi(self, filename):
         reader = MidiReader()
@@ -77,9 +78,6 @@ class UI_MainPage(QMainWindow):
     def save_results_button_clicker(self):
         pass
 
-    def load_file_button_clicker(self):
-        pass
-
     def calculate_button_clicker(self):
         pass
 
@@ -88,8 +86,8 @@ app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()
 main_ui_page = UI_MainPage()
 widget.addWidget(main_ui_page)
-w = 800
-h = 500
+w = 1200
+h = 900
 widget.resize(w, h)
 widget.show()
 app.exec_()
