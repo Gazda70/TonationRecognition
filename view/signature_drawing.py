@@ -61,8 +61,10 @@ class SignatureGraphic:
             self.draw_vector(value.length, value.direction, QPen(Qt.blue))
 
     def draw_cvsf(self):
-        cvsf = self.sig_util.calculate_cvsf(self.signature_of_fifths)
-        self.draw_vector(cvsf.length, cvsf.direction, QPen(Qt.black, 5))
+        self.sig_util.calculate_cvsf(self.signature_of_fifths)
+        print("draw_cvsf cvsf")
+        print(self.signature_of_fifths.cvsf)
+        self.draw_vector(self.signature_of_fifths.cvsf.length, self.signature_of_fifths.cvsf.direction, QPen(Qt.black, 5))
 
     def draw_vector(self, vector_magnitude, vector_angle, pen:QPen):
         note_vector_length_normalised = vector_magnitude * self.rec_start_y
@@ -74,10 +76,21 @@ class SignatureGraphic:
 
     def draw_mdasf(self):
         print("draw_mdasf")
-        mdasf = self.sig_util.calculate_mdasf(self.signature_of_fifths)
-        print("mdasf")
-        print(type(mdasf))
-        print("mdasf.length: " + str(mdasf.length))
-        print("mdasf.direction: " + str(mdasf.direction))
-        self.draw_vector(1.0, mdasf.direction, QPen(Qt.darkCyan, 5))
-        self.draw_vector(1.0, mdasf.direction - 180.0, QPen(Qt.darkCyan, 5))
+        self.sig_util.calculate_mdasf(self.signature_of_fifths)
+        print("draw_mdasf mdasf")
+        print(self.signature_of_fifths.mdasf)
+        # print(self.signature_of_fifths)
+        # print("mdasf")
+        # print(type(mdasf))
+        # print("mdasf.length: " + str(mdasf.length))
+        # print("mdasf.direction: " + str(mdasf.direction))
+        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction, QPen(Qt.darkCyan, 5))
+        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction - 180.0, QPen(Qt.darkCyan, 5))
+
+    def draw_major_minor_mode_axis(self):
+        print("mode_axis")
+        self.sig_util.calculate_mdasf(self.signature_of_fifths)
+        mode_axis_angle = self.signature_of_fifths.mdasf.direction + 90.0
+        self.draw_vector(1.0, mode_axis_angle, QPen(Qt.darkYellow, 5))
+        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.darkYellow, 5))
+

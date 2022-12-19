@@ -87,6 +87,7 @@ class UI_MainPage(QMainWindow):
         signature_graphic.draw_vector_per_note()
         signature_graphic.draw_cvsf()
         signature_graphic.draw_mdasf()
+        signature_graphic.draw_major_minor_mode_axis()
 
     def save_results_button_clicker(self):
         pass

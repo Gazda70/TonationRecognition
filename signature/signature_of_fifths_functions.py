@@ -119,6 +119,10 @@ class SignatureOfFifths:
                           Note.A_SHARP: NoteVector(0, NoteVectorDirection.A_SHARP_DIR.value),
                           Note.B: NoteVector(0, NoteVectorDirection.B_DIR.value)}
 
+        self.cvsf = None
+        self.mdasf = None
+        self.mode_angle = 0.0
+
 
 class DirectedAxisCreator:
     def determine_from_signature(self, signature: SignatureOfFifths):
@@ -187,8 +191,17 @@ class SignatureOfFifthsUtility:
     def calculate_cvsf(self, signature: SignatureOfFifths) -> NoteVector:
         cvsf_vector = add_vector_list(
             list((note_vector.length, note_vector.direction) for note_vector in signature.signature.values()))
-        return NoteVector(cvsf_vector[0], cvsf_vector[1])
+        cvsf = NoteVector(cvsf_vector[0], cvsf_vector[1])
+        signature.cvsf = cvsf
 
     def calculate_mdasf(self, signature: SignatureOfFifths):
         creator = DirectedAxisCreator()
-        return creator.determine_from_signature(signature)
+        mdasf = creator.determine_from_signature(signature)
+        signature.mdasf = mdasf
+
+    def calculate_mode_angle(self, signature: SignatureOfFifths):
+        angle_one = signature.mdasf.direction + 90.0
+        mode_angle = signature.cvsf.direction - angle_one
+        print("mode_angle")
+        print(mode_angle)
+        signature.mode_angle = mode_angle
