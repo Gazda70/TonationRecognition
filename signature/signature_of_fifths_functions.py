@@ -15,10 +15,17 @@ NOTE_VECTOR_MAX_LENGTH = 2
 class Note(Enum):
     C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B = range(12)
 
+class Mode(Enum):
+    MAJOR, MINOR = range(2)
+#C_DIR, G_DIR, D_DIR, A_DIR, E_DIR, B_DIR, F_SHARP_DIR, C_SHARP_DIR, G_SHARP_DIR, D_SHARP_DIR, A_SHARP_DIR, F_DIR - incoherence in enum note names with note class
 class NoteVectorDirection(Enum):
     C_DIR, G_DIR, D_DIR, A_DIR, E_DIR, B_DIR , F_SHARP_DIR, C_SHARP_DIR, G_SHARP_DIR, D_SHARP_DIR , A_SHARP_DIR, F_DIR = \
         range(0, 360, 30)
 
+@dataclass
+class Tonation:
+    note:NoteVectorDirection
+    mode:Mode
 
 # (Y; Z) ∈ {(C, F♯); (F, B); (B, E); (E, A); (A, D); (D, G); (F♯, C); (B, F); (E, B); (A, E); (D, A); (G, D)}
 # WHAT ABOUT THE TONATIONS THAT LIE EXACTLY ON THE AXIS ? - THEY ARE NOT COUNTED
@@ -119,9 +126,10 @@ class SignatureOfFifths:
                           Note.A_SHARP: NoteVector(0, NoteVectorDirection.A_SHARP_DIR.value),
                           Note.B: NoteVector(0, NoteVectorDirection.B_DIR.value)}
 
-        self.cvsf = None
-        self.mdasf = None
-        self.mode_angle = 0.0
+        self.cvsf:NoteVector = None
+        self.mdasf:NoteVector = None
+        self.mode_angle:float = 0.0
+        self.tonation:Tonation = None
 
 
 class DirectedAxisCreator:
@@ -188,7 +196,7 @@ class SignatureOfFifthsUtility:
             signature.signature[Note(name)].length = value / max(notes.values()) if max(notes.values()) != 0 else 0
         return signature
 
-    def calculate_cvsf(self, signature: SignatureOfFifths) -> NoteVector:
+    def calculate_cvsf(self, signature: SignatureOfFifths):
         cvsf_vector = add_vector_list(
             list((note_vector.length, note_vector.direction) for note_vector in signature.signature.values()))
         cvsf = NoteVector(cvsf_vector[0], cvsf_vector[1])
@@ -200,8 +208,28 @@ class SignatureOfFifthsUtility:
         signature.mdasf = mdasf
 
     def calculate_mode_angle(self, signature: SignatureOfFifths):
-        angle_one = signature.mdasf.direction + 90.0
-        mode_angle = signature.cvsf.direction - angle_one
+        angle_one = (signature.mdasf.direction + 90.0) % 360
+        angle_sf = signature.cvsf.direction % 360
+        print("angle one")
+        print(angle_one)
+        print("angle_sf")
+        print(angle_sf)
+        mode_angle = angle_one - angle_sf
         print("mode_angle")
         print(mode_angle)
         signature.mode_angle = mode_angle
+
+    def calculate_tonation(self, signature: SignatureOfFifths) -> Tonation:
+        tonation_pointed_by_mdasf = NoteVectorDirection((signature.mdasf.direction + 30.0) % 360)
+        self.calculate_mode_angle(signature)
+        print("tonation pointed by mdasf")
+        print(tonation_pointed_by_mdasf)
+        print("mode angle")
+        print(signature.mode_angle)
+        tonation = Tonation(note=tonation_pointed_by_mdasf, mode=Mode.MAJOR)
+        if signature.mode_angle < 0:
+            tonation.mode = Mode.MINOR
+        print(tonation)
+        return tonation
+        # elif signature.mode_angle == 0:
+        #     pass

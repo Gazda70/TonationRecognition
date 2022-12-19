@@ -3,9 +3,10 @@ import sys
 from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtGui import QBrush, QPen, QTransform, QFont
 from PyQt5.QtCore import Qt
-from signature.signature_of_fifths_functions import Note, NoteVectorDirection, NoteVector, SignatureOfFifths, SignatureOfFifthsUtility
+from signature.signature_of_fifths_functions import Note, NoteVectorDirection, NoteVector, SignatureOfFifths, \
+    SignatureOfFifthsUtility, Mode
 
-TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'H', 'F#', 'C#', 'A♭', 'E♭', 'B', 'F']
+TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'A♭', 'E♭', 'B♭', 'F']
 
 class CircleOfFifths:
     def __init__(self, signature_graphics_view, scene):
@@ -91,6 +92,43 @@ class SignatureGraphic:
         print("mode_axis")
         self.sig_util.calculate_mdasf(self.signature_of_fifths)
         mode_axis_angle = self.signature_of_fifths.mdasf.direction + 90.0
-        self.draw_vector(1.0, mode_axis_angle, QPen(Qt.darkYellow, 5))
-        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.darkYellow, 5))
+        self.draw_vector(1.0, mode_axis_angle, QPen(Qt.darkBlue, 5))
+        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.darkBlue, 5))
 
+    def draw_tonation_information(self, result_information):
+        tonation = self.sig_util.calculate_tonation(self.signature_of_fifths)
+        tonation_name = ''
+
+        if tonation.note.name == NoteVectorDirection.C_DIR.name:
+            tonation_name = 'C'
+        elif tonation.note.name == NoteVectorDirection.G_DIR.name:
+            tonation_name = 'G'
+        elif tonation.note.name == NoteVectorDirection.D_DIR.name:
+            tonation_name = 'D'
+        elif tonation.note.name == NoteVectorDirection.A_DIR.name:
+            tonation_name = 'A'
+        elif tonation.note.name == NoteVectorDirection.E_DIR.name:
+            tonation_name = 'E'
+        elif tonation.note.name == NoteVectorDirection.B_DIR.name:
+            tonation_name = 'B'
+        elif tonation.note.name == NoteVectorDirection.F_SHARP_DIR.name:
+            tonation_name = 'F#'
+        elif tonation.note.name == NoteVectorDirection.C_SHARP_DIR.name:
+            tonation_name = 'C#'
+        elif tonation.note.name == NoteVectorDirection.G_SHARP_DIR.name:
+            tonation_name = 'A♭'
+        elif tonation.note.name == NoteVectorDirection.D_SHARP_DIR.name:
+            tonation_name = 'E♭'
+        elif tonation.note.name == NoteVectorDirection.A_SHARP_DIR.name:
+            tonation_name = 'B♭'
+        elif tonation.note.name == NoteVectorDirection.F_DIR.name:
+            tonation_name = 'F'
+
+        tonation_mode = "major"
+        if tonation.mode.name == Mode.MINOR.name:
+            tonation_mode = "minor"
+
+        result_info_text = "Tonation: " + tonation_name + " " + tonation_mode
+
+        result_information.clear()
+        result_information.insertPlainText(result_info_text)

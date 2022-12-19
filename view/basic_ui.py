@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QListWidgetItem, QListView
+    QComboBox, QListWidget, QTextEdit
 from PyQt5 import uic, QtWidgets
 
 from midi_handling.midi_reader import MidiReader
@@ -42,6 +42,9 @@ class UI_MainPage(QMainWindow):
         self.signature_graphics_view = self.findChild(QGraphicsView, "signature_graphic_view")
 
         self.track_list = self.findChild(QListWidget, "track_list")
+
+        self.result_information = self.findChild(QTextEdit, "result_information")
+        self.result_information.setReadOnly(True)
 
         self.scene = QGraphicsScene()
 
@@ -88,6 +91,7 @@ class UI_MainPage(QMainWindow):
         signature_graphic.draw_cvsf()
         signature_graphic.draw_mdasf()
         signature_graphic.draw_major_minor_mode_axis()
+        signature_graphic.draw_tonation_information(self.result_information)
 
     def save_results_button_clicker(self):
         pass
