@@ -1,8 +1,35 @@
+from enum import Enum
+
 from mido import MidiFile
 import utils.paths as pth
 from signature.signature_of_fifths_functions import SignatureOfFifthsUtility
 
+class SignatureCalculationMode(Enum):
+    QUANTITY, DURATION = range(2)
 
+class NotesDuration(Enum):
+    WHOLE=1
+    HALF=2
+    QUARTER=4
+    EIGHT=8
+    SIXTEEN=16
+    THIRTY_TWO=32
+    SIXTY_FOUR=64
+
+class MidiSample:
+    def __init__(self):
+        self.metrum_numerator = 4
+        self.metrum_denominator = NotesDuration.QUARTER
+        self.file = None
+        self.signature_calculation_mode = SignatureCalculationMode.QUANTITY
+        self.base_note = NotesDuration.QUARTER
+        self.base_notes_per_tact = self.metrum_numerator * (self.base_note / self.metrum_denominator)
+
+    def get_signature_from_sample_tact_wise(self, tact_number, start_note, end_note):
+        pass
+
+    def get_signature_from_sample(self, start_note, end_note):
+        pass
 class MidiReader:
 
     def read_file(self, midi_path):
