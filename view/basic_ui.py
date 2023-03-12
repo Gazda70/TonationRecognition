@@ -1,8 +1,9 @@
 import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem
 from PyQt5 import uic, QtWidgets
+from PyQt5.QtGui import QColor
 
 from midi_handling.midi_reader import MidiReader
 
@@ -48,7 +49,7 @@ class UI_MainPage(QMainWindow):
 
         self.scene = QGraphicsScene()
 
-        self.list_of_signatures = None
+        self.track_manager = None
 
         self.selected_track = 0
 
@@ -62,20 +63,28 @@ class UI_MainPage(QMainWindow):
 
     def read_midi(self, filename):
         reader = MidiReader()
-        self.list_of_signatures = reader.read_file(filename)
-        print(self.list_of_signatures)
+        self.track_manager = reader.read_file(filename)
         self.setup_track_list()
 
     def setup_track_list(self):
-        print("LIST LENGTH: " + str(len(self.list_of_signatures)))
+        print("LIST LENGTH: " + str(self.track_manager.track_count))
         self.track_list.clear()
-        self.track_list.addItems(["Track " + str(track_number + 1) for track_number in range(0, len(self.list_of_signatures))])
+        for track_number in range(0, self.track_manager.track_count):
+            item = QListWidgetItem("Track " + str(track_number + 1))
+            self.track_list.addItem(item)
+            #print("My item: " + self.track_list.item(track_number))
+        #self.track_list.addItems(["Track " + str(track_number + 1) for track_number in range(0, len(self.list_of_signatures))])
         self.track_list.itemClicked.connect(self.track_list_selection_changed)
 
     def track_list_selection_changed(self, item):
-        #print("Selected items: " + self.track_list.selectedItems())
         print("List selection changed")
         print(item.text()[-1:])
+        track_number = int(item.text()[-1:]) - 1
+        self.track_manager.handle_selection(track_number)
+        if(self.track_manager.is_track_selected(track_number) is True):
+            item.setBackground(QColor('green'))
+        else:
+            item.setBackground(QColor('white'))
         self.selected_track = int(item.text()[-1:])
 
     def draw_signature_graphics_view(self):

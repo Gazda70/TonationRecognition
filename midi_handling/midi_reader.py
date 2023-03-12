@@ -2,7 +2,7 @@ from enum import Enum
 
 from mido import MidiFile
 import utils.paths as pth
-from signature.signature_of_fifths_functions import SignatureOfFifthsUtility
+from midi_handling.track_manager import TrackManager
 
 class SignatureCalculationMode(Enum):
     QUANTITY, DURATION = range(2)
@@ -18,7 +18,7 @@ class NotesDuration(Enum):
 
 class MidiSample:
     def __init__(self):
-        self.metrum_numerator = 4
+        self.metrum_numerator = NotesDuration.QUARTER
         self.metrum_denominator = NotesDuration.QUARTER
         self.file = None
         self.signature_calculation_mode = SignatureCalculationMode.QUANTITY
@@ -29,40 +29,28 @@ class MidiSample:
         pass
 
     def get_signature_from_sample(self, start_note, end_note):
+        #start_note =
+        msg_types = []
+        notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
+                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
+        for msg in track:
+            if msg.is_cc():
+                print("CONTROL MESSAGE")
+                print(msg)
+            if msg.type == 'note_on':
+                notes[Note(msg.note % 12)] += 1
+        # print("MESSAGE TYPES: " + str(Counter(msg_types).keys()))
+        # print("MESSAGE TYPES OCCURRENCE FREQUENCY: " + str(Counter(msg_types).values()))
+        return notes
         pass
+
+
 class MidiReader:
 
     def read_file(self, midi_path):
+        print("read file")
         self.midi_file = MidiFile(midi_path, clip=True)
-        signatures_per_track = []
+        track_manager = TrackManager()
+        track_manager.process_file(self.midi_file)
 
-        # print(self.midi_file)
-        # print("MIDI type: " + str(self.midi_file.type))
-        sig_util = SignatureOfFifthsUtility()
-        print("NUMBER OF TRACKS: " + str(len(self.midi_file.tracks)))
-        for i, track in enumerate(self.midi_file.tracks):
-            print('Track {}: {}'.format(i, track.name))
-        for track in self.midi_file.tracks:
-
-            # print("\n")
-            # print("TRACK\n")
-            # print(track)
-            # print("\n")
-            # print("NOTES\n")
-
-            notes_dict = sig_util.count_notes_in_track(track)
-
-            print("NOTES DICT: ")
-            for x, y in notes_dict.items():
-                print(x, y)
-
-            signature = sig_util.calculate_signature_of_fifths(notes_dict)
-            signatures_per_track.append(signature)
-
-            print("SIGNATURE DICT: ")
-            for x, y in signature.signature.items():
-                print(x, y)
-            print("\n")
-
-
-        return signatures_per_track
+        return track_manager
