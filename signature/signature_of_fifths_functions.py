@@ -1,9 +1,7 @@
 from enum import Enum
-from collections import Counter
-from dataclasses import dataclass, asdict
-from mido import MidiFile
-import numpy as np
+from dataclasses import dataclass
 import math
+from collections import Counter
 
 from utils.vector_operations import add_vector_list
 
@@ -17,7 +15,7 @@ class Note(Enum):
 
 class Mode(Enum):
     MAJOR, MINOR = range(2)
-#C_DIR, G_DIR, D_DIR, A_DIR, E_DIR, B_DIR, F_SHARP_DIR, C_SHARP_DIR, G_SHARP_DIR, D_SHARP_DIR, A_SHARP_DIR, F_DIR - incoherence in enum note names with note class
+
 class NoteVectorDirection(Enum):
     C_DIR, G_DIR, D_DIR, A_DIR, E_DIR, B_DIR , F_SHARP_DIR, C_SHARP_DIR, G_SHARP_DIR, D_SHARP_DIR , A_SHARP_DIR, F_DIR = \
         range(0, 360, 30)
@@ -27,8 +25,6 @@ class Tonation:
     note:NoteVectorDirection
     mode:Mode
 
-# (Y; Z) ∈ {(C, F♯); (F, B); (B, E); (E, A); (A, D); (D, G); (F♯, C); (B, F); (E, B); (A, E); (D, A); (G, D)}
-# WHAT ABOUT THE TONATIONS THAT LIE EXACTLY ON THE AXIS ? - THEY ARE NOT COUNTED
 @dataclass
 class DirectedAxis:
     AXIS_C_Fsharp: dict
@@ -177,8 +173,7 @@ class SignatureOfFifthsUtility:
 
     def count_notes_in_track(self, track) -> {}:
         msg_types = []
-        notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
-                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
+        notes = self.initialize_empty_notes_dict()
         for msg in track:
             if msg.is_cc():
                 print("CONTROL MESSAGE")
@@ -190,6 +185,9 @@ class SignatureOfFifthsUtility:
         # print("MESSAGE TYPES OCCURRENCE FREQUENCY: " + str(Counter(msg_types).values()))
         return notes
 
+    def initialize_empty_notes_dict(self):
+        return  Counter({Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
+                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0})
     def calculate_signature_of_fifths(self, notes) -> SignatureOfFifths:
         signature = SignatureOfFifths()
         for name, value in zip(notes.keys(), notes.values()):

@@ -47,9 +47,15 @@ class UI_MainPage(QMainWindow):
         self.result_information = self.findChild(QTextEdit, "result_information")
         self.result_information.setReadOnly(True)
 
+        self.notes_window_start = self.findChild(QTextEdit, "notes_window_start")
+
+        self.notes_window_end = self.findChild(QTextEdit, "notes_window_end")
+
         self.scene = QGraphicsScene()
 
         self.track_manager = None
+
+        self.signature = None
 
         self.selected_track = 0
 
@@ -79,21 +85,20 @@ class UI_MainPage(QMainWindow):
     def track_list_selection_changed(self, item):
         print("List selection changed")
         print(item.text()[-1:])
-        track_number = int(item.text()[-1:]) - 1
+        self.selected_track = track_number = int(item.text()[-1:]) - 1
         self.track_manager.handle_selection(track_number)
         if(self.track_manager.is_track_selected(track_number) is True):
             item.setBackground(QColor('green'))
         else:
             item.setBackground(QColor('white'))
-        self.selected_track = int(item.text()[-1:])
 
     def draw_signature_graphics_view(self):
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
         circle_of_fifths.draw()
         #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
         print("self.list_of_signatures[3]")
-        print(self.list_of_signatures[self.selected_track])
-        signature_graphic = SignatureGraphic(signature_of_fifths=self.list_of_signatures[self.selected_track],
+        #print(self.list_of_signatures[self.selected_track])
+        signature_graphic = SignatureGraphic(signature_of_fifths=self.signature,
                                              #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
                                              signature_graphics_view=self.signature_graphics_view, scene=self.scene)
         signature_graphic.draw_vector_per_note()
@@ -106,6 +111,7 @@ class UI_MainPage(QMainWindow):
         pass
 
     def calculate_button_clicker(self):
+        self.signature = self.track_manager.calculate_signature()
         self.draw_signature_graphics_view()
 
 
