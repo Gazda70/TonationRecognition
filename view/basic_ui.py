@@ -111,7 +111,16 @@ class UI_MainPage(QMainWindow):
         pass
 
     def calculate_button_clicker(self):
-        self.signature = self.track_manager.calculate_signature()
+        window_start = 0
+        window_end = 0
+        if self.notes_window_start.document().isEmpty() is False \
+                and self.notes_window_end.document().isEmpty() is False:
+            window_start = int(self.notes_window_start.toPlainText())
+            window_end = int(self.notes_window_end.toPlainText())
+            if window_end < window_start:
+                print("Start of window must be before end of window !")
+                return
+        self.signature = self.track_manager.calculate_signature(window_start, window_end)
         self.draw_signature_graphics_view()
 
 
