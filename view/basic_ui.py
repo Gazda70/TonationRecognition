@@ -9,6 +9,8 @@ from midi_handling.midi_reader import MidiReader
 
 from signature_drawing import CircleOfFifths, SignatureGraphic
 
+from midi_handling.track_manager import SignatureModes
+
 FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
 MAIN_UI_PAGE="main_window.ui"
@@ -51,6 +53,10 @@ class UI_MainPage(QMainWindow):
 
         self.notes_window_end = self.findChild(QTextEdit, "notes_window_end")
 
+        self.notes_quantity_display = self.findChild(QTextEdit, "notes_quantity_display")
+
+        self.notes_quantity_display.setReadOnly(True)
+
         self.scene = QGraphicsScene()
 
         self.track_manager = None
@@ -70,6 +76,7 @@ class UI_MainPage(QMainWindow):
     def read_midi(self, filename):
         reader = MidiReader()
         self.track_manager = reader.read_file(filename)
+        self.notes_quantity_display.setPlainText(str(self.track_manager.notes_quantity))
         self.setup_track_list()
 
     def setup_track_list(self):
@@ -111,8 +118,6 @@ class UI_MainPage(QMainWindow):
         pass
 
     def calculate_button_clicker(self):
-        window_start = 0
-        window_end = 0
         if self.notes_window_start.document().isEmpty() is False \
                 and self.notes_window_end.document().isEmpty() is False:
             window_start = int(self.notes_window_start.toPlainText())
@@ -120,8 +125,8 @@ class UI_MainPage(QMainWindow):
             if window_end < window_start:
                 print("Start of window must be before end of window !")
                 return
-        self.signature = self.track_manager.calculate_signature(window_start, window_end)
-        self.draw_signature_graphics_view()
+            self.signature = self.track_manager.calculate_signature(window_start, window_end, SignatureModes.DURATION)
+            self.draw_signature_graphics_view()
 
 
 app = QApplication(sys.argv)

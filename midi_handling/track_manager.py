@@ -43,8 +43,9 @@ class MidiSample:
 
 
 class Track:
-    def __init__(self, track, activated=False, number=0):
-        self.track = track
+    def __init__(self, start_messages, end_messages, activated=False, number=0):
+        self.start_messages = start_messages
+        self.end_messages = end_messages
         self.activated = activated
         self.number = number
         self.window_start = 0
@@ -53,47 +54,25 @@ class Track:
     def extract_note_messages_quantity(self, window_start, window_end):
         notes = Counter({Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0})
-
         print("Notes window")
-        print(self.track[window_start:window_end])
-        for msg in self.track[window_start:window_end]:
-            if msg.type == 'note_on':
-                if msg.volume != 0:
-                    notes[Note(msg.note % 12)] += 1
+        print(self.end_messages[window_start:window_end])
+        for msg in self.end_messages[window_start:window_end]:
+            notes[Note(msg.note % 12)] += 1
 
+        print("Notes dictionary: ")
+        print(notes)
         return notes
 
-    @dataclass
-    class NoteDuration:
-        note:Note
-        duration: int
     def extract_note_messages_duration(self, window_start, window_end):
-        started_notes = []
         notes = Counter({Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0})
-
         print("Notes window")
-        print(self.track[window_start:window_end])
-        for msg in self.track[window_start:window_end]:
-            if msg.type == 'note_on':
-                current_note = Note(msg.note % 12)
-                if msg.volume != 0:
-                    started_notes.append(NoteDuration(current_note, 0))
-                else:
-                    for note_duration in started_notes:
-                        if current_note == note_duration.note:
-                            if note_duration.duration != 0 and msg.volume > note_duration.duration:
-                                started_notes.remove(note_duration)
+        print(self.end_messages[window_start:window_end])
+        for msg in self.end_messages[window_start:window_end]:
+            notes[Note(msg.note % 12)] += msg.time
 
-                    is_started_note = False
-                    for note_duration in started_notes:
-                        if current_note == note_duration.note:
-                            is_started_note = True
-                            break
-
-                    if not is_started_note:
-                        notes[Note(msg.note % 12)] += msg.volume
-
+        print("Notes dictionary: ")
+        print(notes)
         return notes
 
     def activate(self):
@@ -119,6 +98,7 @@ class TrackManager:
     def __init__(self):
         self.tracks = []
         self.track_count = 0
+        self.notes_quantity = 0
 
     def process_file(self, midi_file):
         print(midi_file)
@@ -132,18 +112,31 @@ class TrackManager:
             print(track)
             print("\n")
             print("NOTES\n")
-            start_messages = 0
-            end_messages = 0
+            start_messages_list = []
+            end_messages_list = []
+            '''
+            It is important to check for both velocity = 0 
+            and type = 'note_off', because both are used as
+            a mean to stop sounding a note.
+            '''
             for msg in track:
                 if msg.type == 'note_on':
                     if msg.velocity != 0:
-                        start_messages += 1
+                        start_messages_list.append(msg)
                     else:
-                        end_messages += 1
-            print("Number of start messages: " + str(start_messages))
-            print("Number of end messages: " + str(end_messages))
-            self.tracks.append(Track(track, activated=False, number=i))
+                        end_messages_list.append(msg)
+                elif msg.type == 'note_off':
+                    end_messages_list.append(msg)
+            print("Number of start messages: " + str(len(start_messages_list)))
+            print("Number of end messages: " + str(len(end_messages_list)))
+            # for start, end in zip(start_messages_list, end_messages_list):
+            #     print("Start message")
+            #     print(start)
+            #     print("End message")
+            #     print(end)
+            self.tracks.append(Track(start_messages=start_messages_list, end_messages=end_messages_list, activated=False, number=i))
         self.track_count = len(midi_file.tracks)
+        self.notes_quantity = len(end_messages_list)
 
     def activate_track(self, track_number):
         if track_number < self.track_count:
@@ -170,9 +163,6 @@ class TrackManager:
         print("Track")
         for track in self.tracks:
             if track.activated is True:
-                window = track.track[window_start:window_end]
-                print("Activated track")
-                print(window)
                 if mode == SignatureModes.QUANTITY:
                     notes_dict += track.extract_note_messages_quantity(window_start, window_end)
                 elif mode == SignatureModes.DURATION:

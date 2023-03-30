@@ -195,11 +195,11 @@
      <string>Notes - window end</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit_3">
+   <widget class="QTextEdit" name="notes_quantity_display">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>480</y>
+      <x>220</x>
+      <y>540</y>
       <width>104</width>
       <height>21</height>
      </rect>
@@ -208,14 +208,14 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>460</y>
+      <x>220</x>
+      <y>520</y>
       <width>101</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Track length</string>
+     <string>Notes quantity</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="textEdit_4">
@@ -262,29 +262,6 @@
       <width>104</width>
       <height>21</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="textEdit_6">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>480</y>
-      <width>104</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>460</y>
-      <width>101</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Track</string>
     </property>
    </widget>
   </widget>
