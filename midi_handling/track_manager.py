@@ -268,6 +268,8 @@ class TrackManager:
                 print(*chord)
                 chord = []
 
+        if len(chord) == 1:
+            processed_track.append(ProcessedElement(is_chord=False, notes=[chord[0]]))
         print("Processed track")
         print(*processed_track)
         print("\n\n\n")
