@@ -50,6 +50,7 @@ class RhytmicValues(Enum):
     SIXTEEN=16
     THIRTY_TWO=32
     SIXTY_FOUR=64
+    LOWER_THAN_SIXTY_FOUR=65
 
 @dataclass
 class RhytmicValuesDuration:
@@ -200,25 +201,22 @@ class TrackManager:
             for msg in track:
                 if msg.type == 'set_tempo':
                     self.tempo = msg.tempo
-                if msg.type == 'note_on':
-                    if msg.velocity != 0:
-                        start_notes.append(msg)
-                    elif msg.velocity == 0:
-                        end_notes.append(msg)
-                        if len(start_notes) == len(end_notes):
-                            raw_element = RawElement(False, None, None, None)
-                            raw_element.start_notes = start_notes
-                            raw_element.end_notes = end_notes
-                            if len(start_notes) > 0:
-                                raw_element.is_chord == True
-                            if len(pair_of_control_messages) == 2:
-                                raw_element.control = pair_of_control_messages
-                            messages.append(raw_element)
-                            start_notes = []
-                            end_notes = []
-                            pair_of_control_messages = []
-                elif msg.type == 'note_off':
+                if msg.type == 'note_on' and msg.velocity != 0:
+                    start_notes.append(msg)
+                elif (msg.type == 'note_on' and msg.velocity == 0) or msg.type == 'note_off':
                     end_notes.append(msg)
+                    if len(start_notes) == len(end_notes):
+                        raw_element = RawElement(False, None, None, None)
+                        raw_element.start_notes = start_notes
+                        raw_element.end_notes = end_notes
+                        if len(start_notes) > 0:
+                            raw_element.is_chord == True
+                        if len(pair_of_control_messages) == 2:
+                            raw_element.control = pair_of_control_messages
+                        messages.append(raw_element)
+                        start_notes = []
+                        end_notes = []
+                        pair_of_control_messages = []
                 elif msg.type == 'control_change' and len(start_notes) != 0:
                     pair_of_control_messages.append(msg)
 
@@ -236,11 +234,10 @@ class TrackManager:
             # print(*Counter(end.time for start, end in zip(start_messages_list, end_messages_list)))
             if len(messages) > 0:
                 min_track_rhytm_val = float('inf')
-                min = 0
                 for element in messages:
                     time = max([note.time for note in element.end_notes])
-                    if time < min:
-                        min = time
+                    if time < min_track_rhytm_val:
+                        min_track_rhytm_val = time
                 #min_track_rhytm_val = min(filter(lambda x : x >0, Counter([max([note.time for note in element.notes]) for element in messages]).keys()))
                 if min_track_rhytm_val < self.minimum_rhytmic_value:
                      self.minimum_rhytmic_value = min_track_rhytm_val
@@ -256,12 +253,13 @@ class TrackManager:
         # print("Quarter note length: " + str(quarter_note_length))
         # print("Quarter note count: " + str(quarter_note_count))
         self.process_tracks()
+        print("")
 
     def process_tracks(self):
         '''
         Calculation of the number of minimal notes present in the piece
         '''
-        self.notes_quantity = int(float(self.total_time) * 1000 / float(self.minimum_rhytmic_value))
+        #self.notes_quantity = int(float(self.total_time) * 1000 / float(self.minimum_rhytmic_value))
         quarter_note_length = second2tick(float(self.tempo) / 1000000.0, self.ticks_per_beat, self.tempo)
         self.rhytmic_values_duration = RhytmicValuesDuration(quarter_note_length * 4, quarter_note_length * 2,
         quarter_note_length, quarter_note_length/2, quarter_note_length/4, quarter_note_length/8, quarter_note_length/16)
@@ -272,23 +270,76 @@ class TrackManager:
             self.processed_tracks.append(Track(processed_track))
 
 
+    # def map_rhytmic_values(self, time):
+    #     to_return = None
+    #     if time == self.rhytmic_values_duration.WHOLE - 1:
+    #         to_return = RhytmicValues.WHOLE
+    #     elif time == self.rhytmic_values_duration.HALF - 1:
+    #         to_return = RhytmicValues.HALF
+    #     elif time == self.rhytmic_values_duration.QUARTER - 1:
+    #         to_return = RhytmicValues.QUARTER
+    #     elif time == self.rhytmic_values_duration.EIGHT - 1:
+    #         to_return = RhytmicValues.EIGHT
+    #     elif time == self.rhytmic_values_duration.SIXTEEN - 1:
+    #         to_return = RhytmicValues.SIXTEEN
+    #     elif time == self.rhytmic_values_duration.THIRTY_TWO - 1:
+    #         to_return = RhytmicValues.THIRTY_TWO
+    #     elif time == self.rhytmic_values_duration.SIXTY_FOUR - 1:
+    #         to_return = RhytmicValues.SIXTY_FOUR
+    #     return to_return
+
+
     def map_rhytmic_values(self, time):
-        to_return = None
-        if time == self.rhytmic_values_duration.WHOLE - 1:
-            to_return = RhytmicValues.WHOLE
-        elif time == self.rhytmic_values_duration.HALF - 1:
-            to_return = RhytmicValues.HALF
-        elif time == self.rhytmic_values_duration.QUARTER - 1:
-            to_return = RhytmicValues.QUARTER
-        elif time == self.rhytmic_values_duration.EIGHT - 1:
-            to_return = RhytmicValues.EIGHT
-        elif time == self.rhytmic_values_duration.SIXTEEN - 1:
-            to_return = RhytmicValues.SIXTEEN
-        elif time == self.rhytmic_values_duration.THIRTY_TWO - 1:
-            to_return = RhytmicValues.THIRTY_TWO
-        elif time == self.rhytmic_values_duration.SIXTY_FOUR - 1:
-            to_return = RhytmicValues.SIXTY_FOUR
+        to_return = []
+        time = time + 1
+        while time > 0:
+            if time >= self.rhytmic_values_duration.WHOLE:
+                to_return.extend([RhytmicValues.WHOLE] * int(time / self.rhytmic_values_duration.WHOLE))
+                time %= self.rhytmic_values_duration.WHOLE
+            elif time >= self.rhytmic_values_duration.HALF:
+                to_return.extend([RhytmicValues.HALF] * int(time / self.rhytmic_values_duration.HALF))
+                time %= self.rhytmic_values_duration.HALF
+            elif time >= self.rhytmic_values_duration.QUARTER:
+                to_return.extend([RhytmicValues.QUARTER] * int(time / self.rhytmic_values_duration.QUARTER))
+                time %= self.rhytmic_values_duration.QUARTER
+            elif time >= self.rhytmic_values_duration.EIGHT:
+                to_return.extend([RhytmicValues.EIGHT] * int(time / self.rhytmic_values_duration.EIGHT))
+                time %= self.rhytmic_values_duration.EIGHT
+            elif time >= self.rhytmic_values_duration.SIXTEEN:
+                to_return.extend([RhytmicValues.SIXTEEN] * int(time / self.rhytmic_values_duration.SIXTEEN))
+                time %= self.rhytmic_values_duration.SIXTEEN
+            elif time >= self.rhytmic_values_duration.THIRTY_TWO:
+                to_return.extend([RhytmicValues.THIRTY_TWO] * int(time / self.rhytmic_values_duration.THIRTY_TWO))
+                time %= self.rhytmic_values_duration.THIRTY_TWO
+            elif time >= self.rhytmic_values_duration.SIXTY_FOUR:
+                to_return.extend([RhytmicValues.SIXTY_FOUR] * int(time / self.rhytmic_values_duration.SIXTY_FOUR))
+                time %= self.rhytmic_values_duration.SIXTY_FOUR
+            else:
+                to_return.append(RhytmicValues.LOWER_THAN_SIXTY_FOUR)
+                time = 0
         return to_return
+
+
+    # def map_rhytmic_values_divide(self, time):
+    #     if time > self.rhytmic_values_duration.SIXTY_FOUR:
+    #         return [time / self.rhytmic_values_duration.SIXTY_FOUR, self.map_rhytmic_values_divide(time % self.rhytmic_values_duration.SIXTY_FOUR)]
+    #     elif time == self.rhytmic_values_duration.SIXTY_FOUR:   #End of recursion
+    #         return [1, 0]
+    #     elif time < self.rhytmic_values_duration.SIXTY_FOUR:    #End of recursion
+    #         return [0, time]
+    #     elif time >= self.rhytmic_values_duration.WHOLE:
+    #         return [time / self.rhytmic_values_duration.WHOLE, self.map_rhytmic_values_divide(time % self.rhytmic_values_duration.WHOLE)]
+    #     elif time >= self.rhytmic_values_duration.HALF:
+    #         return [time / self.rhytmic_values_duration.HALF, self.map_rhytmic_values_divide(time % self.rhytmic_values_duration.HALF)]
+    #     elif time >= self.rhytmic_values_duration.QUARTER:
+    #         return [time / self.rhytmic_values_duration.QUARTER, self.map_rhytmic_values_divide(time % self.rhytmic_values_duration.QUARTER)]
+    #     elif time >= self.rhytmic_values_duration.EIGHT:
+    #         return [time / self.rhytmic_values_duration.EIGHT, self.map_rhytmic_values_divide(time % self.rhytmic_values_duration.EIGHT)]
+    #     elif time >= self.rhytmic_values_duration.SIXTEEN:
+    #         return [time / self.rhytmic_values_duration.SIXTEEN, self.map_rhytmic_values_divide(time % self.rhytmic_values_duration.SIXTEEN)]
+    #     elif time >= self.rhytmic_values_duration.THIRTY_TWO:
+    #         return [time / self.rhytmic_values_duration.THIRTY_TWO, self.map_rhytmic_values_divide(time % self.rhytmic_values_duration.THIRTY_TWO)]
+    #     return 0, 0
 
     def process_raw_element(self, element):
         print("PROCESSING MESSAGE")
@@ -299,11 +350,11 @@ class TrackManager:
                 duration += end.time
                 if element.control != None:
                     duration += element.control[1].time
-            break
+
         for end in element.end_notes:
             notes.append(NoteWithDuration(note=Note(end.note % 12), duration=self.map_rhytmic_values(duration)))
 
-        return ProcessedElement(is_chord=False, notes=notes)
+        return ProcessedElement(is_chord=(len(element.end_notes) != 1), notes=notes)
 
     def activate_track(self, track_number):
         if track_number < self.track_count:
