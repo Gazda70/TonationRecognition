@@ -1,102 +1,136 @@
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel
 from PyQt5 import uic, QtWidgets
-from PyQt5.QtGui import QPainter, QBrush, QPen, QTransform, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 
-from midi_handling.midi_reader import MidiReader
+from file_manager.file_manager import MidiReader
+
+from signature_drawing import CircleOfFifths, SignatureGraphic
+
+from file_manager.track_manager import SignatureModes
 
 FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
-TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'H', 'F#', 'C#', 'A♭', 'E♭', 'B', 'F']
+MAIN_UI_PAGE="main_window.ui"
 
-class UI_FileLoadingPage(QMainWindow):
+MIDI_FILES_PATH="E:\\PracaMagisterska\\TonationRecognition\\midi_files"
+
+class UI_MainPage(QMainWindow):
     def __init__(self):
-        super(UI_FileLoadingPage, self).__init__()
+        super(UI_MainPage, self).__init__()
 
-        uic.loadUi(FILE_LOAD_PAGE, self)
-        #https://www.youtube.com/watch?v=gg5TepTc2Jg
-        self.open_file_button = self.findChild(QPushButton, "openFileButton")
-        self.open_file_button.clicked.connect(self.open_file_button_clicker)
+        uic.loadUi(MAIN_UI_PAGE, self)
+        # https://www.youtube.com/watch?v=gg5TepTc2Jg
+        self.load_file_button = self.findChild(QPushButton, "load_files_button")
+        self.load_file_button.clicked.connect(self.load_file_button_clicker)
 
-        self.calculate_signature_button = self.findChild(QPushButton, "calculateSignatureButton")
-        self.calculate_signature_button.clicked.connect(self.calculate_signature_button_clicker)
+        self.save_results_button = self.findChild(QPushButton, "save_results_button")
+        self.save_results_button.clicked.connect(self.save_results_button_clicker)
+
+        self.algorithm_type_dropdown = self.findChild(QComboBox, "algorithm_type_dropdown")
+        self.algorithm_type_dropdown.addItems(["Signature of fifths", "Tonal profiles"])
+
+        self.sample_calculation_dropdown = self.findChild(QComboBox, "sample_calculation_mode")
+        self.sample_calculation_dropdown.addItems(["Notes quantity", "Notes duration"])
+
+        self.tonal_profiles_dropdown = self.findChild(QComboBox, "tonal_profiles_type")
+        self.tonal_profiles_dropdown.addItems(["Krumhansl-Schmuckler", "Albrecht-Shanahan", "Temperley"])
+
+        self.midi_channel_dropdown = self.findChild(QComboBox, "midi_channel_dropdown")
+
+        self.calculate_signature_button = self.findChild(QPushButton, "calculate_button")
+        self.calculate_signature_button.clicked.connect(self.calculate_button_clicker)
+
+        self.signature_graphics_view = self.findChild(QGraphicsView, "signature_graphic_view")
+
+        self.track_list = self.findChild(QListWidget, "track_list")
+
+        self.result_information = self.findChild(QLabel, "result_information")
+
+        self.notes_window_start = self.findChild(QTextEdit, "notes_window_start")
+
+        self.notes_window_end = self.findChild(QTextEdit, "notes_window_end")
+
+        self.scene = None
+
+        self.track_manager = None
+
+        self.signature = None
+
+        self.selected_track = 0
 
         self.show()
 
-
-    def open_file_button_clicker(self):
-        fname = QFileDialog.getOpenFileName()
-        print(fname[0])
-        self.read_midi(fname[0])
+    def load_file_button_clicker(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Open MIDI file", MIDI_FILES_PATH, "MIDI files (*.mid);;")
+        print(filename)
+        if filename:
+            self.read_midi(filename)
 
     def read_midi(self, filename):
         reader = MidiReader()
-        reader.read_file(filename)
+        self.track_manager = reader.read_file(filename)
+        self.setup_track_list()
 
-    def calculate_signature_button_clicker(self):
-        self.change_to_signature_display_page()
+    def setup_track_list(self):
+        print("LIST LENGTH: " + str(self.track_manager.track_count))
+        self.track_list.clear()
+        for track_number in range(0, self.track_manager.track_count):
+            item = QListWidgetItem("Track " + str(track_number + 1))
+            self.track_list.addItem(item)
+            #print("My item: " + self.track_list.item(track_number))
+        #self.track_list.addItems(["Track " + str(track_number + 1) for track_number in range(0, len(self.list_of_signatures))])
+        self.track_list.itemClicked.connect(self.track_list_selection_changed)
 
-    def change_to_signature_display_page(self):
-        widget.setCurrentWidget(signature_display_page)
-        widget.currentWidget().draw_signature_graphics_view()
-
-
-class UI_SignatureDisplayPage(QMainWindow):
-    def __init__(self):
-        super(UI_SignatureDisplayPage, self).__init__()
-        uic.loadUi(SIGNATURE_DISPLAY_PAGE, self)
-
-        self.signature_graphics_view = self.findChild(QGraphicsView, "signatureGraphicsView")
-
-        self.show()
-
-    def change_to_file_loading_page(self):
-        widget.setCurrentWidget(file_loading_page)
+    def track_list_selection_changed(self, item):
+        print("List selection changed")
+        print(item.text()[-1:])
+        self.selected_track = track_number = int(item.text()[-1:]) - 1
+        self.track_manager.handle_selection(track_number)
+        if(self.track_manager.is_track_selected(track_number) is True):
+            item.setBackground(QColor('green'))
+        else:
+            item.setBackground(QColor('white'))
 
     def draw_signature_graphics_view(self):
-        scene = QGraphicsScene()
+        self.scene = QGraphicsScene()
+        circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
+        circle_of_fifths.draw()
+        #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
+        print("self.list_of_signatures[3]")
+        #print(self.list_of_signatures[self.selected_track])
+        signature_graphic = SignatureGraphic(signature_of_fifths=self.signature,
+                                             #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
+                                             signature_graphics_view=self.signature_graphics_view, scene=self.scene)
+        signature_graphic.draw_vector_per_note()
+        signature_graphic.draw_cvsf()
+        signature_graphic.draw_mdasf()
+        signature_graphic.draw_major_minor_mode_axis()
+        signature_graphic.draw_tonation_information(self.result_information)
 
-        brush = QBrush(Qt.green)
+    def save_results_button_clicker(self):
+        pass
 
-        pen = QPen(Qt.red)
-
-        font = QFont("Helvetica", 24)
-
-        self.signature_graphics_view.setScene(scene)
-
-        rec_start_x = -200
-        rec_start_y = -200
-        rec_end_x = 400
-        rec_end_y = 400
-        scene.addEllipse(rec_start_x, rec_start_y, rec_end_x, rec_end_y, pen, brush)
-
-        for angle, note in zip(range(0, 360, 30), TONATION_NAMES):
-            transform = QTransform()
-            line = scene.addLine(0, 0, 0, rec_start_y, pen)
-            transform.rotate(angle)
-            line.setTransform(transform)
-
-            textTransform = QTransform()
-            text = scene.addText(note)
-
-            textTransform.rotate(angle)
-            move = rec_start_y - 20
-            textTransform.translate(0, move)
-            #textTransform.rotate(360 - angle)
-            text.setTransform(textTransform)
-
+    def calculate_button_clicker(self):
+        if self.notes_window_start.document().isEmpty() is False \
+                and self.notes_window_end.document().isEmpty() is False:
+            window_start = int(self.notes_window_start.toPlainText())
+            window_end = int(self.notes_window_end.toPlainText())
+            if window_end < window_start:
+                print("Start of window must be before end of window !")
+                return
+            self.signature = self.track_manager.calculate_signature(window_start, window_end, SignatureModes.DURATION)
+            self.draw_signature_graphics_view()
 
 
 app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()
-file_loading_page = UI_FileLoadingPage()
-widget.addWidget(file_loading_page)
-signature_display_page = UI_SignatureDisplayPage()
-widget.addWidget(signature_display_page)
-w = 800
-h = 500
+main_ui_page = UI_MainPage()
+widget.addWidget(main_ui_page)
+w = 1500
+h = 1100
 widget.resize(w, h)
 widget.show()
 app.exec_()
