@@ -133,8 +133,8 @@ class DirectedAxisCreator:
         directed_axis_collection = create_directed_axis_object()
         # print("directed_axis_collection")
         # print(directed_axis_collection)
-        # print("signature.signature.keys()")
-        # print(set(signature.signature.keys()))
+        # print("algorithms.algorithms.keys()")
+        # print(set(algorithms.algorithms.keys()))
         max_difference = -math.inf
         best_dir_ax = None
         for dir_ax in directed_axis_collection.keys():
@@ -229,5 +229,5 @@ class SignatureOfFifthsUtility:
             tonation.mode = Mode.MINOR
         print(tonation)
         return tonation
-        # elif signature.mode_angle == 0:
+        # elif algorithms.mode_angle == 0:
         #     pass

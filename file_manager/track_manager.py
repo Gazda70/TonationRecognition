@@ -1,4 +1,4 @@
-from signature.signature_of_fifths_functions import SignatureOfFifthsUtility, Note
+from algorithms.signature_of_fifths_algorithm import SignatureOfFifthsUtility, Note
 from enum import Enum
 import utils.paths as pth
 from collections import Counter

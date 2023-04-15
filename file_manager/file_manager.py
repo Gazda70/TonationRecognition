@@ -1,5 +1,5 @@
 from mido import MidiFile
-from midi_handling.track_manager import TrackManager
+from file_manager.track_manager import TrackManager
 
 
 class MidiReader:

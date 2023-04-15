@@ -5,11 +5,11 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog,
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
 
-from midi_handling.midi_reader import MidiReader
+from file_manager.file_manager import MidiReader
 
 from signature_drawing import CircleOfFifths, SignatureGraphic
 
-from midi_handling.track_manager import SignatureModes
+from file_manager.track_manager import SignatureModes
 
 FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
