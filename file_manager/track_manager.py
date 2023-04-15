@@ -69,6 +69,7 @@ class RawElement:
     start_notes: []
     end_notes: []
     control: []
+    raw_duration: int  # total duration represented as integer
 
 '''
 A note or group of notes that have the same duration
@@ -89,6 +90,10 @@ class NoteWithDuration:
 class ProcessedTrack:
     elements: []
 
+@dataclass
+class Tempo:
+    tempo:int
+    start_time:int
 
 class Track:
     def __init__(self, processed_track, rhytmic_values=None, activated=False, number=0):
@@ -177,7 +182,7 @@ class TrackManager:
         self.notes_quantity = 0
         self.total_time = 0
         self.minimum_rhytmic_value = float('inf')
-        self.tempo = 0
+        self.tempos = []
         self.rhytmic_values_duration = RhytmicValuesDuration(2000000, 1000000, 500000, 250000, 125000, 62500, 31250)
         self.ticks_per_beat = 0
 
@@ -207,29 +212,35 @@ class TrackManager:
             start_notes = []
             end_notes = []
             pair_of_control_messages = []
+            is_meta_track = True
+            total_time_for_set_tempos = 0
             for msg in track:
                 if msg.type == 'set_tempo':
-                    self.tempo = msg.tempo
-                if msg.type == 'note_on' and msg.velocity != 0:
-                    if msg.time > 1:
-                        messages.append(RawElement(is_chord=False, is_pause=True, start_notes=[msg], end_notes=None, control=None))
-                    start_notes.append(msg)
-                elif (msg.type == 'note_on' and msg.velocity == 0) or msg.type == 'note_off':
-                    end_notes.append(msg)
-                    if len(start_notes) == len(end_notes):
-                        raw_element = RawElement(False, False, None, None, None)
-                        raw_element.start_notes = start_notes
-                        raw_element.end_notes = end_notes
-                        if len(start_notes) > 0:
-                            raw_element.is_chord == True
-                        if len(pair_of_control_messages) == 2:
-                            raw_element.control = pair_of_control_messages
-                        messages.append(raw_element)
-                        start_notes = []
-                        end_notes = []
-                        pair_of_control_messages = []
-                elif msg.type == 'control_change' and len(start_notes) != 0:
-                    pair_of_control_messages.append(msg)
+                    total_time_for_set_tempos += msg.time
+                    self.tempos.append(Tempo(tempo=msg.tempo,start_time=total_time_for_set_tempos))
+                if not msg.is_meta:
+                    is_meta_track = False
+                    if msg.type == 'note_on' and msg.velocity != 0:
+                        if msg.time > 1:
+                            messages.append(RawElement(is_chord=False, is_pause=True, start_notes=[msg], end_notes=None, control=None, raw_duration=0))
+                        start_notes.append(msg)
+                    elif (msg.type == 'note_on' and msg.velocity == 0) or msg.type == 'note_off':
+                        end_notes.append(msg)
+                        if len(start_notes) == len(end_notes):
+                            raw_element = RawElement(False, False, None, None, None, 0)
+                            raw_element.start_notes = start_notes
+                            raw_element.end_notes = end_notes
+                            if len(start_notes) > 0:
+                                raw_element.is_chord == True
+                            if len(pair_of_control_messages) == 2:
+                                raw_element.control = pair_of_control_messages
+                            raw_element.raw_duration = self.calculate_notes_raw_duration(raw_element)
+                            messages.append(raw_element)
+                            start_notes = []
+                            end_notes = []
+                            pair_of_control_messages = []
+                    elif msg.type == 'control_change' and len(start_notes) != 0:
+                        pair_of_control_messages.append(msg)
 
             # print("Total start messages time in seconds: " + str(total_start_messages_time))
             # print("Total end messages time in seconds: " + str(total_end_messages_time))
@@ -243,13 +254,13 @@ class TrackManager:
             # print("Number of end messages: " + str(len(end_messages_list)))
             # print("End messages: ")
             # print(*Counter(end.time for start, end in zip(start_messages_list, end_messages_list)))
-            if len(messages) > 0:
+            if not is_meta_track and len(messages) > 0:
                 min_track_rhytm_val = float('inf')
                 for element in messages:
                     if not element.is_pause:
                         time = max([note.time for note in element.end_notes])
-                    if time < min_track_rhytm_val:
-                        min_track_rhytm_val = time
+                        if time < min_track_rhytm_val:
+                            min_track_rhytm_val = time
                 #min_track_rhytm_val = min(filter(lambda x : x >0, Counter([max([note.time for note in element.notes]) for element in messages]).keys()))
                 if min_track_rhytm_val < self.minimum_rhytmic_value:
                      self.minimum_rhytmic_value = min_track_rhytm_val + 1 # add one because in the messages values are one smaller
@@ -260,7 +271,7 @@ class TrackManager:
             #     print("End message")
             #     print(end)
         print("Minimum rhytmic value: " + str(self.minimum_rhytmic_value))
-        self.track_count = len(midi_file.tracks)
+        self.track_count = len(self.raw_tracks)
         # quarter_note_count = int(midi_file.length / quarter_note_length)
         # print("Quarter note length: " + str(quarter_note_length))
         # print("Quarter note count: " + str(quarter_note_count))
@@ -272,14 +283,45 @@ class TrackManager:
         Calculation of the number of minimal notes present in the piece
         '''
         #self.notes_quantity = int(float(self.total_time) * 1000 / float(self.minimum_rhytmic_value))
-        quarter_note_length = second2tick(float(self.tempo) / 1000000.0, self.ticks_per_beat, self.tempo)
-        self.rhytmic_values_duration = RhytmicValuesDuration(quarter_note_length * 4, quarter_note_length * 2,
-        quarter_note_length, quarter_note_length/2, quarter_note_length/4, quarter_note_length/8, quarter_note_length/16)
         for raw_track in self.raw_tracks:
             processed_track = []
+            total_time = 0
+            tempos_index = 0
+            actual_tempo = self.tempos[0].tempo
+            self.calculate_rhytmic_values_duration(actual_tempo)
             for raw_element in raw_track:
+                total_time += raw_element.raw_duration
+                if len(self.tempos) > tempos_index + 1 and self.tempos[tempos_index + 1].start_time <= total_time:
+                    tempos_index += 1
+                    actual_tempo = self.tempos[tempos_index].tempo
+                    self.calculate_rhytmic_values_duration(actual_tempo)
                 processed_track.append(self.process_raw_element(raw_element))
             self.processed_tracks.append(Track(processed_track=processed_track, rhytmic_values=self.rhytmic_values_duration))
+
+    def calculate_rhytmic_values_duration(self, tempo):
+        quarter_note_length = second2tick(float(tempo) / 1000000.0, self.ticks_per_beat, tempo)
+        self.rhytmic_values_duration =  RhytmicValuesDuration(quarter_note_length * 4, quarter_note_length * 2,
+        quarter_note_length, quarter_note_length/2, quarter_note_length/4, quarter_note_length/8, quarter_note_length/16)
+
+    def calculate_notes_raw_duration(self, element):
+        duration = 0
+        for end in element.end_notes:
+            if end.time != 0:
+                duration += end.time
+                if element.control != None:
+                    duration += element.control[1].time
+        return duration
+
+    def process_raw_element(self, element):
+        notes = []
+        duration = 0
+        if element.is_pause:
+            notes.append(NoteWithDuration(note=None, is_pause=True, duration=self.map_rhytmic_values(element.start_notes[0].time)))
+            return ProcessedElement(is_chord=False, notes=notes, raw_duration=element.start_notes[0].time)
+        for end in element.end_notes:
+            notes.append(NoteWithDuration(note=Note(end.note % 12), is_pause=False, duration=self.map_rhytmic_values(duration)))
+
+        return ProcessedElement(is_chord=(len(element.end_notes) != 1), notes=notes, raw_duration=element.raw_duration)
 
     def map_rhytmic_values(self, time):
         to_return = []
@@ -310,24 +352,6 @@ class TrackManager:
                 to_return.append(RhytmicValues.LOWER_THAN_SIXTY_FOUR)
                 time = 0
         return to_return
-
-    def process_raw_element(self, element):
-        notes = []
-        duration = 0
-        if element.is_pause:
-            notes.append(NoteWithDuration(note=None, is_pause=True, duration=self.map_rhytmic_values(element.start_notes[0].time)))
-            return ProcessedElement(is_chord=False, notes=notes, raw_duration=element.start_notes[0].time)
-
-        for end in element.end_notes:
-            if end.time != 0:
-                duration += end.time
-                if element.control != None:
-                    duration += element.control[1].time
-
-        for end in element.end_notes:
-            notes.append(NoteWithDuration(note=Note(end.note % 12), is_pause=False, duration=self.map_rhytmic_values(duration)))
-
-        return ProcessedElement(is_chord=(len(element.end_notes) != 1), notes=notes, raw_duration=duration + 1)
 
     def activate_track(self, track_number):
         if track_number < self.track_count:
