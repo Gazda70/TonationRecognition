@@ -111,7 +111,9 @@ class Track:
         print("Notes window")
         print(messages)
         for msg in messages:
-            notes[Note(msg.note % 12)] += 1
+            for note_with_duration in msg.notes:
+                if note_with_duration.note != None:
+                    notes[note_with_duration.note] += 1
 
         print("Notes dictionary: ")
         print(notes)

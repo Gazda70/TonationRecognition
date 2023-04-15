@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
 
@@ -17,6 +17,10 @@ MAIN_UI_PAGE="main_window.ui"
 
 MIDI_FILES_PATH="E:\\PracaMagisterska\\TonationRecognition\\midi_files"
 
+ALGORITHM_NAMES = ["Signature of fifths", "Tonal profiles"]
+SAMPLE_CALCULATION_MODES = ["Notes quantity", "Notes duration"]
+TONAL_PROFILE_NAMES = ["Krumhansl-Schmuckler", "Albrecht-Shanahan", "Temperley"]
+
 class UI_MainPage(QMainWindow):
     def __init__(self):
         super(UI_MainPage, self).__init__()
@@ -30,13 +34,13 @@ class UI_MainPage(QMainWindow):
         self.save_results_button.clicked.connect(self.save_results_button_clicker)
 
         self.algorithm_type_dropdown = self.findChild(QComboBox, "algorithm_type_dropdown")
-        self.algorithm_type_dropdown.addItems(["Signature of fifths", "Tonal profiles"])
+        self.algorithm_type_dropdown.addItems(ALGORITHM_NAMES)
 
         self.sample_calculation_dropdown = self.findChild(QComboBox, "sample_calculation_mode")
-        self.sample_calculation_dropdown.addItems(["Notes quantity", "Notes duration"])
+        self.sample_calculation_dropdown.addItems(SAMPLE_CALCULATION_MODES)
 
         self.tonal_profiles_dropdown = self.findChild(QComboBox, "tonal_profiles_type")
-        self.tonal_profiles_dropdown.addItems(["Krumhansl-Schmuckler", "Albrecht-Shanahan", "Temperley"])
+        self.tonal_profiles_dropdown.addItems(TONAL_PROFILE_NAMES)
 
         self.midi_channel_dropdown = self.findChild(QComboBox, "midi_channel_dropdown")
 
@@ -61,6 +65,8 @@ class UI_MainPage(QMainWindow):
 
         self.selected_track = 0
 
+        self.is_file = False
+
         self.show()
 
     def load_file_button_clicker(self):
@@ -73,6 +79,7 @@ class UI_MainPage(QMainWindow):
         reader = MidiReader()
         self.track_manager = reader.read_file(filename)
         self.setup_track_list()
+        self.is_file = True
 
     def setup_track_list(self):
         print("LIST LENGTH: " + str(self.track_manager.track_count))
@@ -114,15 +121,22 @@ class UI_MainPage(QMainWindow):
         pass
 
     def calculate_button_clicker(self):
-        if self.notes_window_start.document().isEmpty() is False \
-                and self.notes_window_end.document().isEmpty() is False:
+        if self.is_file == False:
+            QMessageBox.warning(self.scene, "Error", "Select file !")
+        elif self.notes_window_start.document().isEmpty() is True \
+                or self.notes_window_end.document().isEmpty() is True:
+            QMessageBox.warning(self.scene, "Error", "Select time window !")
+        else:
             window_start = int(self.notes_window_start.toPlainText())
             window_end = int(self.notes_window_end.toPlainText())
-            if window_end < window_start:
-                print("Start of window must be before end of window !")
-                return
-            self.signature = self.track_manager.calculate_signature(window_start, window_end, SignatureModes.DURATION)
-            self.draw_signature_graphics_view()
+            if window_end <= window_start:
+                QMessageBox.warning(self.scene, "Error", "Start of window must be before end of window !")
+            else:
+                if self.sample_calculation_dropdown.currentText() == SAMPLE_CALCULATION_MODES[0]:
+                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SignatureModes.QUANTITY)
+                elif self.sample_calculation_dropdown.currentText() == SAMPLE_CALCULATION_MODES[1]:
+                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SignatureModes.DURATION)
+                self.draw_signature_graphics_view()
 
 
 app = QApplication(sys.argv)
