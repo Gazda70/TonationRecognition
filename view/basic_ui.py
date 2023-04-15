@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit, QListWidgetItem
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
 
@@ -30,12 +30,13 @@ class UI_MainPage(QMainWindow):
         self.save_results_button.clicked.connect(self.save_results_button_clicker)
 
         self.algorithm_type_dropdown = self.findChild(QComboBox, "algorithm_type_dropdown")
-        self.algorithm_type_dropdown.addItem("Signature of fifths")
+        self.algorithm_type_dropdown.addItems(["Signature of fifths", "Tonal profiles"])
 
-        self.method_details_dropdown = self.findChild(QComboBox, "signature_calculation_mode")
-        self.method_details_dropdown.addItems(["Notes quantity", "Notes duration"])
+        self.sample_calculation_dropdown = self.findChild(QComboBox, "sample_calculation_mode")
+        self.sample_calculation_dropdown.addItems(["Notes quantity", "Notes duration"])
 
-        self.method_details_dropdown = self.findChild(QComboBox, "tonal_profiles_type")
+        self.tonal_profiles_dropdown = self.findChild(QComboBox, "tonal_profiles_type")
+        self.tonal_profiles_dropdown.addItems(["Krumhansl-Schmuckler", "Albrecht-Shanahan", "Temperley"])
 
         self.midi_channel_dropdown = self.findChild(QComboBox, "midi_channel_dropdown")
 
@@ -46,18 +47,13 @@ class UI_MainPage(QMainWindow):
 
         self.track_list = self.findChild(QListWidget, "track_list")
 
-        self.result_information = self.findChild(QTextEdit, "result_information")
-        self.result_information.setReadOnly(True)
+        self.result_information = self.findChild(QLabel, "result_information")
 
         self.notes_window_start = self.findChild(QTextEdit, "notes_window_start")
 
         self.notes_window_end = self.findChild(QTextEdit, "notes_window_end")
 
-        self.notes_quantity_display = self.findChild(QTextEdit, "notes_quantity_display")
-
-        self.notes_quantity_display.setReadOnly(True)
-
-        self.scene = QGraphicsScene()
+        self.scene = None
 
         self.track_manager = None
 
@@ -76,7 +72,6 @@ class UI_MainPage(QMainWindow):
     def read_midi(self, filename):
         reader = MidiReader()
         self.track_manager = reader.read_file(filename)
-        self.notes_quantity_display.setPlainText(str(self.track_manager.notes_quantity))
         self.setup_track_list()
 
     def setup_track_list(self):
@@ -100,6 +95,7 @@ class UI_MainPage(QMainWindow):
             item.setBackground(QColor('white'))
 
     def draw_signature_graphics_view(self):
+        self.scene = QGraphicsScene()
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
         circle_of_fifths.draw()
         #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
@@ -133,8 +129,8 @@ app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()
 main_ui_page = UI_MainPage()
 widget.addWidget(main_ui_page)
-w = 1200
-h = 900
+w = 1500
+h = 1100
 widget.resize(w, h)
 widget.show()
 app.exec_()

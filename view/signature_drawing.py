@@ -128,4 +128,4 @@ class SignatureGraphic:
         result_info_text = "Tonation: " + tonation_name + " " + tonation_mode
 
         result_information.clear()
-        result_information.insertPlainText(result_info_text)
+        result_information.setText(result_info_text)
