@@ -1,7 +1,7 @@
 from PyQt5.QtGui import QBrush, QPen, QTransform, QFont
 from PyQt5.QtCore import Qt
-from algorithms.signature_of_fifths_algorithm import Note, NoteVectorDirection, NoteVector, SignatureOfFifths, \
-    SignatureOfFifthsUtility, Mode
+from model.definitions import NoteVectorDirection, SignatureOfFifths, Mode
+from algorithms.signature_of_fifths_algorithm import SignatureOfFifthsUtility
 
 TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'A♭', 'E♭', 'B♭', 'F']
 

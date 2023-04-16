@@ -1,25 +1,11 @@
-from algorithms.signature_of_fifths_algorithm import SignatureOfFifthsUtility, Note
+from algorithms.signature_of_fifths_algorithm import SignatureOfFifthsUtility
+from model.definitions import Note, RhytmicValuesDuration, RawElement, ProcessedElement, ProcessedTrack, NoteWithDuration, RhytmicValues, Tempo, SampleMode
 from enum import Enum
 import utils.paths as pth
 from collections import Counter
 from dataclasses import dataclass
 from mido import second2tick
 
-class SignatureCalculationMode(Enum):
-    QUANTITY, DURATION = range(2)
-
-class NotesDuration(Enum):
-    WHOLE=1
-    HALF=2
-    QUARTER=4
-    EIGHT=8
-    SIXTEEN=16
-    THIRTY_TWO=32
-    SIXTY_FOUR=64
-
-class SignatureModes(Enum):
-    QUANTITY=1
-    DURATION=2
 '''
 class MidiSample:
     def __init__(self):
@@ -41,59 +27,6 @@ class MidiSample:
                     notes[Note(msg.note % 12)] += 1
         return notes
 '''
-
-class RhytmicValues(Enum):
-    WHOLE=1
-    HALF=2
-    QUARTER=4
-    EIGHT=8
-    SIXTEEN=16
-    THIRTY_TWO=32
-    SIXTY_FOUR=64
-    LOWER_THAN_SIXTY_FOUR=65
-
-@dataclass
-class RhytmicValuesDuration:
-    WHOLE: int
-    HALF: int
-    QUARTER: int
-    EIGHT: int
-    SIXTEEN: int
-    THIRTY_TWO: int
-    SIXTY_FOUR: int
-
-@dataclass
-class RawElement:
-    is_chord: bool
-    is_pause: bool
-    start_notes: []
-    end_notes: []
-    control: []
-    raw_duration: int  # total duration represented as integer
-
-'''
-A note or group of notes that have the same duration
-'''
-@dataclass
-class ProcessedElement:
-    is_chord: bool # if the element is a chord, i.e. if more than one note is played simultaneously
-    notes: [] # total duration represented as collection of notes
-    raw_duration: int   # total duration represented as integer
-
-@dataclass
-class NoteWithDuration:
-    note: Note
-    is_pause: bool
-    duration: RhytmicValues
-
-@dataclass
-class ProcessedTrack:
-    elements: []
-
-@dataclass
-class Tempo:
-    tempo:int
-    start_time:int
 
 class Track:
     def __init__(self, processed_track, rhytmic_values=None, activated=False, number=0):
@@ -382,9 +315,9 @@ class TrackManager:
         end_time_point = self.rhytmic_values_duration.EIGHT * (window_end)
         for track in self.processed_tracks:
             if track.activated is True:
-                if mode == SignatureModes.QUANTITY:
+                if mode == SampleMode.QUANTITY:
                     notes_dict += track.extract_note_messages_quantity(start_time_point, end_time_point)
-                elif mode == SignatureModes.DURATION:
+                elif mode == SampleMode.DURATION:
                     notes_dict += track.extract_note_messages_duration(start_time_point, end_time_point)
         signature = sig_util.calculate_signature_of_fifths(notes_dict)
         print("NOTES DICT: ")

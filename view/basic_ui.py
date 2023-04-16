@@ -1,25 +1,13 @@
 import sys
-
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
     QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
-
 from file_manager.file_manager import MidiReader
-
 from signature_drawing import CircleOfFifths, SignatureGraphic
+from model.definitions import SampleMode, ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, MAIN_UI_PAGE
 
-from file_manager.track_manager import SignatureModes
 
-FILE_LOAD_PAGE = "file_load.ui"
-SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
-MAIN_UI_PAGE="main_window.ui"
-
-MIDI_FILES_PATH="E:\\PracaMagisterska\\TonationRecognition\\midi_files"
-
-ALGORITHM_NAMES = ["Signature of fifths", "Tonal profiles"]
-SAMPLE_CALCULATION_MODES = ["Notes quantity", "Notes duration"]
-TONAL_PROFILE_NAMES = ["Krumhansl-Schmuckler", "Albrecht-Shanahan", "Temperley"]
 
 class UI_MainPage(QMainWindow):
     def __init__(self):
@@ -133,9 +121,9 @@ class UI_MainPage(QMainWindow):
                 QMessageBox.warning(self.scene, "Error", "Start of window must be before end of window !")
             else:
                 if self.sample_calculation_dropdown.currentText() == SAMPLE_CALCULATION_MODES[0]:
-                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SignatureModes.QUANTITY)
+                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SampleMode.QUANTITY)
                 elif self.sample_calculation_dropdown.currentText() == SAMPLE_CALCULATION_MODES[1]:
-                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SignatureModes.DURATION)
+                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SampleMode.DURATION)
                 self.draw_signature_graphics_view()
 
 

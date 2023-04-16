@@ -2,44 +2,8 @@ from enum import Enum
 from dataclasses import dataclass
 import math
 from collections import Counter
-
 from utils.vector_operations import add_vector_list
-
-NOTE_VECTOR_MAX_LENGTH = 2
-
-"""
-    It has to be in such order because of the numeration of notes used by MIDI standard.
-"""
-class Note(Enum):
-    C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B = range(12)
-
-class Mode(Enum):
-    MAJOR, MINOR = range(2)
-
-class NoteVectorDirection(Enum):
-    C_DIR, G_DIR, D_DIR, A_DIR, E_DIR, B_DIR , F_SHARP_DIR, C_SHARP_DIR, G_SHARP_DIR, D_SHARP_DIR , A_SHARP_DIR, F_DIR = \
-        range(0, 360, 30)
-
-@dataclass
-class Tonation:
-    note:NoteVectorDirection
-    mode:Mode
-
-@dataclass
-class DirectedAxis:
-    AXIS_C_Fsharp: dict
-    AXIS_F_B: dict
-    AXIS_Asharp_E: dict
-    AXIS_Dsharp_A: dict
-    AXIS_Gsharp_D: dict
-    AXIS_Csharp_G: dict
-    AXIS_Fsharp_C: dict
-    AXIS_B_F: dict
-    AXIS_E_Asharp: dict
-    AXIS_A_Dsharp: dict
-    AXIS_D_Gsharp: dict
-    AXIS_G_Csharp: dict
-
+from model.definitions import NOTE_VECTOR_MAX_LENGTH, SignatureOfFifths, Tonation, Note, NoteVector, NoteVectorDirection, Mode
 
 def create_directed_axis_object():
     return {
@@ -98,35 +62,6 @@ def create_directed_axis_object():
                                     (Note.F, 0), (Note.C, 0)],
                            "note_vector":NoteVector(NOTE_VECTOR_MAX_LENGTH, float(NoteVectorDirection.C_SHARP_DIR.value))}
     }
-
-
-@dataclass
-class NoteVector:
-    length: float
-    direction: float
-
-
-@dataclass
-class SignatureOfFifths:
-    def __init__(self):
-        self.signature = {Note.A: NoteVector(0, NoteVectorDirection.A_DIR.value),
-                          Note.D: NoteVector(0, NoteVectorDirection.D_DIR.value),
-                          Note.G: NoteVector(0, NoteVectorDirection.G_DIR.value),
-                          Note.C: NoteVector(0, NoteVectorDirection.C_DIR.value),
-                          Note.F: NoteVector(0, NoteVectorDirection.F_DIR.value),
-                          Note.C_SHARP: NoteVector(0, NoteVectorDirection.C_SHARP_DIR.value),
-                          Note.D_SHARP: NoteVector(0, NoteVectorDirection.D_SHARP_DIR.value),
-                          Note.E: NoteVector(0, NoteVectorDirection.E_DIR.value),
-                          Note.F_SHARP: NoteVector(0, NoteVectorDirection.F_SHARP_DIR.value),
-                          Note.G_SHARP: NoteVector(0, NoteVectorDirection.G_SHARP_DIR.value),
-                          Note.A_SHARP: NoteVector(0, NoteVectorDirection.A_SHARP_DIR.value),
-                          Note.B: NoteVector(0, NoteVectorDirection.B_DIR.value)}
-
-        self.cvsf:NoteVector = None
-        self.mdasf:NoteVector = None
-        self.mode_angle:float = 0.0
-        self.tonation:Tonation = None
-
 
 class DirectedAxisCreator:
     def determine_from_signature(self, signature: SignatureOfFifths):
