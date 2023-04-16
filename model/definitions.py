@@ -10,11 +10,6 @@ MAIN_UI_PAGE="main_window.ui"
 
 MIDI_FILES_PATH="E:\\PracaMagisterska\\TonationRecognition\\midi_files"
 
-ALGORITHM_NAMES = ["Signature of fifths", "Tonal profiles"]
-SAMPLE_CALCULATION_MODES = ["Notes quantity", "Notes duration"]
-TONAL_PROFILE_NAMES = ["Krumhansl-Schmuckler", "Albrecht-Shanahan", "Temperley"]
-
-
 KS_PROFILE_MAJOR=[6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88]
 KS_PROFILE_MINOR=[6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 2.98, 2.69, 3.34, 3.17]
 T_PROFILE_MAJOR=[0.75, 0.06, 0.49, 0.08, 0.67, 0.46, 0.10, 0.72, 0.10, 0.37, 0.06, 0.40]
@@ -22,36 +17,41 @@ T_PROFILE_MINOR=[0.71, 0.08, 0.48, 0.62, 0.05, 0.46, 0.11, 0.75, 0.40, 0.07, 0.1
 AS_PROFILE_MAJOR=[0.24, 0.01, 0.11, 0.01, 0.14, 0.09, 0.02, 0.21, 0.01, 0.08, 0.01, 0.08]
 AS_PROFILE_MINOR=[0.22, 0.01, 0.10, 0.12, 0.02, 0.10, 0.01, 0.21, 0.06, 0.02, 0.06, 0.05]
 
-class Profiles(Enum):
+class Profile(Enum):
     KS, T, AS = range(0,3)
+
+TONAL_PROFILE_NAMES = {"Krumhansl-Schmuckler":Profile.KS, "Albrecht-Shanahan":Profile.AS, "Temperley":Profile.T}
 
 class Mode(Enum):
     MAJOR, MINOR = range(2)
 
-TONAL_PROFILES={(Profiles.KS, Mode.MAJOR):KS_PROFILE_MAJOR, (Profiles.KS, Mode.MINOR):KS_PROFILE_MINOR,
-                (Profiles.T, Mode.MAJOR):T_PROFILE_MAJOR, (Profiles.T, Mode.MINOR):T_PROFILE_MINOR,
-                (Profiles.AS, Mode.MAJOR):AS_PROFILE_MAJOR, (Profiles.AS, Mode.MINOR):AS_PROFILE_MINOR,}
+TONAL_PROFILES={(Profile.KS, Mode.MAJOR):KS_PROFILE_MAJOR, (Profile.KS, Mode.MINOR):KS_PROFILE_MINOR,
+                (Profile.T, Mode.MAJOR):T_PROFILE_MAJOR, (Profile.T, Mode.MINOR):T_PROFILE_MINOR,
+                (Profile.AS, Mode.MAJOR):AS_PROFILE_MAJOR, (Profile.AS, Mode.MINOR):AS_PROFILE_MINOR,}
 
 class Algorithm(Enum):
     SIGNATURE_MODE_AXIS, SIGNATURE_TONAL_PROFILES, CLASSIC_TONAL_PROFILES = range(0, 3)
 
+ALGORITHM_NAMES = {"Signature of fifths with major/minor axis":Algorithm.SIGNATURE_MODE_AXIS,
+                   "Signature of fifths with tonal profiles":Algorithm.SIGNATURE_TONAL_PROFILES, "Only tonal profiles":Algorithm.CLASSIC_TONAL_PROFILES}
 
 class SampleMode(Enum):
     QUANTITY=1
     DURATION=2
 
+SAMPLE_CALCULATION_MODES = {"Notes quantity":SampleMode.QUANTITY, "Notes duration":SampleMode.DURATION}
+
 @dataclass
 class AlgorithmInfo:
     algorithm_type:Algorithm
     sample_calculation_mode:SampleMode
-
+    profile:Profile
 
 class Note(Enum):
     C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B = range(12)
 
 class NoteVectorDirection(Enum):
-    C_DIR, G_DIR, D_DIR, A_DIR, E_DIR, B_DIR , F_SHARP_DIR, C_SHARP_DIR, G_SHARP_DIR, D_SHARP_DIR , A_SHARP_DIR, F_DIR = \
-        range(0, 360, 30)
+    C, G, D, A, E, B, F_SHARP, C_SHARP, G_SHARP, D_SHARP, A_SHARP, F = range(0, 360, 30)
 
 @dataclass
 class Tonation:
@@ -82,18 +82,18 @@ class NoteVector:
 @dataclass
 class SignatureOfFifths:
     def __init__(self):
-        self.signature = {Note.A: NoteVector(0, NoteVectorDirection.A_DIR.value),
-                          Note.D: NoteVector(0, NoteVectorDirection.D_DIR.value),
-                          Note.G: NoteVector(0, NoteVectorDirection.G_DIR.value),
-                          Note.C: NoteVector(0, NoteVectorDirection.C_DIR.value),
-                          Note.F: NoteVector(0, NoteVectorDirection.F_DIR.value),
-                          Note.C_SHARP: NoteVector(0, NoteVectorDirection.C_SHARP_DIR.value),
-                          Note.D_SHARP: NoteVector(0, NoteVectorDirection.D_SHARP_DIR.value),
-                          Note.E: NoteVector(0, NoteVectorDirection.E_DIR.value),
-                          Note.F_SHARP: NoteVector(0, NoteVectorDirection.F_SHARP_DIR.value),
-                          Note.G_SHARP: NoteVector(0, NoteVectorDirection.G_SHARP_DIR.value),
-                          Note.A_SHARP: NoteVector(0, NoteVectorDirection.A_SHARP_DIR.value),
-                          Note.B: NoteVector(0, NoteVectorDirection.B_DIR.value)}
+        self.signature = {Note.A: NoteVector(0, NoteVectorDirection.A.value),
+                          Note.D: NoteVector(0, NoteVectorDirection.D.value),
+                          Note.G: NoteVector(0, NoteVectorDirection.G.value),
+                          Note.C: NoteVector(0, NoteVectorDirection.C.value),
+                          Note.F: NoteVector(0, NoteVectorDirection.F.value),
+                          Note.C_SHARP: NoteVector(0, NoteVectorDirection.C_SHARP.value),
+                          Note.D_SHARP: NoteVector(0, NoteVectorDirection.D_SHARP.value),
+                          Note.E: NoteVector(0, NoteVectorDirection.E.value),
+                          Note.F_SHARP: NoteVector(0, NoteVectorDirection.F_SHARP.value),
+                          Note.G_SHARP: NoteVector(0, NoteVectorDirection.G_SHARP.value),
+                          Note.A_SHARP: NoteVector(0, NoteVectorDirection.A_SHARP.value),
+                          Note.B: NoteVector(0, NoteVectorDirection.B.value)}
 
         self.cvsf:NoteVector = None
         self.mdasf:NoteVector = None

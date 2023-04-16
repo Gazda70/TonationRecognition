@@ -305,9 +305,9 @@ class TrackManager:
     def is_track_selected(self, track_number):
         return self.processed_tracks[track_number].activated
 
-    def calculate_signature(self, window_start, window_end, mode):
-        sig_util = SignatureOfFifthsUtility()
-        notes_dict = sig_util.initialize_empty_notes_dict()
+    def calculate_sample_vector(self, window_start, window_end, mode):
+        notes_dict = Counter({Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
+                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0})
         print("Window start: " + str(window_start))
         print("Window end: " + str(window_end))
         print("Track")
@@ -319,12 +319,7 @@ class TrackManager:
                     notes_dict += track.extract_note_messages_quantity(start_time_point, end_time_point)
                 elif mode == SampleMode.DURATION:
                     notes_dict += track.extract_note_messages_duration(start_time_point, end_time_point)
-        signature = sig_util.calculate_signature_of_fifths(notes_dict)
         print("NOTES DICT: ")
         for x, y in notes_dict.items():
             print(x, y)
-        print("SIGNATURE DICT: ")
-        for x, y in signature.signature.items():
-            print(x, y)
-        print("\n")
-        return signature
+        return notes_dict

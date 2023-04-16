@@ -5,8 +5,9 @@ from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
 from file_manager.file_manager import MidiReader
 from signature_drawing import CircleOfFifths, SignatureGraphic
-from model.definitions import SampleMode, ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, MAIN_UI_PAGE
-
+from model.definitions import SampleMode, ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, MAIN_UI_PAGE, AlgorithmInfo
+from utils.mappings import create_tonation_string
+from algorithms.algorithm_manager import AlgorithmManager
 
 
 class UI_MainPage(QMainWindow):
@@ -22,13 +23,13 @@ class UI_MainPage(QMainWindow):
         self.save_results_button.clicked.connect(self.save_results_button_clicker)
 
         self.algorithm_type_dropdown = self.findChild(QComboBox, "algorithm_type_dropdown")
-        self.algorithm_type_dropdown.addItems(ALGORITHM_NAMES)
+        self.algorithm_type_dropdown.addItems(ALGORITHM_NAMES.keys())
 
         self.sample_calculation_dropdown = self.findChild(QComboBox, "sample_calculation_mode")
-        self.sample_calculation_dropdown.addItems(SAMPLE_CALCULATION_MODES)
+        self.sample_calculation_dropdown.addItems(SAMPLE_CALCULATION_MODES.keys())
 
         self.tonal_profiles_dropdown = self.findChild(QComboBox, "tonal_profiles_type")
-        self.tonal_profiles_dropdown.addItems(TONAL_PROFILE_NAMES)
+        self.tonal_profiles_dropdown.addItems(TONAL_PROFILE_NAMES.keys())
 
         self.midi_channel_dropdown = self.findChild(QComboBox, "midi_channel_dropdown")
 
@@ -48,6 +49,8 @@ class UI_MainPage(QMainWindow):
         self.scene = None
 
         self.track_manager = None
+
+        self.algorithm_manager = AlgorithmManager()
 
         self.signature = None
 
@@ -89,21 +92,20 @@ class UI_MainPage(QMainWindow):
         else:
             item.setBackground(QColor('white'))
 
-    def draw_signature_graphics_view(self):
+    def draw_signature_graphics_view(self, signature):
         self.scene = QGraphicsScene()
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
         circle_of_fifths.draw()
         #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
         print("self.list_of_signatures[3]")
         #print(self.list_of_signatures[self.selected_track])
-        signature_graphic = SignatureGraphic(signature_of_fifths=self.signature,
+        signature_graphic = SignatureGraphic(signature_of_fifths=signature,
                                              #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
                                              signature_graphics_view=self.signature_graphics_view, scene=self.scene)
         signature_graphic.draw_vector_per_note()
         signature_graphic.draw_cvsf()
         signature_graphic.draw_mdasf()
         signature_graphic.draw_major_minor_mode_axis()
-        signature_graphic.draw_tonation_information(self.result_information)
 
     def save_results_button_clicker(self):
         pass
@@ -120,11 +122,13 @@ class UI_MainPage(QMainWindow):
             if window_end <= window_start:
                 QMessageBox.warning(self.scene, "Error", "Start of window must be before end of window !")
             else:
-                if self.sample_calculation_dropdown.currentText() == SAMPLE_CALCULATION_MODES[0]:
-                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SampleMode.QUANTITY)
-                elif self.sample_calculation_dropdown.currentText() == SAMPLE_CALCULATION_MODES[1]:
-                    self.signature = self.track_manager.calculate_signature(window_start, window_end, SampleMode.DURATION)
-                self.draw_signature_graphics_view()
+                algorithm_info = AlgorithmInfo(algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
+                                               sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                                               profile=TONAL_PROFILE_NAMES[self.tonal_profiles_dropdown.currentText()])
+                self.result_information, signature = self.algorithm_manager.execute_algorithm(algorithm_info,
+                                                                                              self.track_manager.calculate_sample_vector(window_start, window_end, SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()]))
+                if signature != None:
+                    self.draw_signature_graphics_view(signature)
 
 
 app = QApplication(sys.argv)
