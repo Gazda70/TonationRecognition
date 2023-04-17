@@ -50,6 +50,12 @@ class AlgorithmInfo:
 class Note(Enum):
     C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B = range(12)
 
+    @staticmethod
+    def from_string(note_string):
+        NOTES = {"C": Note.C, "C_SHARP": Note.C_SHARP, "D": Note.D, "D_SHARP": Note.D_SHARP, "E": Note.E, "F": Note.F, "F_SHARP": Note.F_SHARP, "G": Note.G,
+                 "G_SHARP": Note.G_SHARP, "A": Note.A, "A_SHARP": Note.A_SHARP, "B": Note.B}
+        return NOTES[note_string]
+
 class NoteVectorDirection(Enum):
     C, G, D, A, E, B, F_SHARP, C_SHARP, G_SHARP, D_SHARP, A_SHARP, F = range(0, 360, 30)
 

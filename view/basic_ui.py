@@ -125,8 +125,9 @@ class UI_MainPage(QMainWindow):
                 algorithm_info = AlgorithmInfo(algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
                                                sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
                                                profile=TONAL_PROFILE_NAMES[self.tonal_profiles_dropdown.currentText()])
-                self.result_information, signature = self.algorithm_manager.execute_algorithm(algorithm_info,
+                result_information, signature = self.algorithm_manager.execute_algorithm(algorithm_info,
                                                                                               self.track_manager.calculate_sample_vector(window_start, window_end, SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()]))
+                self.result_information.setText(result_information)
                 if signature != None:
                     self.draw_signature_graphics_view(signature)
 

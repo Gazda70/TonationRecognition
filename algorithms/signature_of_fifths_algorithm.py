@@ -5,7 +5,7 @@ from collections import Counter
 from utils.vector_operations import add_vector_list
 from model.definitions import NOTE_VECTOR_MAX_LENGTH, SignatureOfFifths, Tonation, Note, NoteVector, NoteVectorDirection, Mode
 
-def createected_axis_object():
+def create_directed_axis_object():
     return {
         "AXIS_C_Fsharp":{"positive": [(Note.G, 0), (Note.D, 0), (Note.A, 0), (Note.E, 0), (Note.B, 0)],
                        "negative": [(Note.F, 0), (Note.A_SHARP, 0), (Note.D_SHARP, 0), (Note.G_SHARP, 0),
@@ -65,7 +65,7 @@ def createected_axis_object():
 
 class DirectedAxisCreator:
     def determine_from_signature(self, signature: SignatureOfFifths):
-        directed_axis_collection = createected_axis_object()
+        directed_axis_collection = create_directed_axis_object()
         # print("directed_axis_collection")
         # print(directed_axis_collection)
         # print("algorithms.algorithms.keys()")
@@ -154,6 +154,10 @@ class SignatureOfFifthsUtility:
         print(mode_angle)
         signature.mode_angle = mode_angle
         return signature
+
+    def get_tonation_pointed_by_mdasf(self, signature: SignatureOfFifths):
+        tonation_pointed_by_mdasf = NoteVectorDirection((signature.mdasf.direction + 30.0) % 360)
+        return Note.from_string(tonation_pointed_by_mdasf.name)
 
     def calculate_tonation_with_mode_axis(self, signature: SignatureOfFifths) -> Tonation:
         tonation_pointed_by_mdasf = NoteVectorDirection((signature.mdasf.direction + 30.0) % 360)

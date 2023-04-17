@@ -21,7 +21,7 @@ def create_tonation_string(tonation_note, tonation_mode:Mode):
         tonation_name = 'C#'
     elif tonation_note.name == Note.G_SHARP.name:
         tonation_name = 'A♭'
-    elif ttonation_note.name == Note.D_SHARP.name:
+    elif tonation_note.name == Note.D_SHARP.name:
         tonation_name = 'E♭'
     elif tonation_note.name == Note.A_SHARP.name:
         tonation_name = 'B♭'
