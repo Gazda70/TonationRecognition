@@ -10,7 +10,3 @@ class MidiReader:
         track_manager.process_file(self.midi_file)
 
         return track_manager
-
-
-
-

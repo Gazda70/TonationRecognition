@@ -5,8 +5,8 @@ from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
 from file_manager.file_manager import MidiReader
 from signature_drawing import CircleOfFifths, SignatureGraphic
-from model.definitions import SampleMode, ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, MAIN_UI_PAGE, AlgorithmInfo
-from utils.mappings import create_tonation_string
+from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
+    MAIN_UI_PAGE, AlgorithmInfo
 from algorithms.algorithm_manager import AlgorithmManager
 
 
@@ -15,7 +15,6 @@ class UI_MainPage(QMainWindow):
         super(UI_MainPage, self).__init__()
 
         uic.loadUi(MAIN_UI_PAGE, self)
-        # https://www.youtube.com/watch?v=gg5TepTc2Jg
         self.load_file_button = self.findChild(QPushButton, "load_files_button")
         self.load_file_button.clicked.connect(self.load_file_button_clicker)
 
@@ -73,21 +72,16 @@ class UI_MainPage(QMainWindow):
         self.is_file = True
 
     def setup_track_list(self):
-        print("LIST LENGTH: " + str(self.track_manager.track_count))
         self.track_list.clear()
         for track_number in range(0, self.track_manager.track_count):
             item = QListWidgetItem("Track " + str(track_number + 1))
             self.track_list.addItem(item)
-            #print("My item: " + self.track_list.item(track_number))
-        #self.track_list.addItems(["Track " + str(track_number + 1) for track_number in range(0, len(self.list_of_signatures))])
         self.track_list.itemClicked.connect(self.track_list_selection_changed)
 
     def track_list_selection_changed(self, item):
-        print("List selection changed")
-        print(item.text()[-1:])
         self.selected_track = track_number = int(item.text()[-1:]) - 1
         self.track_manager.handle_selection(track_number)
-        if(self.track_manager.is_track_selected(track_number) is True):
+        if (self.track_manager.is_track_selected(track_number) is True):
             item.setBackground(QColor('green'))
         else:
             item.setBackground(QColor('white'))
@@ -96,11 +90,7 @@ class UI_MainPage(QMainWindow):
         self.scene = QGraphicsScene()
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
         circle_of_fifths.draw()
-        #CHECK IF THE TRACK CONTAINS ANY NOTES, IN OTHER CASE THIS OPERATION MAKES NO SENSE AND DIVIDES BY 0
-        print("self.list_of_signatures[3]")
-        #print(self.list_of_signatures[self.selected_track])
         signature_graphic = SignatureGraphic(signature_of_fifths=signature,
-                                             #THIS IS ARBITRAL CHOICE, MECHANISM FOR TRACKS HANDLING NEEDED
                                              signature_graphics_view=self.signature_graphics_view, scene=self.scene)
         signature_graphic.draw_vector_per_note()
         signature_graphic.draw_cvsf()
@@ -122,11 +112,15 @@ class UI_MainPage(QMainWindow):
             if window_end <= window_start:
                 QMessageBox.warning(self.scene, "Error", "Start of window must be before end of window !")
             else:
-                algorithm_info = AlgorithmInfo(algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
-                                               sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
-                                               profile=TONAL_PROFILE_NAMES[self.tonal_profiles_dropdown.currentText()])
+                algorithm_info = AlgorithmInfo(
+                    algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
+                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                    profile=TONAL_PROFILE_NAMES[self.tonal_profiles_dropdown.currentText()])
                 result_information, signature = self.algorithm_manager.execute_algorithm(algorithm_info,
-                                                                                              self.track_manager.calculate_sample_vector(window_start, window_end, SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()]))
+                                                                                         self.track_manager.calculate_sample_vector(
+                                                                                             window_start, window_end,
+                                                                                             SAMPLE_CALCULATION_MODES[
+                                                                                                 self.sample_calculation_dropdown.currentText()]))
                 self.result_information.setText(result_information)
                 if signature != None:
                     self.draw_signature_graphics_view(signature)

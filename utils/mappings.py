@@ -1,6 +1,7 @@
 from model.definitions import Note, Mode
 
-def create_tonation_string(tonation_note, tonation_mode:Mode):
+
+def create_tonation_string(tonation_note, tonation_mode: Mode):
     tonation_name = ''
 
     if tonation_note.name == Note.C.name:

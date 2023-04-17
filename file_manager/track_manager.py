@@ -1,32 +1,7 @@
-from algorithms.signature_of_fifths_algorithm import SignatureOfFifthsUtility
-from model.definitions import Note, RhytmicValuesDuration, RawElement, ProcessedElement, ProcessedTrack, NoteWithDuration, RhytmicValues, Tempo, SampleMode
-from enum import Enum
-import utils.paths as pth
-from collections import Counter
-from dataclasses import dataclass
+from model.definitions import Note, RhytmicValuesDuration, RawElement, ProcessedElement, NoteWithDuration, \
+    RhytmicValues, Tempo, SampleMode
 from mido import second2tick
 
-'''
-class MidiSample:
-    def __init__(self):
-        self.metrum_numerator = NotesDuration.QUARTER
-        self.metrum_denominator = NotesDuration.QUARTER
-        self.signature_calculation_mode = SignatureCalculationMode.QUANTITY
-        self.base_note = NotesDuration.QUARTER
-        self.base_notes_per_tact = self.metrum_numerator * (self.base_note / self.metrum_denominator)
-
-    def get_signature_from_sample_tact_wise(self, tact_number, start_note, end_note):
-        pass
-
-    def get_signature_from_sample(self, start_note, end_note):
-        notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
-                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
-        for msg in track:
-            if msg.is_cc():
-                if msg.type == 'note_on':
-                    notes[Note(msg.note % 12)] += 1
-        return notes
-'''
 
 class Track:
     def __init__(self, processed_track, rhytmic_values=None, activated=False, number=0):
@@ -41,30 +16,20 @@ class Track:
         messages = self.get_messages_from_window(start_time_point, end_time_point)
         notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
-        print("Notes window")
-        print(messages)
         for msg in messages:
             for note_with_duration in msg.notes:
                 if note_with_duration.note != None:
                     notes[note_with_duration.note] += 1
-
-        print("Notes dictionary: ")
-        print(notes)
         return notes
 
     def extract_note_messages_duration(self, start_time_point, end_time_point):
         messages = self.get_messages_from_window(start_time_point, end_time_point)
         notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
-        print("Notes window")
-        print(messages)
         for msg in messages:
             for note_with_duration in msg.notes:
                 if note_with_duration.note != None:
                     notes[note_with_duration.note] += msg.raw_duration
-
-        print("Notes dictionary: ")
-        print(notes)
         return notes
 
     def activate(self):
@@ -78,13 +43,9 @@ class Track:
         self.window_end = end
 
     def get_messages_from_window(self, start_note, end_note):
-        # start = start_note * self.rhytmic_values.SIXTY_FOUR
-        # end = end_note * self.rhytmic_values.SIXTY_FOUR
         start, start_remainder = self.iterate_to_value(start_note)
         end, end_remainder = self.iterate_to_value(end_note)
         messages = self.processed_track[start:end]
-        # messages = self.add_remainder(messages, start, start_remainder)
-        # messages = self.add_remainder(messages, end, end_remainder)
         return messages
 
     # def add_remainder(self, messages, index, remainder):
@@ -102,7 +63,7 @@ class Track:
             if progress_offset < target_offset:
                 current_offset = progress_offset
             elif progress_offset == target_offset:
-                return index + 1, 0 #value is obtained at index one before desired start index
+                return index + 1, 0  # value is obtained at index one before desired start index
             else:
                 return index + 1, progress_offset - target_offset
         return 0, 0
@@ -121,22 +82,9 @@ class TrackManager:
         self.ticks_per_beat = 0
 
     def process_file(self, midi_file):
-        # print(midi_file)
-        # print("MIDI type: " + str(midi_file.type))
-        # print("NUMBER OF TRACKS: " + str(len(midi_file.tracks)))
-        # for i, track in enumerate(midi_file.tracks):
-        #     print('Track {}: {}'.format(i, track.name))
-        print("MIDI type: " + str(midi_file.type))
-        print("Playback time: " + str(midi_file.length))
-        print("Ticks per beat: " + str(midi_file.ticks_per_beat))
         self.ticks_per_beat = midi_file.ticks_per_beat
         self.total_time = midi_file.length
         for i, track in enumerate(midi_file.tracks):
-            print("\n")
-            print("TRACK\n")
-            print(track)
-            print("\n")
-            print("NOTES\n")
             messages = []
             '''
             It is important to check for both velocity = 0 
@@ -151,12 +99,13 @@ class TrackManager:
             for msg in track:
                 if msg.type == 'set_tempo':
                     total_time_for_set_tempos += msg.time
-                    self.tempos.append(Tempo(tempo=msg.tempo,start_time=total_time_for_set_tempos))
+                    self.tempos.append(Tempo(tempo=msg.tempo, start_time=total_time_for_set_tempos))
                 if not msg.is_meta:
                     is_meta_track = False
                     if msg.type == 'note_on' and msg.velocity != 0:
                         if msg.time > 1:
-                            messages.append(RawElement(is_chord=False, is_pause=True, start_notes=[msg], end_notes=None, control=None, raw_duration=0))
+                            messages.append(RawElement(is_chord=False, is_pause=True, start_notes=[msg], end_notes=None,
+                                                       control=None, raw_duration=0))
                         start_notes.append(msg)
                     elif (msg.type == 'note_on' and msg.velocity == 0) or msg.type == 'note_off':
                         end_notes.append(msg)
@@ -175,19 +124,6 @@ class TrackManager:
                             pair_of_control_messages = []
                     elif msg.type == 'control_change' and len(start_notes) != 0:
                         pair_of_control_messages.append(msg)
-
-            # print("Total start messages time in seconds: " + str(total_start_messages_time))
-            # print("Total end messages time in seconds: " + str(total_end_messages_time))
-            # print("Total messages time in seconds: " + str(total_start_messages_time + total_end_messages_time))
-            # print("Total start messages time in ticks: " + str(second2tick(total_start_messages_time, midi_file.ticks_per_beat, self.tempo)))
-            # print("Total end messages time in ticks: " + str(second2tick(total_end_messages_time, midi_file.ticks_per_beat, self.tempo)))
-            # total_delta_time = sum([abs(end.time - start.time) for start, end in zip(start_messages_list, end_messages_list)])
-            # print("Total delta time in seconds: " + str(total_delta_time))
-            # print('Track {}: {}'.format(i, track.name))
-            # print("Number of start messages: " + str(len(start_messages_list)))
-            # print("Number of end messages: " + str(len(end_messages_list)))
-            # print("End messages: ")
-            # print(*Counter(end.time for start, end in zip(start_messages_list, end_messages_list)))
             if not is_meta_track and len(messages) > 0:
                 min_track_rhytm_val = float('inf')
                 for element in messages:
@@ -195,28 +131,16 @@ class TrackManager:
                         time = max([note.time for note in element.end_notes])
                         if time < min_track_rhytm_val:
                             min_track_rhytm_val = time
-                #min_track_rhytm_val = min(filter(lambda x : x >0, Counter([max([note.time for note in element.notes]) for element in messages]).keys()))
                 if min_track_rhytm_val < self.minimum_rhytmic_value:
-                     self.minimum_rhytmic_value = min_track_rhytm_val + 1 # add one because in the messages values are one smaller
+                    self.minimum_rhytmic_value = min_track_rhytm_val + 1  # add one because in the messages values are one smaller
                 self.raw_tracks.append(messages)
-            # for start, end in zip(start_messages_list, end_messages_list):
-            #     print("Start message")
-            #     print(start)
-            #     print("End message")
-            #     print(end)
-        print("Minimum rhytmic value: " + str(self.minimum_rhytmic_value))
         self.track_count = len(self.raw_tracks)
-        # quarter_note_count = int(midi_file.length / quarter_note_length)
-        # print("Quarter note length: " + str(quarter_note_length))
-        # print("Quarter note count: " + str(quarter_note_count))
         self.process_tracks()
-        print("")
 
     def process_tracks(self):
         '''
         Calculation of the number of minimal notes present in the piece
         '''
-        #self.notes_quantity = int(float(self.total_time) * 1000 / float(self.minimum_rhytmic_value))
         for raw_track in self.raw_tracks:
             processed_track = []
             total_time = 0
@@ -230,12 +154,15 @@ class TrackManager:
                     actual_tempo = self.tempos[tempos_index].tempo
                     self.calculate_rhytmic_values_duration(actual_tempo)
                 processed_track.append(self.process_raw_element(raw_element))
-            self.processed_tracks.append(Track(processed_track=processed_track, rhytmic_values=self.rhytmic_values_duration))
+            self.processed_tracks.append(
+                Track(processed_track=processed_track, rhytmic_values=self.rhytmic_values_duration))
 
     def calculate_rhytmic_values_duration(self, tempo):
         quarter_note_length = second2tick(float(tempo) / 1000000.0, self.ticks_per_beat, tempo)
-        self.rhytmic_values_duration =  RhytmicValuesDuration(quarter_note_length * 4, quarter_note_length * 2,
-        quarter_note_length, quarter_note_length/2, quarter_note_length/4, quarter_note_length/8, quarter_note_length/16)
+        self.rhytmic_values_duration = RhytmicValuesDuration(quarter_note_length * 4, quarter_note_length * 2,
+                                                             quarter_note_length, quarter_note_length / 2,
+                                                             quarter_note_length / 4, quarter_note_length / 8,
+                                                             quarter_note_length / 16)
 
     def calculate_notes_raw_duration(self, element):
         duration = 0
@@ -250,10 +177,12 @@ class TrackManager:
         notes = []
         duration = 0
         if element.is_pause:
-            notes.append(NoteWithDuration(note=None, is_pause=True, duration=self.map_rhytmic_values(element.start_notes[0].time)))
+            notes.append(NoteWithDuration(note=None, is_pause=True,
+                                          duration=self.map_rhytmic_values(element.start_notes[0].time)))
             return ProcessedElement(is_chord=False, notes=notes, raw_duration=element.start_notes[0].time)
         for end in element.end_notes:
-            notes.append(NoteWithDuration(note=Note(end.note % 12), is_pause=False, duration=self.map_rhytmic_values(duration)))
+            notes.append(
+                NoteWithDuration(note=Note(end.note % 12), is_pause=False, duration=self.map_rhytmic_values(duration)))
 
         return ProcessedElement(is_chord=(len(element.end_notes) != 1), notes=notes, raw_duration=element.raw_duration)
 
@@ -306,11 +235,9 @@ class TrackManager:
 
     def calculate_sample_vector(self, window_start, window_end, mode):
         notes_dict = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
-                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
-        print("Window start: " + str(window_start))
-        print("Window end: " + str(window_end))
-        print("Track")
-        start_time_point = self.rhytmic_values_duration.EIGHT * (window_start - 1)#input values like 1 - 3, translate to values like 0 - 2 (proper array indexing)
+                      Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
+        start_time_point = self.rhytmic_values_duration.EIGHT * (
+                    window_start - 1)  # input values like 1 - 3, translate to values like 0 - 2 (proper array indexing)
         end_time_point = self.rhytmic_values_duration.EIGHT * (window_end)
         for track in self.processed_tracks:
             if track.activated is True:
@@ -318,7 +245,4 @@ class TrackManager:
                     notes_dict.update(track.extract_note_messages_quantity(start_time_point, end_time_point))
                 elif mode == SampleMode.DURATION:
                     notes_dict.update(track.extract_note_messages_duration(start_time_point, end_time_point))
-        print("NOTES DICT: ")
-        for x, y in notes_dict.items():
-            print(x, y)
         return notes_dict
