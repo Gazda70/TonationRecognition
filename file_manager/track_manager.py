@@ -39,8 +39,8 @@ class Track:
 
     def extract_note_messages_quantity(self, start_time_point, end_time_point):
         messages = self.get_messages_from_window(start_time_point, end_time_point)
-        notes = Counter({Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
-                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0})
+        notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
+                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
         print("Notes window")
         print(messages)
         for msg in messages:
@@ -87,14 +87,13 @@ class Track:
         # messages = self.add_remainder(messages, end, end_remainder)
         return messages
 
-    def add_remainder(self, messages, index, remainder):
-        if(remainder > 0):
-            if not messages[index].is_chord:
-                messages[index] = ProcessedElement(false,
-                                               NoteWithDuration(messages[index].notes[0].note, messages[index].notes[0].duration - remainder))
-            else:
-                messages[index].notes = [NoteWithDuration(note.note, note.duration - remainder) for note in messages[index].notes]
-        return messages
+    # def add_remainder(self, messages, index, remainder):
+    #     if(remainder > 0):
+    #         if not messages[index].is_chord:
+    #             messages[index] = ProcessedElement(false, NoteWithDuration(messages[index].notes[0].note, messages[index].notes[0].duration - remainder))
+    #         else:
+    #             messages[index].notes = [NoteWithDuration(note.note, note.duration - remainder) for note in messages[index].notes]
+    #     return messages
 
     def iterate_to_value(self, target_offset):
         current_offset = 0
@@ -306,8 +305,8 @@ class TrackManager:
         return self.processed_tracks[track_number].activated
 
     def calculate_sample_vector(self, window_start, window_end, mode):
-        notes_dict = Counter({Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
-                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0})
+        notes_dict = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
+                 Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
         print("Window start: " + str(window_start))
         print("Window end: " + str(window_end))
         print("Track")
@@ -316,9 +315,9 @@ class TrackManager:
         for track in self.processed_tracks:
             if track.activated is True:
                 if mode == SampleMode.QUANTITY:
-                    notes_dict += track.extract_note_messages_quantity(start_time_point, end_time_point)
+                    notes_dict.update(track.extract_note_messages_quantity(start_time_point, end_time_point))
                 elif mode == SampleMode.DURATION:
-                    notes_dict += track.extract_note_messages_duration(start_time_point, end_time_point)
+                    notes_dict.update(track.extract_note_messages_duration(start_time_point, end_time_point))
         print("NOTES DICT: ")
         for x, y in notes_dict.items():
             print(x, y)

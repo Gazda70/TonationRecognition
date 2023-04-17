@@ -136,8 +136,8 @@ app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()
 main_ui_page = UI_MainPage()
 widget.addWidget(main_ui_page)
-w = 1500
-h = 1100
+w = 1200
+h = 900
 widget.resize(w, h)
 widget.show()
 app.exec_()
