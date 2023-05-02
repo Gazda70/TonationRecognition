@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1500</width>
-    <height>1100</height>
+    <width>1600</width>
+    <height>934</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,27 +17,27 @@
    <widget class="QComboBox" name="algorithm_type_dropdown">
     <property name="geometry">
      <rect>
-      <x>650</x>
+      <x>530</x>
       <y>60</y>
-      <width>161</width>
-      <height>61</height>
+      <width>271</width>
+      <height>31</height>
      </rect>
     </property>
    </widget>
    <widget class="QComboBox" name="tonal_profiles_type">
     <property name="geometry">
      <rect>
-      <x>1010</x>
+      <x>1130</x>
       <y>60</y>
-      <width>161</width>
-      <height>61</height>
+      <width>271</width>
+      <height>31</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="load_files_button">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>20</x>
       <y>60</y>
       <width>161</width>
       <height>61</height>
@@ -55,7 +55,7 @@
    <widget class="QPushButton" name="save_results_button">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>200</x>
       <y>60</y>
       <width>181</width>
       <height>61</height>
@@ -73,8 +73,8 @@
    <widget class="QGraphicsView" name="signature_graphic_view">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>360</y>
+      <x>800</x>
+      <y>230</y>
       <width>751</width>
       <height>631</height>
      </rect>
@@ -83,8 +83,8 @@
    <widget class="QPushButton" name="calculate_button">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>910</y>
+      <x>510</x>
+      <y>780</y>
       <width>281</width>
       <height>81</height>
      </rect>
@@ -103,16 +103,16 @@
      <rect>
       <x>830</x>
       <y>60</y>
-      <width>161</width>
-      <height>61</height>
+      <width>271</width>
+      <height>31</height>
      </rect>
     </property>
    </widget>
    <widget class="QLabel" name="track_list_label">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>325</y>
+      <x>20</x>
+      <y>130</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -129,19 +129,19 @@
    <widget class="QListWidget" name="track_list">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>360</y>
-      <width>256</width>
+      <x>20</x>
+      <y>170</y>
+      <width>501</width>
       <height>192</height>
      </rect>
     </property>
    </widget>
-   <widget class="QTextEdit" name="notes_window_start">
+   <widget class="QTextEdit" name="window_start_position">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>630</y>
-      <width>271</width>
+      <x>20</x>
+      <y>410</y>
+      <width>241</width>
       <height>31</height>
      </rect>
     </property>
@@ -149,27 +149,27 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>580</y>
-      <width>281</width>
+      <x>20</x>
+      <y>370</y>
+      <width>251</width>
       <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>18</pointsize>
+      <pointsize>15</pointsize>
      </font>
     </property>
     <property name="text">
-     <string>Notes - window start</string>
+     <string>Window start position</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="notes_window_end">
+   <widget class="QTextEdit" name="window_end_position">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>730</y>
-      <width>261</width>
+      <x>280</x>
+      <y>410</y>
+      <width>241</width>
       <height>31</height>
      </rect>
     </property>
@@ -177,26 +177,26 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>680</y>
-      <width>271</width>
+      <x>280</x>
+      <y>370</y>
+      <width>241</width>
       <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>18</pointsize>
+      <pointsize>15</pointsize>
      </font>
     </property>
     <property name="text">
-     <string>Notes - window end</string>
+     <string>Window end position</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>290</y>
+      <x>800</x>
+      <y>170</y>
       <width>301</width>
       <height>51</height>
      </rect>
@@ -207,14 +207,14 @@
      </font>
     </property>
     <property name="text">
-     <string>Current tonation:</string>
+     <string>Tonality:</string>
     </property>
    </widget>
    <widget class="QLabel" name="result_information">
     <property name="geometry">
      <rect>
-      <x>860</x>
-      <y>290</y>
+      <x>1110</x>
+      <y>170</y>
       <width>431</width>
       <height>51</height>
      </rect>
@@ -228,13 +228,125 @@
      <string>unknown</string>
     </property>
    </widget>
+   <widget class="QComboBox" name="min_rhytmic_value">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>585</y>
+      <width>281</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="max_number_of_notes">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>590</y>
+      <width>231</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>540</y>
+      <width>241</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Max number of notes</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>540</y>
+      <width>281</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Select base rhytmic value</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="units_from_start">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>495</y>
+      <width>301</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="units_from_end">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>490</y>
+      <width>301</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>460</y>
+      <width>301</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Number of units from start</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>460</y>
+      <width>291</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Number of units from end</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1500</width>
+     <width>1600</width>
      <height>26</height>
     </rect>
    </property>

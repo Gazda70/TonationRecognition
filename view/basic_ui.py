@@ -6,7 +6,7 @@ from PyQt5.QtGui import QColor
 from file_manager.file_manager import MidiReader
 from signature_drawing import CircleOfFifths, SignatureGraphic
 from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
-    MAIN_UI_PAGE, AlgorithmInfo
+    MAIN_UI_PAGE, AlgorithmInfo, RHYTMIC_VALUES
 from algorithms.algorithm_manager import AlgorithmManager
 
 
@@ -41,9 +41,19 @@ class UI_MainPage(QMainWindow):
 
         self.result_information = self.findChild(QLabel, "result_information")
 
-        self.notes_window_start = self.findChild(QTextEdit, "notes_window_start")
+        self.window_start_position = self.findChild(QTextEdit, "window_start_position")
 
-        self.notes_window_end = self.findChild(QTextEdit, "notes_window_end")
+        self.window_end_position = self.findChild(QTextEdit, "window_end_position")
+
+        self.units_from_start = self.findChild(QTextEdit, "units_from_start")
+
+        self.units_from_end = self.findChild(QTextEdit, "units_from_end")
+
+        self.max_number_of_notes = self.findChild(QTextEdit, "max_number_of_notes")
+
+        self.min_rhytmic_value = self.findChild(QComboBox, "min_rhytmic_value")
+        self.min_rhytmic_value.addItems(RHYTMIC_VALUES.keys())
+        self.min_rhytmic_value.currentTextChanged.connect(self.set_base_rhytmic_value)
 
         self.scene = None
 
@@ -86,6 +96,13 @@ class UI_MainPage(QMainWindow):
         else:
             item.setBackground(QColor('white'))
 
+    def set_base_rhytmic_value(self, note_resolution):
+        if self.is_file == False:
+            QMessageBox.warning(self.scene, "Error", "Select file !")
+        else:
+            self.max_number_of_notes.setText(note_resolution)
+
+
     def draw_signature_graphics_view(self, signature):
         self.scene = QGraphicsScene()
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
@@ -103,12 +120,12 @@ class UI_MainPage(QMainWindow):
     def calculate_button_clicker(self):
         if self.is_file == False:
             QMessageBox.warning(self.scene, "Error", "Select file !")
-        elif self.notes_window_start.document().isEmpty() is True \
-                or self.notes_window_end.document().isEmpty() is True:
+        elif self.window_start_position.document().isEmpty() is True \
+                or self.window_end_position.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select time window !")
         else:
-            window_start = int(self.notes_window_start.toPlainText())
-            window_end = int(self.notes_window_end.toPlainText())
+            window_start = int(self.window_start_position.toPlainText())
+            window_end = int(self.window_end_position.toPlainText())
             if window_end <= window_start:
                 QMessageBox.warning(self.scene, "Error", "Start of window must be before end of window !")
             else:
@@ -120,7 +137,7 @@ class UI_MainPage(QMainWindow):
                                                                                          self.track_manager.calculate_sample_vector(
                                                                                              window_start, window_end,
                                                                                              SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_dropdown.currentText()]))
+                                                                                                 self.sample_calculation_dropdown.currentText()], self.min_rhytmic_value.currentText()))
                 self.result_information.setText(result_information)
                 if signature != None:
                     self.draw_signature_graphics_view(signature)
@@ -130,7 +147,7 @@ app = QApplication(sys.argv)
 widget = QtWidgets.QStackedWidget()
 main_ui_page = UI_MainPage()
 widget.addWidget(main_ui_page)
-w = 1200
+w = 1800
 h = 900
 widget.resize(w, h)
 widget.show()
