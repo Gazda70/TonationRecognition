@@ -5,7 +5,7 @@ from model.definitions import SignatureOfFifths
 from algorithms.signature_of_fifths_algorithm import SignatureOfFifthsUtility
 import math
 
-TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'A♭', 'E♭', 'B♭', 'F']
+TONATION_NAMES = ['C', 'G', 'D', 'A', 'E', 'H', 'F#', 'D♭', 'A♭', 'E♭', 'B', 'F']
 
 
 class CircleOfFifths:
@@ -30,7 +30,7 @@ class CircleOfFifths:
 
             textTransform.rotate(angle)
             move = self.rec_start_y - 20
-            textTransform.translate(0, move)
+            textTransform.translate(-7, move)
             text.setTransform(textTransform)
 
 class SignatureGraphic:
