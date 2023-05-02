@@ -20,14 +20,9 @@ class CircleOfFifths:
         self.rec_end_y = 400
 
     def draw(self):
-        self.scene.addEllipse(self.rec_start_x, self.rec_start_y, self.rec_end_x, self.rec_end_y, self.pen, self.brush)
+        self.scene.addEllipse(self.rec_start_x, self.rec_start_y, self.rec_end_x, self.rec_end_y, self.pen)
 
         for angle, note in zip(range(0, 360, 30), TONATION_NAMES):
-            transform = QTransform()
-            line = self.scene.addLine(0, 0, 0, self.rec_start_y, self.pen)
-            transform.rotate(angle)
-            line.setTransform(transform)
-
             textTransform = QTransform()
             text = self.scene.addText(note)
 
