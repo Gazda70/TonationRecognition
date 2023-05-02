@@ -53,8 +53,8 @@ class SignatureGraphic:
             self.draw_vector(value.length, value.direction, QPen(Qt.blue))
 
     def draw_cvsf(self):
-        self.draw_vector(self.signature_of_fifths.cvsf.length, self.signature_of_fifths.cvsf.direction,
-                         QPen(Qt.black, 5))
+        self.draw_vector(1, self.signature_of_fifths.cvsf.direction,
+                         QPen(Qt.black, 5), "CVSF")
 
 
     def arrowCalc(self, start_point=None, end_point=None):  # calculates the point where the arrow should be drawn
@@ -86,13 +86,21 @@ class SignatureGraphic:
         except (ZeroDivisionError, Exception):
             return None
 
-    def draw_vector(self, vector_magnitude, vector_angle, pen: QPen):
+    def draw_vector(self, vector_magnitude, vector_angle, pen: QPen, text_to_display=None):
         note_vector_length_normalised = vector_magnitude * self.rec_start_y
         note_vector_direction = vector_angle
         transform = QTransform()
         line = self.scene.addLine(0, 0, 0, note_vector_length_normalised, pen)
         transform.rotate(note_vector_direction)
         line.setTransform(transform)
+        if text_to_display != None:
+            textTransform = QTransform()
+            text = self.scene.addText(text_to_display)
+            textTransform.rotate(vector_angle)
+            move = self.rec_start_y + 50
+            textTransform.translate(40, move)
+            textTransform.rotate(-vector_angle)
+            text.setTransform(textTransform)
 
     def draw_vector_with_arrow(self, vector_magnitude, vector_angle, pen: QPen, text_to_display, arrow_pen:QPen, arrow_brush:QBrush):
         note_vector_length_normalised = vector_magnitude * self.rec_start_y
