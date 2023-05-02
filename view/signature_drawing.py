@@ -59,7 +59,7 @@ class SignatureGraphic:
 
     def arrowCalc(self, start_point=None, end_point=None):  # calculates the point where the arrow should be drawn
         arrow_height = 20
-        arrow_width = 20
+        arrow_width = 10
         try:
             startPoint, endPoint = start_point, end_point
 
@@ -94,7 +94,7 @@ class SignatureGraphic:
         transform.rotate(note_vector_direction)
         line.setTransform(transform)
 
-    def draw_vector_with_arrow(self, vector_magnitude, vector_angle, pen: QPen, text_to_display):
+    def draw_vector_with_arrow(self, vector_magnitude, vector_angle, pen: QPen, text_to_display, arrow_pen:QPen, arrow_brush:QBrush):
         note_vector_length_normalised = vector_magnitude * self.rec_start_y
         note_vector_direction = vector_angle
         transform = QTransform()
@@ -103,7 +103,7 @@ class SignatureGraphic:
         line.setTransform(transform)
 
         arrow = self.arrowCalc(QPointF(0.0, 0.0), QPointF(0.0, note_vector_length_normalised))  # change path.PointAtPercent() value to move arrow on the line
-        arrow_polygon = self.scene.addPolygon(arrow)
+        arrow_polygon = self.scene.addPolygon(arrow, arrow_pen, arrow_brush)
         arrow_polygon.setTransform(transform)
         textTransform = QTransform()
 
@@ -116,10 +116,10 @@ class SignatureGraphic:
         text.setTransform(textTransform)
 
     def draw_mdasf(self):
-        self.draw_vector_with_arrow(1.0, self.signature_of_fifths.mdasf.direction, QPen(Qt.darkCyan, 5), "MDASF")
-        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction - 180.0, QPen(Qt.darkCyan, 5))
+        self.draw_vector_with_arrow(1.0, self.signature_of_fifths.mdasf.direction, QPen(Qt.red, 3, Qt.DashLine), "MDASF", QPen(Qt.red, 3), QBrush(Qt.red))
+        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction - 180.0, QPen(Qt.red, 3, Qt.DashLine))
 
     def draw_major_minor_mode_axis(self):
         mode_axis_angle = self.signature_of_fifths.mdasf.direction + 90.0
-        self.draw_vector_with_arrow(1.0, mode_axis_angle, QPen(Qt.darkBlue, 5), "MODE")
-        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.darkBlue, 5))
+        self.draw_vector_with_arrow(1.0, mode_axis_angle, QPen(Qt.green, 3, Qt.DashLine), "MODE", QPen(Qt.green, 3), QBrush(Qt.green))
+        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.green, 3, Qt.DashLine))

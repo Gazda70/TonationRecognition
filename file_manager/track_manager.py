@@ -57,6 +57,8 @@ class Track:
     #     return messages
 
     def iterate_to_value(self, note_type, notes_multiplicity):
+
+        #TODO sprawdzenia zakresu czasu trwania nut
         time_passed = 0
         actual_note_time = 0
         rhytm_val_iter = 0
