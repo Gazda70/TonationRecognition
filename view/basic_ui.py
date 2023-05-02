@@ -143,12 +143,13 @@ class UI_MainPage(QMainWindow):
                     self.draw_signature_graphics_view(signature)
 
 
-app = QApplication(sys.argv)
-widget = QtWidgets.QStackedWidget()
-main_ui_page = UI_MainPage()
-widget.addWidget(main_ui_page)
-w = 1800
-h = 900
-widget.resize(w, h)
-widget.show()
-app.exec_()
+if ( __name__ == '__main__' ):
+    app = QApplication(sys.argv)
+    widget = QtWidgets.QStackedWidget()
+    main_ui_page = UI_MainPage()
+    widget.addWidget(main_ui_page)
+    w = 1800
+    h = 900
+    widget.resize(w, h)
+    widget.show()
+    app.exec_()
