@@ -33,4 +33,4 @@ def create_tonation_string(tonation_note, tonation_mode: Mode):
     if tonation_mode.name == Mode.MINOR.name:
         mode = "minor"
 
-    return "Tonation: " + tonation_name + " " + mode
+    return tonation_name + " " + mode

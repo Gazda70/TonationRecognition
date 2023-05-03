@@ -6,7 +6,7 @@ from PyQt5.QtGui import QColor
 from file_manager.file_manager import MidiReader
 from signature_drawing import CircleOfFifths, SignatureGraphic
 from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
-    MAIN_UI_PAGE, AlgorithmInfo, RHYTMIC_VALUES
+    MAIN_UI_PAGE, AlgorithmInfo, RHYTMIC_VALUES, Algorithm, Profile
 from algorithms.algorithm_manager import AlgorithmManager
 
 
@@ -103,7 +103,7 @@ class UI_MainPage(QMainWindow):
             self.max_number_of_notes.setText(note_resolution)
 
 
-    def draw_signature_graphics_view(self, signature):
+    def draw_signature_graphics_view(self, signature, ks_results, as_results, t_results):
         self.scene = QGraphicsScene()
         circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
         circle_of_fifths.draw()
@@ -113,6 +113,7 @@ class UI_MainPage(QMainWindow):
         signature_graphic.draw_cvsf()
         signature_graphic.draw_mdasf()
         signature_graphic.draw_major_minor_mode_axis()
+        signature_graphic.draw_tonal_profiles_results(ks_results, as_results, t_results)
 
     def save_results_button_clicker(self):
         pass
@@ -138,9 +139,39 @@ class UI_MainPage(QMainWindow):
                                                                                              window_start, window_end,
                                                                                              SAMPLE_CALCULATION_MODES[
                                                                                                  self.sample_calculation_dropdown.currentText()], self.min_rhytmic_value.currentText()))
+
+                ks_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                    profile=Profile.KS),
+                                                                                         self.track_manager.calculate_sample_vector(
+                                                                                             window_start, window_end,
+                                                                                             SAMPLE_CALCULATION_MODES[
+                                                                                                 self.sample_calculation_dropdown.currentText()],
+                                                                                             self.min_rhytmic_value.currentText()))
+
+                as_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                    profile=Profile.AS),
+                                                                                         self.track_manager.calculate_sample_vector(
+                                                                                             window_start, window_end,
+                                                                                             SAMPLE_CALCULATION_MODES[
+                                                                                                 self.sample_calculation_dropdown.currentText()],
+                                                                                             self.min_rhytmic_value.currentText()))
+
+                t_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                    profile=Profile.T),
+                                                                                         self.track_manager.calculate_sample_vector(
+                                                                                             window_start, window_end,
+                                                                                             SAMPLE_CALCULATION_MODES[
+                                                                                                 self.sample_calculation_dropdown.currentText()],
+                                                                                             self.min_rhytmic_value.currentText()))
                 self.result_information.setText(result_information)
                 if signature != None:
-                    self.draw_signature_graphics_view(signature)
+                    self.draw_signature_graphics_view(signature, ks_results, as_results, t_results)
 
 
 if ( __name__ == '__main__' ):

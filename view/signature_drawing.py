@@ -131,3 +131,17 @@ class SignatureGraphic:
         mode_axis_angle = self.signature_of_fifths.mdasf.direction + 90.0
         self.draw_vector_with_arrow(1.0, mode_axis_angle, QPen(Qt.green, 3, Qt.DashLine), "MODE", QPen(Qt.green, 3), QBrush(Qt.green))
         self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.green, 3, Qt.DashLine))
+
+    def draw_tonal_profiles_results(self, ks_results, as_results, t_results):
+        textTransform = QTransform()
+        textTransform.translate(-200, 300)
+        first_text = self.scene.addText("Krumhansl-Schmuckler: " + ks_results)
+        first_text.setTransform(textTransform)
+        textTransform = QTransform()
+        textTransform.translate(-200, 320)
+        second_text = self.scene.addText("Albrecht-Schanachan: " + as_results)
+        second_text.setTransform(textTransform)
+        textTransform = QTransform()
+        textTransform.translate(-200, 340)
+        third_text = self.scene.addText("Temperley: " + t_results)
+        third_text.setTransform(textTransform)
