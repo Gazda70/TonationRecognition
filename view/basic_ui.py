@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
 from file_manager.file_manager import MidiReader
@@ -55,6 +55,22 @@ class UI_MainPage(QMainWindow):
         self.min_rhytmic_value.addItems(RHYTMIC_VALUES.keys())
         self.min_rhytmic_value.currentTextChanged.connect(self.set_base_rhytmic_value)
 
+        self.show_main_axis_checkbox = self.findChild(QCheckBox, "show_main_axis_checkbox")
+        self.show_main_axis_checkbox.setChecked(True)
+        self.show_main_axis_checkbox.stateChanged.connect(self.show_main_axis_state_changed)
+
+        self.show_mode_axis_checkbox = self.findChild(QCheckBox, "show_mode_axis_checkbox")
+        self.show_mode_axis_checkbox.setChecked(True)
+        self.show_mode_axis_checkbox.stateChanged.connect(self.show_mode_axis_state_changed)
+
+        self.show_cvsf_checkbox = self.findChild(QCheckBox, "show_cvsf_checkbox")
+        self.show_cvsf_checkbox.setChecked(True)
+        self.show_cvsf_checkbox.stateChanged.connect(self.show_cvsf_state_changed)
+
+        self.show_signature_checkbox = self.findChild(QCheckBox, "show_signature_checkbox")
+        self.show_signature_checkbox.setChecked(True)
+        self.show_signature_checkbox.stateChanged.connect(self.show_signature_state_changed)
+
         self.scene = None
 
         self.track_manager = None
@@ -62,6 +78,20 @@ class UI_MainPage(QMainWindow):
         self.algorithm_manager = AlgorithmManager()
 
         self.signature = None
+
+        self.ks_results = None
+
+        self.as_results = None
+
+        self.t_results = None
+
+        self.draw_mdasf = True
+
+        self.draw_mode = True
+
+        self.draw_cvsf = True
+
+        self.draw_signature = True
 
         self.selected_track = 0
 
@@ -102,18 +132,49 @@ class UI_MainPage(QMainWindow):
         else:
             self.max_number_of_notes.setText(note_resolution)
 
+    def show_main_axis_state_changed(self, item):
+        if self.show_main_axis_checkbox.isChecked():
+            self.draw_mdasf = True
+        else:
+            self.draw_mdasf = False
+        self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
+    def show_mode_axis_state_changed(self, item):
+        if self.show_mode_axis_checkbox.isChecked():
+            self.draw_mode = True
+        else:
+            self.draw_mode = False
+        self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
+
+    def show_cvsf_state_changed(self, item):
+        if self.show_cvsf_checkbox.isChecked():
+            self.draw_cvsf = True
+        else:
+            self.draw_cvsf = False
+        self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
+
+    def show_signature_state_changed(self, item):
+        if self.show_signature_checkbox.isChecked():
+            self.draw_signature = True
+        else:
+            self.draw_signature = False
+        self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
 
     def draw_signature_graphics_view(self, signature, ks_results, as_results, t_results):
-        self.scene = QGraphicsScene()
-        circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
-        circle_of_fifths.draw()
-        signature_graphic = SignatureGraphic(signature_of_fifths=signature,
-                                             signature_graphics_view=self.signature_graphics_view, scene=self.scene)
-        signature_graphic.draw_vector_per_note()
-        signature_graphic.draw_cvsf()
-        signature_graphic.draw_mdasf()
-        signature_graphic.draw_major_minor_mode_axis()
-        signature_graphic.draw_tonal_profiles_results(ks_results, as_results, t_results)
+        if self.signature != None and self.ks_results != None and self.as_results != None and self.t_results != None:
+            self.scene = QGraphicsScene()
+            circle_of_fifths = CircleOfFifths(self.signature_graphics_view, self.scene)
+            circle_of_fifths.draw()
+            signature_graphic = SignatureGraphic(signature_of_fifths=signature,
+                                                 signature_graphics_view=self.signature_graphics_view, scene=self.scene)
+            if self.draw_signature:
+                signature_graphic.draw_vector_per_note()
+            if self.draw_cvsf:
+                signature_graphic.draw_cvsf()
+            if self.draw_mdasf:
+                signature_graphic.draw_mdasf()
+            if self.draw_mode:
+                signature_graphic.draw_major_minor_mode_axis()
+            signature_graphic.draw_tonal_profiles_results(ks_results, as_results, t_results)
 
     def save_results_button_clicker(self):
         pass
@@ -134,13 +195,13 @@ class UI_MainPage(QMainWindow):
                     algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
                     sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
                     profile=TONAL_PROFILE_NAMES[self.tonal_profiles_dropdown.currentText()])
-                result_information, signature = self.algorithm_manager.execute_algorithm(algorithm_info,
+                result_information, self.signature = self.algorithm_manager.execute_algorithm(algorithm_info,
                                                                                          self.track_manager.calculate_sample_vector(
                                                                                              window_start, window_end,
                                                                                              SAMPLE_CALCULATION_MODES[
                                                                                                  self.sample_calculation_dropdown.currentText()], self.min_rhytmic_value.currentText()))
 
-                ks_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                self.ks_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
                     algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
                     sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
                     profile=Profile.KS),
@@ -150,7 +211,7 @@ class UI_MainPage(QMainWindow):
                                                                                                  self.sample_calculation_dropdown.currentText()],
                                                                                              self.min_rhytmic_value.currentText()))
 
-                as_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                self.as_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
                     algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
                     sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
                     profile=Profile.AS),
@@ -160,7 +221,7 @@ class UI_MainPage(QMainWindow):
                                                                                                  self.sample_calculation_dropdown.currentText()],
                                                                                              self.min_rhytmic_value.currentText()))
 
-                t_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                self.t_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
                     algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
                     sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
                     profile=Profile.T),
@@ -170,8 +231,7 @@ class UI_MainPage(QMainWindow):
                                                                                                  self.sample_calculation_dropdown.currentText()],
                                                                                              self.min_rhytmic_value.currentText()))
                 self.result_information.setText(result_information)
-                if signature != None:
-                    self.draw_signature_graphics_view(signature, ks_results, as_results, t_results)
+                self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
 
 
 if ( __name__ == '__main__' ):
