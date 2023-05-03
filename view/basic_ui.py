@@ -109,6 +109,7 @@ class UI_MainPage(QMainWindow):
         reader = MidiReader()
         self.track_manager = reader.read_file(filename)
         self.setup_track_list()
+        self.max_number_of_notes.setText(str(self.track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])))
         self.is_file = True
 
     def setup_track_list(self):
@@ -130,7 +131,7 @@ class UI_MainPage(QMainWindow):
         if self.is_file == False:
             QMessageBox.warning(self.scene, "Error", "Select file !")
         else:
-            self.max_number_of_notes.setText(note_resolution)
+            self.max_number_of_notes.setText(str(self.track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])))
 
     def show_main_axis_state_changed(self, item):
         if self.show_main_axis_checkbox.isChecked():

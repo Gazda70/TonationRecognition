@@ -56,6 +56,23 @@ class Track:
     #             messages[index].notes = [NoteWithDuration(note.note, note.duration - remainder) for note in messages[index].notes]
     #     return messages
 
+    def check_base_rhytmic_value_multiplicity(self, note_type):
+        time_passed = 0
+        note_multiplicity = 0
+        rhytm_val_iter = 0
+        actual_note_time = 0
+        for index in range(0, len(self.processed_track)):
+            time_passed += self.processed_track[index].raw_duration
+            actual_note_time += self.processed_track[index].raw_duration
+            if time_passed >= self.rhytmic_values[rhytm_val_iter].start_time:
+                rhytm_val_iter += 1
+                if rhytm_val_iter == len(self.rhytmic_values):
+                    break
+            if actual_note_time >= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]:
+                note_multiplicity += 1
+                actual_note_time -= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]
+        return note_multiplicity
+
     def iterate_to_value(self, note_type, notes_multiplicity):
 
         #TODO sprawdzenia zakresu czasu trwania nut
@@ -69,6 +86,8 @@ class Track:
             actual_note_time += self.processed_track[track_iter].raw_duration
             if time_passed >= self.rhytmic_values[rhytm_val_iter].start_time:
                 rhytm_val_iter += 1
+                if rhytm_val_iter == len(self.rhytmic_values):
+                    break
             if actual_note_time >= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type]:
                 notes_iter += 1
                 actual_note_time -= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type]
@@ -96,6 +115,8 @@ class TrackManager:
         self.minimum_rhytmic_value = float('inf')
         self.tempos = []
         self.rhytmic_values_duration = RhytmicValuesDuration(2000000, 1000000, 500000, 250000, 125000, 62500, 31250)
+        #self.rhytmic_values_multiplicity = {"WHOLE":0, "HALF":0, "QUARTER":0, "EIGHTH":0, "SIXTEEN":0, "THIRTY_TWO":0, "SIXTY_FOUR":0}
+        self.rhytmic_values_multiplicity = 0
         self.ticks_per_beat = 0
 
     def process_file(self, midi_file):
@@ -173,8 +194,7 @@ class TrackManager:
                     rhytmic_values_with_start_time.append(RhytmicValuesDurationWithStartTime(start_time=self.tempos[tempos_index].start_time,
                                                                                              rhytmic_values_duration=self.rhytmic_values_duration))
                 processed_track.append(self.process_raw_element(raw_element))
-            self.processed_tracks.append(
-                Track(processed_track=processed_track, rhytmic_values=rhytmic_values_with_start_time))
+            self.processed_tracks.append(Track(processed_track=processed_track, rhytmic_values=rhytmic_values_with_start_time))
 
     def calculate_rhytmic_values_duration(self, tempo):
         quarter_note_length = second2tick(float(tempo) / 1000000.0, self.ticks_per_beat, tempo)
@@ -267,3 +287,6 @@ class TrackManager:
                 elif mode == SampleMode.DURATION:
                     notes_dict.update(track.extract_note_messages_duration(window_start, window_end, base_rhytmic_value))
         return notes_dict
+
+    def calculate_base_rhytmic_value_multiplicity(self, note_type):
+        return self.processed_tracks[0].check_base_rhytmic_value_multiplicity(note_type)
