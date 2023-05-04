@@ -69,8 +69,8 @@ class Track:
                 if rhytm_val_iter == len(self.rhytmic_values):
                     break
             if actual_note_time >= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]:
-                note_multiplicity += 1
-                actual_note_time -= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]
+                note_multiplicity += int(actual_note_time / asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name])
+                actual_note_time = int(actual_note_time % asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name])
         return note_multiplicity
 
     def iterate_to_value(self, note_type, notes_multiplicity):

@@ -97,6 +97,8 @@ class UI_MainPage(QMainWindow):
 
         self.is_file = False
 
+        self.max_number_of_notes_to_check = 0
+
         self.show()
 
     def load_file_button_clicker(self):
@@ -109,7 +111,8 @@ class UI_MainPage(QMainWindow):
         reader = MidiReader()
         self.track_manager = reader.read_file(filename)
         self.setup_track_list()
-        self.max_number_of_notes.setText(str(self.track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])))
+        self.max_number_of_notes_to_check = self.track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])
+        self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
         self.is_file = True
 
     def setup_track_list(self):
@@ -131,7 +134,9 @@ class UI_MainPage(QMainWindow):
         if self.is_file == False:
             QMessageBox.warning(self.scene, "Error", "Select file !")
         else:
-            self.max_number_of_notes.setText(str(self.track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])))
+            self.max_number_of_notes_to_check = self.track_manager.calculate_base_rhytmic_value_multiplicity(
+                RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])
+            self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
 
     def show_main_axis_state_changed(self, item):
         if self.show_main_axis_checkbox.isChecked():
@@ -189,7 +194,9 @@ class UI_MainPage(QMainWindow):
         else:
             window_start = int(self.window_start_position.toPlainText())
             window_end = int(self.window_end_position.toPlainText())
-            if window_end <= window_start:
+            if window_start < 0 or window_end > self.max_number_of_notes_to_check:
+                QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
+            elif window_end <= window_start:
                 QMessageBox.warning(self.scene, "Error", "Start of window must be before end of window !")
             else:
                 algorithm_info = AlgorithmInfo(
