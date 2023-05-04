@@ -119,6 +119,12 @@ class TrackManager:
         self.rhytmic_values_multiplicity = 0
         self.ticks_per_beat = 0
 
+    def get_operable_range_of_all_tracks(self):
+        lengths = []
+        for track in self.processed_tracks:
+            lengths.append(len(track.processed_track))
+        return min(lengths)
+
     def process_file(self, midi_file):
         self.ticks_per_beat = midi_file.ticks_per_beat
         self.total_time = midi_file.length

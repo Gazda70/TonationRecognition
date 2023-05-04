@@ -16,6 +16,9 @@ T_PROFILE_MINOR = [0.71, 0.08, 0.48, 0.62, 0.05, 0.46, 0.11, 0.75, 0.40, 0.07, 0
 AS_PROFILE_MAJOR = [0.24, 0.01, 0.11, 0.01, 0.14, 0.09, 0.02, 0.21, 0.01, 0.08, 0.01, 0.08]
 AS_PROFILE_MINOR = [0.22, 0.01, 0.10, 0.12, 0.02, 0.10, 0.01, 0.21, 0.06, 0.02, 0.06, 0.05]
 
+class WindowModes(Enum):
+    FROM_START, FROM_END = range(0, 2)
+
 
 class Profile(Enum):
     KS, T, AS = range(0, 3)

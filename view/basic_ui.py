@@ -1,12 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox, QRadioButton
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
 from file_manager.file_manager import MidiReader
 from signature_drawing import CircleOfFifths, SignatureGraphic
 from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
-    MAIN_UI_PAGE, AlgorithmInfo, RHYTMIC_VALUES, Algorithm, Profile
+    MAIN_UI_PAGE, AlgorithmInfo, RHYTMIC_VALUES, Algorithm, Profile, WindowModes
 from algorithms.algorithm_manager import AlgorithmManager
 
 
@@ -39,15 +39,25 @@ class UI_MainPage(QMainWindow):
 
         self.track_list = self.findChild(QListWidget, "track_list")
 
+        self.file_list = self.findChild(QListWidget, "file_list")
+
+        self.sample_from_start = self.findChild(QRadioButton, "sample_from_start")
+        self.sample_from_start.toggled.connect(self.check_if_sample_from_start)
+
+        self.sample_from_end = self.findChild(QRadioButton, "sample_from_end")
+        self.sample_from_end.toggled.connect(self.check_if_sample_from_end)
+
         self.result_information = self.findChild(QLabel, "result_information")
 
-        self.window_start_position = self.findChild(QTextEdit, "window_start_position")
+        # self.window_start_position = self.findChild(QTextEdit, "window_start_position")
+        #
+        # self.window_end_position = self.findChild(QTextEdit, "window_end_position")
+        #
+        # self.units_from_start = self.findChild(QTextEdit, "units_from_start")
+        #
+        # self.units_from_end = self.findChild(QTextEdit, "units_from_end")
 
-        self.window_end_position = self.findChild(QTextEdit, "window_end_position")
-
-        self.units_from_start = self.findChild(QTextEdit, "units_from_start")
-
-        self.units_from_end = self.findChild(QTextEdit, "units_from_end")
+        self.number_of_units = self.findChild(QTextEdit, "number_of_units")
 
         self.max_number_of_notes = self.findChild(QTextEdit, "max_number_of_notes")
 
@@ -99,7 +109,19 @@ class UI_MainPage(QMainWindow):
 
         self.max_number_of_notes_to_check = 0
 
+        self.window_calculation_mode = WindowModes.FROM_START
+
+        self.global_track_length = 0
+
         self.show()
+
+    def check_if_sample_from_start(self):
+        if self.sample_from_start.isChecked():
+            self.window_calculation_mode = WindowModes.FROM_START
+
+    def check_if_sample_from_end(self):
+        if self.sample_from_end.isChecked():
+            self.window_calculation_mode = WindowModes.FROM_END
 
     def load_file_button_clicker(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open MIDI file", MIDI_FILES_PATH, "MIDI files (*.mid);;")
@@ -113,6 +135,7 @@ class UI_MainPage(QMainWindow):
         self.setup_track_list()
         self.max_number_of_notes_to_check = self.track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])
         self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
+        self.global_track_length=self.track_manager.get_operable_range_of_all_tracks()
         self.is_file = True
 
     def setup_track_list(self):
@@ -134,8 +157,7 @@ class UI_MainPage(QMainWindow):
         if self.is_file == False:
             QMessageBox.warning(self.scene, "Error", "Select file !")
         else:
-            self.max_number_of_notes_to_check = self.track_manager.calculate_base_rhytmic_value_multiplicity(
-                RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])
+            self.max_number_of_notes_to_check = self.track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])
             self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
 
     def show_main_axis_state_changed(self, item):
@@ -186,60 +208,63 @@ class UI_MainPage(QMainWindow):
         pass
 
     def calculate_button_clicker(self):
+        number_of_units = int(self.number_of_units.toPlainText())
         if self.is_file == False:
             QMessageBox.warning(self.scene, "Error", "Select file !")
-        elif self.window_start_position.document().isEmpty() is True \
-                or self.window_end_position.document().isEmpty() is True:
+        elif self.max_number_of_notes.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select time window !")
-        else:
-            window_start = int(self.window_start_position.toPlainText())
-            window_end = int(self.window_end_position.toPlainText())
-            if window_start < 0 or window_end > self.max_number_of_notes_to_check:
+        elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
                 QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
-            elif window_end <= window_start:
-                QMessageBox.warning(self.scene, "Error", "Start of window must be before end of window !")
-            else:
-                algorithm_info = AlgorithmInfo(
-                    algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
-                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
-                    profile=TONAL_PROFILE_NAMES[self.tonal_profiles_dropdown.currentText()])
-                result_information, self.signature = self.algorithm_manager.execute_algorithm(algorithm_info,
-                                                                                         self.track_manager.calculate_sample_vector(
-                                                                                             window_start, window_end,
-                                                                                             SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_dropdown.currentText()], self.min_rhytmic_value.currentText()))
+        else:
+            window_start = 0
+            window_end = 0
+            if self.window_calculation_mode == WindowModes.FROM_START:
+                window_start = 0
+                window_end = number_of_units
+            elif self.window_calculation_mode == WindowModes.FROM_END:
+                window_start = self.max_number_of_notes_to_check - number_of_units
+                window_end = self.max_number_of_notes_to_check
+            algorithm_info = AlgorithmInfo(
+                algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
+                sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                profile=TONAL_PROFILE_NAMES[self.tonal_profiles_dropdown.currentText()])
+            result_information, self.signature = self.algorithm_manager.execute_algorithm(algorithm_info,
+                                                                                     self.track_manager.calculate_sample_vector(
+                                                                                         window_start, window_end,
+                                                                                         SAMPLE_CALCULATION_MODES[
+                                                                                             self.sample_calculation_dropdown.currentText()], self.min_rhytmic_value.currentText()))
 
-                self.ks_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
-                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
-                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
-                    profile=Profile.KS),
-                                                                                         self.track_manager.calculate_sample_vector(
-                                                                                             window_start, window_end,
-                                                                                             SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_dropdown.currentText()],
-                                                                                             self.min_rhytmic_value.currentText()))
+            self.ks_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+                sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                profile=Profile.KS),
+                                                                                     self.track_manager.calculate_sample_vector(
+                                                                                         window_start, window_end,
+                                                                                         SAMPLE_CALCULATION_MODES[
+                                                                                             self.sample_calculation_dropdown.currentText()],
+                                                                                         self.min_rhytmic_value.currentText()))
 
-                self.as_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
-                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
-                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
-                    profile=Profile.AS),
-                                                                                         self.track_manager.calculate_sample_vector(
-                                                                                             window_start, window_end,
-                                                                                             SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_dropdown.currentText()],
-                                                                                             self.min_rhytmic_value.currentText()))
+            self.as_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+                sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                profile=Profile.AS),
+                                                                                     self.track_manager.calculate_sample_vector(
+                                                                                         window_start, window_end,
+                                                                                         SAMPLE_CALCULATION_MODES[
+                                                                                             self.sample_calculation_dropdown.currentText()],
+                                                                                         self.min_rhytmic_value.currentText()))
 
-                self.t_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
-                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
-                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
-                    profile=Profile.T),
-                                                                                         self.track_manager.calculate_sample_vector(
-                                                                                             window_start, window_end,
-                                                                                             SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_dropdown.currentText()],
-                                                                                             self.min_rhytmic_value.currentText()))
-                self.result_information.setText(result_information)
-                self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
+            self.t_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+                algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+                sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_dropdown.currentText()],
+                profile=Profile.T),
+                                                                                     self.track_manager.calculate_sample_vector(
+                                                                                         window_start, window_end,
+                                                                                         SAMPLE_CALCULATION_MODES[
+                                                                                             self.sample_calculation_dropdown.currentText()],
+                                                                                         self.min_rhytmic_value.currentText()))
+            self.result_information.setText(result_information)
+            self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
 
 
 if ( __name__ == '__main__' ):
@@ -252,3 +277,10 @@ if ( __name__ == '__main__' ):
     widget.resize(w, h)
     widget.show()
     app.exec_()
+
+
+'''
+Bug z nie wyświetlaniem tonacji dla wartości przy końcu zakresu, przy zakresie określonym przez wyświetlaną wartość
+jest powodowany złym obliczeniem zakresu - pod koniec już nie ma nut.
+Występuje dla niewielkich wartości rytmicznych - poniżej ósemki.
+'''
