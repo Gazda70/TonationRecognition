@@ -179,7 +179,7 @@ class ProcessedElement:
 class NoteWithDuration:
     note: Note
     is_pause: bool
-    duration: RhytmicValues
+    duration: [] #list of RhythmicValues
 
 
 @dataclass
