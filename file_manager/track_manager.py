@@ -64,13 +64,13 @@ class Track:
         for index in range(0, len(self.processed_track)):
             time_passed += self.processed_track[index].raw_duration
             actual_note_time += self.processed_track[index].raw_duration
+            if actual_note_time >= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]:
+                note_multiplicity += int(actual_note_time / asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name])
+                actual_note_time = int(actual_note_time % asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name])
             if time_passed >= self.rhytmic_values[rhytm_val_iter].start_time:
                 rhytm_val_iter += 1
                 if rhytm_val_iter == len(self.rhytmic_values):
                     break
-            if actual_note_time >= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]:
-                note_multiplicity += int(actual_note_time / asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name])
-                actual_note_time = int(actual_note_time % asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name])
         return note_multiplicity
 
     def iterate_to_value(self, note_type, notes_multiplicity):
@@ -84,13 +84,11 @@ class Track:
         while notes_iter < notes_multiplicity:
             time_passed += self.processed_track[track_iter].raw_duration
             actual_note_time += self.processed_track[track_iter].raw_duration
-            if time_passed >= self.rhytmic_values[rhytm_val_iter].start_time:
-                rhytm_val_iter += 1
-                if rhytm_val_iter == len(self.rhytmic_values):
-                    break
-            if actual_note_time >= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type]:
+            while  notes_iter < notes_multiplicity and actual_note_time >= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type]:
                 notes_iter += 1
                 actual_note_time -= asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type]
+            if rhytm_val_iter + 1 < len(self.rhytmic_values) and time_passed >= self.rhytmic_values[rhytm_val_iter + 1].start_time:
+                    rhytm_val_iter += 1
             track_iter += 1
         return track_iter, actual_note_time
         # current_offset = 0
