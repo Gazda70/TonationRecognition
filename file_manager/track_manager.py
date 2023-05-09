@@ -52,10 +52,13 @@ class Track:
         actual_note_time = note_time
         messages = []
         time_to_full_note = 0
+        #loop to iterate over the whole track, this means over elements which can be chords, pauses or singular notes
         while notes_iter < end_note:
+            #loop to iterate over one element that can be a chord, pause or singular note, when an element is not a chord there is only one iteration
             while internal_proc_el_note_iter < len(self.processed_track[track_iter].notes) and notes_iter < end_note:
                 note = self.processed_track[track_iter].notes[internal_proc_el_note_iter]
                 most_internal_iter = 0
+                #loop to iterate over enumerations that represent a singular, continuous pitch
                 while notes_iter < end_note and \
                         most_internal_iter < len(note.duration) and \
                         note.duration[most_internal_iter].name in asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration).keys():
@@ -83,12 +86,17 @@ class Track:
                         time_to_full_note = time_to_full_note - note_time # what to do with the remainder ?
                     if rhytm_val_iter + 1 < len(self.rhytmic_values) and time_passed >= self.rhytmic_values[rhytm_val_iter].start_time:
                         rhytm_val_iter += 1
-                        note_time = asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]
+                        note_time = asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type]
                 internal_proc_el_note_iter += 1
             track_iter += 1
             internal_proc_el_note_iter = 0
         return messages
 
+    '''
+    Test scenarios:
+    1. Test for tracks with chords.
+    2. Test for tracks where too big note has been selected.
+    '''
     def check_base_rhytmic_value_multiplicity(self, note_type):
         time_passed = 0
         rhytm_val_iter = 0
@@ -137,7 +145,6 @@ class TrackManager:
         self.minimum_rhytmic_value = float('inf')
         self.tempos = []
         self.rhytmic_values_duration = RhytmicValuesDuration(2000000, 1000000, 500000, 250000, 125000, 62500, 31250)
-        #self.rhytmic_values_multiplicity = {"WHOLE":0, "HALF":0, "QUARTER":0, "EIGHTH":0, "SIXTEEN":0, "THIRTY_TWO":0, "SIXTY_FOUR":0}
         self.rhytmic_values_multiplicity = 0
         self.ticks_per_beat = 0
 
@@ -203,7 +210,9 @@ class TrackManager:
         '''
         Calculation of the number of minimal notes present in the piece
         '''
+        track_iter = 0
         for raw_track in self.raw_tracks:
+            track_iter += 1
             processed_track = []
             rhytmic_values_with_start_time = []
             total_time = 0
@@ -222,7 +231,7 @@ class TrackManager:
                     rhytmic_values_with_start_time.append(RhytmicValuesDurationWithStartTime(start_time=self.tempos[tempos_index].start_time,
                                                                                              rhytmic_values_duration=self.rhytmic_values_duration))
                 processed_track.append(self.process_raw_element(raw_element))
-            self.processed_tracks.append(Track(processed_track=processed_track, rhytmic_values=rhytmic_values_with_start_time))
+            self.processed_tracks.append(Track(processed_track=processed_track, number=track_iter, rhytmic_values=rhytmic_values_with_start_time))
 
     def calculate_rhytmic_values_duration(self, tempo):
         quarter_note_length = second2tick(float(tempo) / 1000000.0, self.ticks_per_beat, tempo)
@@ -245,15 +254,11 @@ class TrackManager:
         if element.is_pause:
             new_pause = NoteWithDuration(note=None, is_pause=True,
                                           duration=self.map_rhytmic_values(element.start_notes[0].time))
-            # for dur in new_pause.duration:
-            #     print("PAUSE " + dur.name)
             notes.append(new_pause)
             return ProcessedElement(is_chord=False, notes=notes, raw_duration=element.start_notes[0].time)
         for end in element.end_notes:
             new_note = NoteWithDuration(note=Note(end.note % 12), is_pause=False, duration=self.map_rhytmic_values(end.time + 1))
             notes.append(new_note)
-            # for dur in new_note.duration:
-            #     print("NOTE " + new_note.note.name + " " + dur.name)
 
         return ProcessedElement(is_chord=(len(element.end_notes) != 1), notes=notes, raw_duration=element.raw_duration)
 
@@ -304,6 +309,9 @@ class TrackManager:
     def is_track_selected(self, track_number):
         return self.processed_tracks[track_number].activated
 
+    def get_selected_tracks_numbers(self):
+        return [track.number for track in self.processed_tracks if track.activated]
+
     def calculate_sample_vector(self, window_start, window_end, mode, base_rhytmic_value):
         notes_dict = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                       Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
@@ -314,7 +322,10 @@ class TrackManager:
                     new_notes_dict = track.extract_note_messages_quantity(window_start, window_end, base_rhytmic_value)
                 elif mode == SampleMode.DURATION:
                     new_notes_dict = track.extract_note_messages_duration(window_start, window_end, base_rhytmic_value)
-                notes_dict = {i: notes_dict.get(i, 0) + new_notes_dict.get(i, 0) for i in set(notes_dict).union(new_notes_dict)}
+
+                for key in notes_dict.keys():
+                    notes_dict[key] += new_notes_dict[key]
+                #notes_dict = {i: notes_dict.get(i, 0) + new_notes_dict.get(i, 0) for i in set(notes_dict).union(new_notes_dict)}
         return notes_dict
 
     def calculate_base_rhytmic_value_multiplicity(self, note_type):

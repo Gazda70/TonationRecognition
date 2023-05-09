@@ -162,12 +162,9 @@ class RawElement:
     control: []
     raw_duration: int  # total duration represented as integer
 
-
 '''
 A note or group of notes that have the same duration
 '''
-
-
 @dataclass
 class ProcessedElement:
     is_chord: bool  # if the element is a chord, i.e. if more than one note is played simultaneously

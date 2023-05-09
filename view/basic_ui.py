@@ -1,8 +1,10 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox, QRadioButton
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox, QRadioButton, QFileDialog
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtGui import QColor
+from PyQt5.uic.properties import QtGui
+
 from file_manager.file_manager import MidiReader, FileInfo
 from signature_drawing import CircleOfFifths, SignatureGraphic
 from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
@@ -135,6 +137,7 @@ class UI_MainPage(QMainWindow):
         self.filenames, _ = QFileDialog.getOpenFileNames(self, "Open MIDI file", MIDI_FILES_PATH, "MIDI files (*.mid);;")
         file_number = 0
         if len(self.filenames) > 0:
+            self.track_list.clear()
             self.is_file = True
             self.files = []
             for filename in self.filenames:
@@ -156,6 +159,7 @@ class UI_MainPage(QMainWindow):
 
 
     def setup_file_list(self):
+        self.analysis_results.clear()
         self.file_list.clear()
         for filename in self.filenames:
             item = QListWidgetItem(filename)
@@ -236,7 +240,21 @@ class UI_MainPage(QMainWindow):
             signature_graphic.draw_tonal_profiles_results(ks_results, as_results, t_results)
 
     def save_results_button_clicker(self):
-        pass
+        reader = MidiReader()
+        reader.write_results(self, self.analysis_results)
+        self.analysis_results.clear()
+
+
+    def remember_results(self, algorithm_info, window_start, window_end, base_rhythmic_value, ks_results, as_results, t_results):
+        self.analysis_results.append({"FILENAME":self.files[self.selected_file_number].file.filename,
+                                      "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),
+                                      "WINDOW_START":window_start,
+                                      "WINDOW_END":window_end,
+                                      "BASE_RHYTHMIC_VALUE":base_rhythmic_value,
+                                      "ALGORITHM_INFO":algorithm_info,
+                                      "KS_RESULTS":ks_results,
+                                      "AS_RESULTS":as_results,
+                                      "T_RESULTS":t_results})
 
     def calculate_button_clicker(self):
         number_of_units = int(self.number_of_units.toPlainText())
@@ -296,7 +314,8 @@ class UI_MainPage(QMainWindow):
                                                                                          self.min_rhytmic_value.currentText()))
             self.result_information.setText(result_information)
             self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
-
+            self.remember_results(algorithm_info, window_start, window_end, self.min_rhytmic_value.currentText(), self.ks_results,
+                             self.as_results, self.t_results)
 
 if ( __name__ == '__main__' ):
     app = QApplication(sys.argv)
