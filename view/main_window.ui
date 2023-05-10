@@ -233,7 +233,7 @@
      <rect>
       <x>40</x>
       <y>575</y>
-      <width>301</width>
+      <width>311</width>
       <height>31</height>
      </rect>
     </property>
@@ -253,7 +253,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Number of units</string>
+     <string>Number of units in sample</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="show_main_axis_checkbox">
@@ -390,6 +390,88 @@
     </property>
     <property name="text">
      <string>File list</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="move_window_forward_button">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>700</y>
+      <width>151</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Move window forward</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="move_window_units">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>660</y>
+      <width>311</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>620</y>
+      <width>261</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Units to move window</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="move_window_backward_button">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>700</y>
+      <width>151</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Move window backward</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="rhytmic_values_multiplier">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>660</y>
+      <width>281</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>620</y>
+      <width>271</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Select multiplier</string>
     </property>
    </widget>
   </widget>

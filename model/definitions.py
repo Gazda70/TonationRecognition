@@ -137,6 +137,11 @@ class SignatureOfFifths:
         self.mode_angle: float = 0.0
         self.tonation: Tonation = None
 
+    def is_empty(self):
+        for note in self.signature.values():
+            if note.length != 0:
+                return False
+        return True
 
 class SignatureCalculationMode(Enum):
     QUANTITY, DURATION = range(2)
