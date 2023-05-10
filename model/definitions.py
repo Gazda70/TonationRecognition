@@ -5,7 +5,7 @@ NOTE_VECTOR_MAX_LENGTH = 2
 
 FILE_LOAD_PAGE = "file_load.ui"
 SIGNATURE_DISPLAY_PAGE = "signature_display.ui"
-MAIN_UI_PAGE = "main_window.ui"
+MAIN_UI_PAGE = "main_window.py"
 
 MIDI_FILES_PATH = "E:\\PracaMagisterska\\TonationRecognition\\midi_files"
 
