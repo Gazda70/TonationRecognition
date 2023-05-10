@@ -34,7 +34,7 @@ class MidiReader:
             # Use the worksheet object to write
             # data via the write() method.
             worksheet.write('A' + str(analysis_result_number), "FILENAME")
-            worksheet.write('B' + str(analysis_result_number), filename[0])
+            worksheet.write('B' + str(analysis_result_number), result["FILENAME"])
             analysis_result_number += 1
 
             worksheet.write('A' + str(analysis_result_number), "SELECTED_TRACKS")

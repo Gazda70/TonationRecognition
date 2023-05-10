@@ -27,9 +27,8 @@ class Track:
         notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
         for msg in messages:
-            for note_with_duration in msg.notes:
-                if note_with_duration.note != None:
-                    notes[note_with_duration.note] += msg.raw_duration
+            if msg.note != None:
+                notes[msg.note] += msg.duration
         return notes
 
     def activate(self):

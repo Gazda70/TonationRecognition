@@ -276,6 +276,8 @@ class UI_MainPage(QMainWindow):
         self.show_signature_checkbox.setChecked(True)
         self.show_signature_checkbox.stateChanged.connect(self.show_signature_state_changed)
 
+        self.max_number_of_notes.setReadOnly(True)
+
         self.scene = None
 
         self.algorithm_manager = AlgorithmManager()
@@ -326,23 +328,29 @@ class UI_MainPage(QMainWindow):
         #self.show()
 
     def move_window_backward(self):
-        if self.move_window_units.document().isEmpty() is True:
+        if not self.move_window_units.toPlainText().isdigit():
+            QMessageBox.warning(self.scene, "Error", "Move offset must be an positive integer !")
+        elif self.move_window_units.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
         else:
             move_window_units = int(self.move_window_units.toPlainText())
             if self.window_start - move_window_units < 0:
                 QMessageBox.warning(self.scene, "Error", "Move window out of range !")
+                return
             else:
                 self.window_start -= move_window_units
                 self.window_end -= move_window_units
 
     def move_window_forward(self):
-        if self.move_window_units.document().isEmpty() is True:
+        if not self.move_window_units.toPlainText().isdigit():
+            QMessageBox.warning(self.scene, "Error", "Move offset must be an positive integer !")
+        elif self.move_window_units.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
         else:
             move_window_units = int(self.move_window_units.toPlainText())
             if self.window_start + move_window_units > self.max_number_of_notes_to_check:
                 QMessageBox.warning(self.scene, "Error", "Move window out of range !")
+                return
             else:
                 self.window_start += move_window_units
                 self.window_end += move_window_units
@@ -483,6 +491,9 @@ class UI_MainPage(QMainWindow):
         if self.number_of_units.document().isEmpty():
             QMessageBox.warning(self.scene, "Error", "Select window !")
             return
+        if not self.number_of_units.toPlainText().isdigit():
+            QMessageBox.warning(self.scene, "Error", "Window size be an positive integer !")
+            return
         number_of_units = int(self.number_of_units.toPlainText())
         if self.is_file_selected == False:
             QMessageBox.warning(self.scene, "Error", "Select file !")
@@ -493,12 +504,13 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
         else:
-
+            if not self.rhytmic_values_multiplier.toPlainText().isdigit():
+                QMessageBox.warning(self.scene, "Error", "Multiplier must be an positive integer !")
+                return
             multiplier = int(self.rhytmic_values_multiplier.toPlainText())
             if multiplier > self.max_number_of_notes_to_check:
                 QMessageBox.warning(self.scene, "Error", "Bad multiplier !")
                 return
-
             self.window_start = 0
             self.window_end = 0
             if self.window_calculation_mode == WindowModes.FROM_START:
