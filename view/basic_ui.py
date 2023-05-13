@@ -155,9 +155,6 @@ class UI_MainPage(QMainWindow):
         self.move_window_backward_button = QtWidgets.QPushButton(self.centralwidget)
         self.move_window_backward_button.setGeometry(QtCore.QRect(40, 700, 151, 41))
         self.move_window_backward_button.setObjectName("move_window_backward_button")
-        self.rhytmic_values_multiplier = QtWidgets.QTextEdit(self.centralwidget)
-        self.rhytmic_values_multiplier.setGeometry(QtCore.QRect(400, 660, 281, 31))
-        self.rhytmic_values_multiplier.setObjectName("rhytmic_values_multiplier")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setGeometry(QtCore.QRect(400, 620, 271, 31))
         font = QtGui.QFont()
@@ -198,7 +195,6 @@ class UI_MainPage(QMainWindow):
         self.move_window_forward_button.setText(_translate("MainWindow", "Move window forward"))
         self.label_2.setText(_translate("MainWindow", "Units to move window"))
         self.move_window_backward_button.setText(_translate("MainWindow", "Move window backward"))
-        self.label_3.setText(_translate("MainWindow", "Select multiplier"))
     def __init__(self):
         super(UI_MainPage, self).__init__()
         #uic.loadUi(MAIN_UI_PAGE, self)
@@ -321,8 +317,6 @@ class UI_MainPage(QMainWindow):
         self.window_start = 0
 
         self.window_end = 0
-
-        self.rhytmic_values_multiplier.setText(str(1))
 
         self.main_window.show()
         #self.show()
@@ -504,26 +498,13 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
         else:
-            if not self.rhytmic_values_multiplier.toPlainText().isdigit():
-                QMessageBox.warning(self.scene, "Error", "Multiplier must be an positive integer !")
-                return
-            multiplier = int(self.rhytmic_values_multiplier.toPlainText())
-            if multiplier > self.max_number_of_notes_to_check:
-                QMessageBox.warning(self.scene, "Error", "Bad multiplier !")
-                return
             self.window_start = 0
             self.window_end = 0
             if self.window_calculation_mode == WindowModes.FROM_START:
-                if number_of_units * multiplier > self.max_number_of_notes_to_check:
-                    QMessageBox.warning(self.scene, "Error", "Bad multiplier !")
-                    return
                 self.window_start = 0
-                self.window_end = number_of_units * multiplier
+                self.window_end = number_of_units
             elif self.window_calculation_mode == WindowModes.FROM_END:
-                if (self.max_number_of_notes_to_check - number_of_units)  * multiplier > self.max_number_of_notes_to_check:
-                    QMessageBox.warning(self.scene, "Error", "Bad multiplier !")
-                    return
-                self.window_start = (self.max_number_of_notes_to_check - number_of_units)  * multiplier
+                self.window_start = self.max_number_of_notes_to_check - number_of_units
                 self.window_end = self.max_number_of_notes_to_check
             algorithm_info = AlgorithmInfo(
                 algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
