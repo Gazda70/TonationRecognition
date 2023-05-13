@@ -39,7 +39,7 @@ class UI_MainPage(QMainWindow):
         self.signature_graphic_view.setGeometry(QtCore.QRect(800, 230, 751, 631))
         self.signature_graphic_view.setObjectName("signature_graphic_view")
         self.calculate_button = QtWidgets.QPushButton(self.centralwidget)
-        self.calculate_button.setGeometry(QtCore.QRect(510, 780, 281, 81))
+        self.calculate_button.setGeometry(QtCore.QRect(540, 440, 181, 51))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.calculate_button.setFont(font)
@@ -69,28 +69,28 @@ class UI_MainPage(QMainWindow):
         self.result_information.setFont(font)
         self.result_information.setObjectName("result_information")
         self.min_rhytmic_value = QtWidgets.QComboBox(self.centralwidget)
-        self.min_rhytmic_value.setGeometry(QtCore.QRect(400, 585, 281, 21))
+        self.min_rhytmic_value.setGeometry(QtCore.QRect(540, 545, 211, 21))
         self.min_rhytmic_value.setObjectName("min_rhytmic_value")
         self.max_number_of_notes = QtWidgets.QTextEdit(self.centralwidget)
-        self.max_number_of_notes.setGeometry(QtCore.QRect(400, 500, 231, 31))
+        self.max_number_of_notes.setGeometry(QtCore.QRect(280, 460, 231, 31))
         self.max_number_of_notes.setObjectName("max_number_of_notes")
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
-        self.label_4.setGeometry(QtCore.QRect(400, 450, 241, 51))
+        self.label_4.setGeometry(QtCore.QRect(280, 420, 141, 31))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label_4.setFont(font)
         self.label_4.setObjectName("label_4")
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(400, 540, 281, 41))
+        self.label.setGeometry(QtCore.QRect(540, 500, 211, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.number_of_units = QtWidgets.QTextEdit(self.centralwidget)
-        self.number_of_units.setGeometry(QtCore.QRect(40, 575, 311, 31))
+        self.number_of_units.setGeometry(QtCore.QRect(30, 460, 231, 31))
         self.number_of_units.setObjectName("number_of_units")
         self.label_5 = QtWidgets.QLabel(self.centralwidget)
-        self.label_5.setGeometry(QtCore.QRect(40, 540, 301, 31))
+        self.label_5.setGeometry(QtCore.QRect(30, 420, 131, 31))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label_5.setFont(font)
@@ -120,15 +120,15 @@ class UI_MainPage(QMainWindow):
         self.show_signature_checkbox.setFont(font)
         self.show_signature_checkbox.setObjectName("show_signature_checkbox")
         self.sample_from_start = QtWidgets.QRadioButton(self.centralwidget)
-        self.sample_from_start.setGeometry(QtCore.QRect(30, 430, 251, 71))
+        self.sample_from_start.setGeometry(QtCore.QRect(30, 500, 151, 41))
         font = QtGui.QFont()
-        font.setPointSize(16)
+        font.setPointSize(15)
         self.sample_from_start.setFont(font)
         self.sample_from_start.setObjectName("sample_from_start")
         self.sample_from_end = QtWidgets.QRadioButton(self.centralwidget)
-        self.sample_from_end.setGeometry(QtCore.QRect(30, 490, 231, 41))
+        self.sample_from_end.setGeometry(QtCore.QRect(190, 500, 141, 41))
         font = QtGui.QFont()
-        font.setPointSize(16)
+        font.setPointSize(15)
         self.sample_from_end.setFont(font)
         self.sample_from_end.setObjectName("sample_from_end")
         self.file_list = QtWidgets.QListWidget(self.centralwidget)
@@ -141,26 +141,53 @@ class UI_MainPage(QMainWindow):
         self.track_list_label_2.setFont(font)
         self.track_list_label_2.setObjectName("track_list_label_2")
         self.move_window_forward_button = QtWidgets.QPushButton(self.centralwidget)
-        self.move_window_forward_button.setGeometry(QtCore.QRect(200, 700, 151, 41))
+        self.move_window_forward_button.setGeometry(QtCore.QRect(180, 810, 151, 41))
         self.move_window_forward_button.setObjectName("move_window_forward_button")
-        self.move_window_units = QtWidgets.QTextEdit(self.centralwidget)
-        self.move_window_units.setGeometry(QtCore.QRect(40, 660, 311, 31))
-        self.move_window_units.setObjectName("move_window_units")
+        self.move_window_offset = QtWidgets.QTextEdit(self.centralwidget)
+        self.move_window_offset.setGeometry(QtCore.QRect(20, 770, 311, 31))
+        self.move_window_offset.setObjectName("move_window_offset")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(40, 620, 261, 31))
+        self.label_2.setGeometry(QtCore.QRect(20, 730, 261, 31))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
         self.move_window_backward_button = QtWidgets.QPushButton(self.centralwidget)
-        self.move_window_backward_button.setGeometry(QtCore.QRect(40, 700, 151, 41))
+        self.move_window_backward_button.setGeometry(QtCore.QRect(20, 810, 151, 41))
         self.move_window_backward_button.setObjectName("move_window_backward_button")
-        self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setGeometry(QtCore.QRect(400, 620, 271, 31))
+        self.expand_window_button = QtWidgets.QPushButton(self.centralwidget)
+        self.expand_window_button.setGeometry(QtCore.QRect(510, 810, 151, 41))
+        self.expand_window_button.setObjectName("expand_window_button")
+        self.reduce_window_button = QtWidgets.QPushButton(self.centralwidget)
+        self.reduce_window_button.setGeometry(QtCore.QRect(350, 810, 151, 41))
+        self.reduce_window_button.setObjectName("reduce_window_button")
+        self.move_window_expand = QtWidgets.QTextEdit(self.centralwidget)
+        self.move_window_expand.setGeometry(QtCore.QRect(350, 770, 311, 31))
+        self.move_window_expand.setObjectName("move_window_expand")
+        self.label_6 = QtWidgets.QLabel(self.centralwidget)
+        self.label_6.setGeometry(QtCore.QRect(350, 730, 261, 31))
         font = QtGui.QFont()
-        font.setPointSize(14)
+        font.setPointSize(15)
+        self.label_6.setFont(font)
+        self.label_6.setObjectName("label_6")
+        self.window_start = QtWidgets.QTextEdit(self.centralwidget)
+        self.window_start.setGeometry(QtCore.QRect(20, 690, 191, 31))
+        self.window_start.setObjectName("window_start")
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setGeometry(QtCore.QRect(20, 650, 151, 31))
+        font = QtGui.QFont()
+        font.setPointSize(15)
         self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
+        self.label_8 = QtWidgets.QLabel(self.centralwidget)
+        self.label_8.setGeometry(QtCore.QRect(350, 650, 151, 31))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.label_8.setFont(font)
+        self.label_8.setObjectName("label_8")
+        self.window_end = QtWidgets.QTextEdit(self.centralwidget)
+        self.window_end.setGeometry(QtCore.QRect(350, 690, 191, 31))
+        self.window_end.setObjectName("window_end")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 26))
@@ -176,25 +203,30 @@ class UI_MainPage(QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.load_files_button.setText(_translate("MainWindow", "Load files"))
-        self.save_results_button.setText(_translate("MainWindow", "Save results"))
+        self.load_files_button.setText(_translate("MainWindow", "Load"))
+        self.save_results_button.setText(_translate("MainWindow", "Save"))
         self.calculate_button.setText(_translate("MainWindow", "Calculate"))
         self.track_list_label.setText(_translate("MainWindow", "Track list"))
         self.label_7.setText(_translate("MainWindow", "Tonality:"))
         self.result_information.setText(_translate("MainWindow", "unknown"))
-        self.label_4.setText(_translate("MainWindow", "Max number of notes"))
-        self.label.setText(_translate("MainWindow", "Select base rhytmic value"))
-        self.label_5.setText(_translate("MainWindow", "Number of units in sample"))
+        self.label_4.setText(_translate("MainWindow", "Track length"))
+        self.label.setText(_translate("MainWindow", "Base rhytmic value"))
+        self.label_5.setText(_translate("MainWindow", "Sample"))
         self.show_main_axis_checkbox.setText(_translate("MainWindow", "Show main axis"))
         self.show_mode_axis_checkbox.setText(_translate("MainWindow", "Show mode axis"))
         self.show_cvsf_checkbox.setText(_translate("MainWindow", "Show vector"))
         self.show_signature_checkbox.setText(_translate("MainWindow", "Show signature"))
-        self.sample_from_start.setText(_translate("MainWindow", "Sample from start"))
-        self.sample_from_end.setText(_translate("MainWindow", "Sample from end"))
+        self.sample_from_start.setText(_translate("MainWindow", "From start"))
+        self.sample_from_end.setText(_translate("MainWindow", "From end"))
         self.track_list_label_2.setText(_translate("MainWindow", "File list"))
-        self.move_window_forward_button.setText(_translate("MainWindow", "Move window forward"))
-        self.label_2.setText(_translate("MainWindow", "Units to move window"))
-        self.move_window_backward_button.setText(_translate("MainWindow", "Move window backward"))
+        self.move_window_forward_button.setText(_translate("MainWindow", "Move forward"))
+        self.label_2.setText(_translate("MainWindow", "Move window offset"))
+        self.move_window_backward_button.setText(_translate("MainWindow", "Move backward"))
+        self.expand_window_button.setText(_translate("MainWindow", "Expand"))
+        self.reduce_window_button.setText(_translate("MainWindow", "Reduce"))
+        self.label_6.setText(_translate("MainWindow", "Expand window"))
+        self.label_3.setText(_translate("MainWindow", "Window start"))
+        self.label_8.setText(_translate("MainWindow", "Window end"))
     def __init__(self):
         super(UI_MainPage, self).__init__()
         #uic.loadUi(MAIN_UI_PAGE, self)
@@ -322,32 +354,32 @@ class UI_MainPage(QMainWindow):
         #self.show()
 
     def move_window_backward(self):
-        if not self.move_window_units.toPlainText().isdigit():
+        if not self.move_window_offset.toPlainText().isdigit():
             QMessageBox.warning(self.scene, "Error", "Move offset must be an positive integer !")
-        elif self.move_window_units.document().isEmpty() is True:
+        elif self.move_window_offset.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
         else:
-            move_window_units = int(self.move_window_units.toPlainText())
-            if self.window_start - move_window_units < 0:
+            move_window_offset = int(self.move_window_offset.toPlainText())
+            if self.window_start - move_window_offset < 0:
                 QMessageBox.warning(self.scene, "Error", "Move window out of range !")
                 return
             else:
-                self.window_start -= move_window_units
-                self.window_end -= move_window_units
+                self.window_start -= move_window_offset
+                self.window_end -= move_window_offset
 
     def move_window_forward(self):
-        if not self.move_window_units.toPlainText().isdigit():
+        if not self.move_window_offset.toPlainText().isdigit():
             QMessageBox.warning(self.scene, "Error", "Move offset must be an positive integer !")
-        elif self.move_window_units.document().isEmpty() is True:
+        elif self.move_window_offset.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
         else:
-            move_window_units = int(self.move_window_units.toPlainText())
-            if self.window_start + move_window_units > self.max_number_of_notes_to_check:
+            move_window_offset = int(self.move_window_offset.toPlainText())
+            if self.window_start + move_window_offset > self.max_number_of_notes_to_check:
                 QMessageBox.warning(self.scene, "Error", "Move window out of range !")
                 return
             else:
-                self.window_start += move_window_units
-                self.window_end += move_window_units
+                self.window_start += move_window_offset
+                self.window_end += move_window_offset
 
     def check_if_sample_from_start(self):
         if self.sample_from_start.isChecked():
@@ -470,16 +502,15 @@ class UI_MainPage(QMainWindow):
         self.analysis_results.clear()
 
 
-    def remember_results(self, algorithm_info, window_start, window_end, base_rhythmic_value, ks_results, as_results, t_results):
-        self.analysis_results.append({"FILENAME":self.files[self.selected_file_number].file.filename,
-                                      "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),
-                                      "WINDOW_START":window_start,
-                                      "WINDOW_END":window_end,
-                                      "BASE_RHYTHMIC_VALUE":base_rhythmic_value,
-                                      "ALGORITHM_INFO":algorithm_info,
-                                      "KS_RESULTS":ks_results,
-                                      "AS_RESULTS":as_results,
-                                      "T_RESULTS":t_results})
+    def remember_results(self, moving_window_results, expanded_window_results):
+        for moving_window_result in moving_window_results:
+            self.analysis_results.append({"FILENAME":self.files[self.selected_file_number].file.filename,
+                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),
+                                          "MOVING_WINDOW_RESULT":moving_window_result})
+        for expanded_window_result in expanded_window_results:
+            self.analysis_results.append({"FILENAME":self.files[self.selected_file_number].file.filename,
+                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),
+                                          "EXPANDED_WINDOW_RESULT":expanded_window_result})
 
     def calculate_button_clicker(self):
         if self.number_of_units.document().isEmpty():
@@ -506,55 +537,80 @@ class UI_MainPage(QMainWindow):
             elif self.window_calculation_mode == WindowModes.FROM_END:
                 self.window_start = self.max_number_of_notes_to_check - number_of_units
                 self.window_end = self.max_number_of_notes_to_check
-            algorithm_info = AlgorithmInfo(
-                algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
-                sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
-                profile=TONAL_PROFILE_NAMES[self.tonal_profiles_type.currentText()])
-            result_information, self.signature = self.algorithm_manager.execute_algorithm(algorithm_info,
-                                                                                     self.files[self.selected_file_number].track_manager.calculate_sample_vector(
-                                                                                         self.window_start, self.window_end,
-                                                                                         SAMPLE_CALCULATION_MODES[
-                                                                                             self.sample_calculation_mode.currentText()], self.min_rhytmic_value.currentText()))
+
+            moving_window_results = []
+            expanded_window_results = []
 
 
-            if self.signature.is_empty() == True:
-                QMessageBox.warning(self.scene, "Error", "Selected sample doesn't contain any pitches !")
-            else:                        
-                self.ks_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
-                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
-                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
-                    profile=Profile.KS),
-                                                                                         self.files[self.selected_file_number].track_manager.calculate_sample_vector(
-                                                                                             self.window_start, self.window_end,
-                                                                                             SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_mode.currentText()],
-                                                                                             self.min_rhytmic_value.currentText()))
-
-                self.as_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
-                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
-                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
-                    profile=Profile.AS),
-                                                                                         self.files[self.selected_file_number].track_manager.calculate_sample_vector(
-                                                                                             self.window_start, self.window_end,
-                                                                                             SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_mode.currentText()],
-                                                                                             self.min_rhytmic_value.currentText()))
-
-                self.t_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
-                    algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
-                    sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
-                    profile=Profile.T),
-                                                                                         self.files[self.selected_file_number].track_manager.calculate_sample_vector(
-                                                                                             self.window_start, self.window_end,
-                                                                                             SAMPLE_CALCULATION_MODES[
-                                                                                                 self.sample_calculation_mode.currentText()],
-                                                                                             self.min_rhytmic_value.currentText()))
-                self.result_information.setText(result_information)
-                self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
-                self.remember_results(algorithm_info, self.window_start, self.window_end, self.min_rhytmic_value.currentText(), self.ks_results,
-                                 self.as_results, self.t_results)
+            actual_window_start = 0
+            actual_window_end = 0
+            for actual_position in range(0, self.window_end - self.window_start):
+                actual_window_start = actual_position
+                actual_window_end = actual_position + number_of_units
+                result_information = self.calculate_results(actual_window_start, actual_window_end)
+                moving_window_results.append({"RESULT":result_information, "SIGNATURE":self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
+                                              "KS_RESULTS":self.ks_results, "AS_RESULTS":self.as_results, "T_RESULTS":self.t_results})
 
 
+            actual_window_start = 0
+            for actual_position in range(0, self.window_end - self.window_start):
+                actual_window_end = actual_position
+                result_information = self.calculate_results(actual_window_start, actual_window_end)
+                expanded_window_results.append(
+                    {"RESULT":result_information, "SIGNATURE": self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results,
+                     "T_RESULTS": self.t_results})
+
+            self.remember_results(moving_window_results, expanded_window_results)
+            # self.result_information.setText(result_information)
+            # self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
+
+
+    def calculate_results(self, actual_window_start, actual_window_end):
+        algorithm_info = AlgorithmInfo(
+            algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
+            sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
+            profile=TONAL_PROFILE_NAMES[self.tonal_profiles_type.currentText()])
+        result_information, self.signature = self.algorithm_manager.execute_algorithm(algorithm_info,
+                                                                                      self.files[
+                                                                                          self.selected_file_number].track_manager.calculate_sample_vector(
+                                                                                          actual_window_start,
+                                                                                          actual_window_end,
+                                                                                          SAMPLE_CALCULATION_MODES[
+                                                                                              self.sample_calculation_mode.currentText()],
+                                                                                          self.min_rhytmic_value.currentText()))
+
+        self.ks_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+            algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+            sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
+            profile=Profile.KS),
+            self.files[self.selected_file_number].track_manager.calculate_sample_vector(
+                actual_window_start, actual_window_end,
+                SAMPLE_CALCULATION_MODES[
+                    self.sample_calculation_mode.currentText()],
+                self.min_rhytmic_value.currentText()))
+
+        self.as_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+            algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+            sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
+            profile=Profile.AS),
+            self.files[self.selected_file_number].track_manager.calculate_sample_vector(
+                actual_window_start, actual_window_end,
+                SAMPLE_CALCULATION_MODES[
+                    self.sample_calculation_mode.currentText()],
+                self.min_rhytmic_value.currentText()))
+
+        self.t_results, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+            algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
+            sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
+            profile=Profile.T),
+            self.files[self.selected_file_number].track_manager.calculate_sample_vector(
+                actual_window_start, actual_window_end,
+                SAMPLE_CALCULATION_MODES[
+                    self.sample_calculation_mode.currentText()],
+                self.min_rhytmic_value.currentText()))
+
+        return result_information
 
 '''
 Bug z nie wyświetlaniem tonacji dla wartości przy końcu zakresu, przy zakresie określonym przez wyświetlaną wartość
