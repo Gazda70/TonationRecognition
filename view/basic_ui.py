@@ -161,9 +161,9 @@ class UI_MainPage(QMainWindow):
         self.reduce_window_button = QtWidgets.QPushButton(self.centralwidget)
         self.reduce_window_button.setGeometry(QtCore.QRect(350, 810, 151, 41))
         self.reduce_window_button.setObjectName("reduce_window_button")
-        self.move_window_expand = QtWidgets.QTextEdit(self.centralwidget)
-        self.move_window_expand.setGeometry(QtCore.QRect(350, 770, 311, 31))
-        self.move_window_expand.setObjectName("move_window_expand")
+        self.expand_window_offset = QtWidgets.QTextEdit(self.centralwidget)
+        self.expand_window_offset.setGeometry(QtCore.QRect(350, 770, 311, 31))
+        self.expand_window_offset.setObjectName("expand_window_offset")
         self.label_6 = QtWidgets.QLabel(self.centralwidget)
         self.label_6.setGeometry(QtCore.QRect(350, 730, 261, 31))
         font = QtGui.QFont()
@@ -303,6 +303,10 @@ class UI_MainPage(QMainWindow):
         # self.show_signature_checkbox = self.findChild(QCheckBox, "show_signature_checkbox")
         self.show_signature_checkbox.setChecked(True)
         self.show_signature_checkbox.stateChanged.connect(self.show_signature_state_changed)
+
+        self.number_of_units.setText(str(1))
+        self.move_window_offset.setText(str(1))
+        self.expand_window_offset.setText(str(1))
 
         self.max_number_of_notes.setReadOnly(True)
 
@@ -529,37 +533,53 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
         else:
-            self.window_start = 0
-            self.window_end = 0
-            if self.window_calculation_mode == WindowModes.FROM_START:
-                self.window_start = 0
-                self.window_end = number_of_units
-            elif self.window_calculation_mode == WindowModes.FROM_END:
-                self.window_start = self.max_number_of_notes_to_check - number_of_units
-                self.window_end = self.max_number_of_notes_to_check
+            # self.window_start = 0
+            # self.window_end = 0
+            # sample_size = 0
+            # if self.window_calculation_mode == WindowModes.FROM_START:
+            #     self.window_start = 0
+            #     self.window_end = number_of_units
+            # elif self.window_calculation_mode == WindowModes.FROM_END:
+            #     self.window_start = self.max_number_of_notes_to_check - number_of_units
+            #     self.window_end = self.max_number_of_notes_to_check
 
             moving_window_results = []
             expanded_window_results = []
 
+            number_of_samples = int(self.max_number_of_notes_to_check / number_of_units)
+            remainder_size = self.max_number_of_notes_to_check % number_of_units
 
             actual_window_start = 0
             actual_window_end = 0
-            for actual_position in range(0, self.window_end - self.window_start):
-                actual_window_start = actual_position
-                actual_window_end = actual_position + number_of_units
+            for actual_position in range(0, number_of_samples):
+                actual_window_end += number_of_units
                 result_information = self.calculate_results(actual_window_start, actual_window_end)
                 moving_window_results.append({"RESULT":result_information, "SIGNATURE":self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
                                               "KS_RESULTS":self.ks_results, "AS_RESULTS":self.as_results, "T_RESULTS":self.t_results})
+                actual_window_start = actual_window_end
 
+            if remainder_size > 0:
+                result_information = self.calculate_results(actual_window_start, actual_window_end + remainder_size)
+                moving_window_results.append(
+                    {"RESULT": result_information, "SIGNATURE": self.signature, "WINDOW_START": actual_window_start,
+                     "WINDOW_END": actual_window_end + remainder_size,
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results})
 
             actual_window_start = 0
-            for actual_position in range(0, self.window_end - self.window_start):
-                actual_window_end = actual_position
+            actual_window_end = 0
+            for actual_position in range(0, number_of_samples):
+                actual_window_end += number_of_units
                 result_information = self.calculate_results(actual_window_start, actual_window_end)
                 expanded_window_results.append(
                     {"RESULT":result_information, "SIGNATURE": self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results,
                      "T_RESULTS": self.t_results})
+
+            if remainder_size > 0:
+                result_information = self.calculate_results(actual_window_end, actual_window_end + remainder_size)
+                expanded_window_results.append(
+                    {"RESULT": result_information, "SIGNATURE": self.signature, "WINDOW_START": actual_window_end, "WINDOW_END": actual_window_end + remainder_size,
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results})
 
             self.remember_results(moving_window_results, expanded_window_results)
             # self.result_information.setText(result_information)

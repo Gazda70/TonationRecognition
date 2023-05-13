@@ -472,7 +472,7 @@
      <string>Reduce</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="move_window_expand">
+   <widget class="QTextEdit" name="expand_window_offset">
     <property name="geometry">
      <rect>
       <x>350</x>
