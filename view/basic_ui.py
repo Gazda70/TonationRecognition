@@ -444,6 +444,8 @@ class UI_MainPage(QMainWindow):
             self.window_calculation_mode = WindowModes.FROM_END
 
     def load_file_button_clicker(self):
+        self.expanding_window_analysis_result.clear()
+        self.moving_window_analysis_result.clear()
         self.filenames, _ = QFileDialog.getOpenFileNames(self, "Open MIDI file", MIDI_FILES_PATH, "MIDI files (*.mid);;")
         file_number = 0
         if len(self.filenames) > 0:
@@ -552,8 +554,7 @@ class UI_MainPage(QMainWindow):
 
     def save_results_button_clicker(self):
         reader = MidiReader()
-        reader.write_results(self, self.analysis_results)
-        self.analysis_results.clear()
+        reader.write_results(self, self.moving_window_analysis_result, self.expanding_window_analysis_result)
 
 
     def remember_results(self, moving_window_results, expanded_window_results):
@@ -583,45 +584,59 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
         else:
-            moving_window_results = []
-            expanded_window_results = []
 
             number_of_samples = int(self.max_number_of_notes_to_check / number_of_units)
             remainder_size = self.max_number_of_notes_to_check % number_of_units
 
             actual_window_start = 0
             actual_window_end = 0
+            algorithm_info = None
             for actual_position in range(0, number_of_samples):
                 actual_window_end += number_of_units
-                result_information = self.calculate_results(actual_window_start, actual_window_end)
-                moving_window_results.append({"RESULT":result_information, "SIGNATURE":self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
+                result_information, algorithm_info = self.calculate_results(actual_window_start, actual_window_end)
+                self.moving_window_analysis_result.append({"FILENAME":self.files[self.selected_file_number].file.filename,
+                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT":result_information,
+                                                           "ALGORITHM_INFO":algorithm_info, "BASE_RHYTHMIC_VALUE":self.min_rhytmic_value.currentText(),
+                                              "SIGNATURE":self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
+                                              "SAMPLE_CALCULATION_MODE":self.sample_calculation_mode.currentText(), "PROFILE":self.tonal_profiles_type.currentText(),
                                               "KS_RESULTS":self.ks_results, "AS_RESULTS":self.as_results, "T_RESULTS":self.t_results})
                 actual_window_start = actual_window_end
 
             if remainder_size > 0:
-                result_information = self.calculate_results(actual_window_start, actual_window_end + remainder_size)
-                moving_window_results.append(
-                    {"RESULT": result_information, "SIGNATURE": self.signature, "WINDOW_START": actual_window_start,
-                     "WINDOW_END": actual_window_end + remainder_size,
+                result_information, algorithm_info = self.calculate_results(actual_window_start, actual_window_end + remainder_size)
+                self.moving_window_analysis_result.append(
+                    {"FILENAME":self.files[self.selected_file_number].file.filename,
+                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
+                     "BASE_RHYTHMIC_VALUE": self.min_rhytmic_value.currentText(),
+                     "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
+                     "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
+                     "PROFILE": self.tonal_profiles_type.currentText(),
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results})
 
             actual_window_start = 0
             actual_window_end = 0
             for actual_position in range(0, number_of_samples):
                 actual_window_end += number_of_units
-                result_information = self.calculate_results(actual_window_start, actual_window_end)
-                expanded_window_results.append(
-                    {"RESULT":result_information, "SIGNATURE": self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
-                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results,
-                     "T_RESULTS": self.t_results})
-
-            if remainder_size > 0:
-                result_information = self.calculate_results(actual_window_end, actual_window_end + remainder_size)
-                expanded_window_results.append(
-                    {"RESULT": result_information, "SIGNATURE": self.signature, "WINDOW_START": actual_window_end, "WINDOW_END": actual_window_end + remainder_size,
+                result_information, algorithm_info = self.calculate_results(actual_window_start, actual_window_end)
+                self.expanding_window_analysis_result.append(
+                    {"FILENAME":self.files[self.selected_file_number].file.filename,
+                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
+                     "BASE_RHYTHMIC_VALUE": self.min_rhytmic_value.currentText(),
+                     "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
+                     "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
+                     "PROFILE": self.tonal_profiles_type.currentText(),
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results})
 
-            self.remember_results(moving_window_results, expanded_window_results)
+            if remainder_size > 0:
+                result_information, algorithm_info = self.calculate_results(actual_window_end, actual_window_end + remainder_size)
+                self.expanding_window_analysis_result.append(
+                    {"FILENAME":self.files[self.selected_file_number].file.filename,
+                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
+                     "BASE_RHYTHMIC_VALUE": self.min_rhytmic_value.currentText(),
+                     "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
+                     "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
+                     "PROFILE": self.tonal_profiles_type.currentText(),
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results})
 
     def calculate_results(self, actual_window_start, actual_window_end):
         algorithm_info = AlgorithmInfo(
@@ -667,7 +682,7 @@ class UI_MainPage(QMainWindow):
                     self.sample_calculation_mode.currentText()],
                 self.min_rhytmic_value.currentText()))
 
-        return result_information
+        return result_information, algorithm_info
 
 '''
 Bug z nie wyświetlaniem tonacji dla wartości przy końcu zakresu, przy zakresie określonym przez wyświetlaną wartość
