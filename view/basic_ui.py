@@ -173,6 +173,7 @@ class UI_MainPage(QMainWindow):
         self.window_start = QtWidgets.QTextEdit(self.centralwidget)
         self.window_start.setGeometry(QtCore.QRect(20, 690, 191, 31))
         self.window_start.setObjectName("window_start")
+        self.window_start.setReadOnly(True)
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setGeometry(QtCore.QRect(20, 650, 151, 31))
         font = QtGui.QFont()
@@ -188,6 +189,7 @@ class UI_MainPage(QMainWindow):
         self.window_end = QtWidgets.QTextEdit(self.centralwidget)
         self.window_end.setGeometry(QtCore.QRect(350, 690, 191, 31))
         self.window_end.setObjectName("window_end")
+        self.window_end.setReadOnly(True)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1600, 26))
@@ -304,6 +306,9 @@ class UI_MainPage(QMainWindow):
         self.show_signature_checkbox.setChecked(True)
         self.show_signature_checkbox.stateChanged.connect(self.show_signature_state_changed)
 
+        self.expand_window_button.clicked.connect(self.expand_window)
+        self.reduce_window_button.clicked.connect(self.reduce_window)
+
         self.number_of_units.setText(str(1))
         self.move_window_offset.setText(str(1))
         self.expand_window_offset.setText(str(1))
@@ -346,44 +351,89 @@ class UI_MainPage(QMainWindow):
 
         self.analysis_results = []
 
+        self.moving_window_analysis_result = []
+
+        self.expanding_window_analysis_result = []
+
+        self.moving_window_index = 0
+
+        self.expanding_window_index = 0
+
         self.files = []
 
         self.selected_file_number = 0
 
-        self.window_start = 0
-
-        self.window_end = 0
-
         self.main_window.show()
-        #self.show()
 
     def move_window_backward(self):
         if not self.move_window_offset.toPlainText().isdigit():
             QMessageBox.warning(self.scene, "Error", "Move offset must be an positive integer !")
         elif self.move_window_offset.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
-        else:
-            move_window_offset = int(self.move_window_offset.toPlainText())
-            if self.window_start - move_window_offset < 0:
-                QMessageBox.warning(self.scene, "Error", "Move window out of range !")
-                return
-            else:
-                self.window_start -= move_window_offset
-                self.window_end -= move_window_offset
+        elif self.moving_window_index - int(self.move_window_offset.toPlainText()) > 0:
+            self.moving_window_index -= int(self.move_window_offset.toPlainText())
+            self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["RESULT"])
+            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["SIGNATURE"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["KS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["AS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["T_RESULTS"])
+            self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_START"]))
+            self.window_end.setText(
+                str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_END"]))
 
     def move_window_forward(self):
         if not self.move_window_offset.toPlainText().isdigit():
             QMessageBox.warning(self.scene, "Error", "Move offset must be an positive integer !")
         elif self.move_window_offset.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
-        else:
-            move_window_offset = int(self.move_window_offset.toPlainText())
-            if self.window_start + move_window_offset > self.max_number_of_notes_to_check:
-                QMessageBox.warning(self.scene, "Error", "Move window out of range !")
-                return
-            else:
-                self.window_start += move_window_offset
-                self.window_end += move_window_offset
+        elif self.moving_window_index + int(self.move_window_offset.toPlainText()) < len(self.moving_window_analysis_result):
+            self.moving_window_index += int(self.move_window_offset.toPlainText())
+            t = self.moving_window_index
+            self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["RESULT"])
+            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["SIGNATURE"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["KS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["AS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["T_RESULTS"])
+            self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_START"]))
+            self.window_end.setText(
+                str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_END"]))
+
+
+    def expand_window(self):
+        if not self.expand_window_offset.toPlainText().isdigit():
+            QMessageBox.warning(self.scene, "Error", "Expand offset must be an positive integer !")
+        elif self.expand_window_offset.document().isEmpty() is True:
+            QMessageBox.warning(self.scene, "Error", "Expand move offset !")
+        elif self.expanding_window_index + int(self.expand_window_offset.toPlainText()) < len(self.expanding_window_analysis_result):
+            self.expanding_window_index += int(self.expand_window_offset.toPlainText())
+            self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["RESULT"])
+            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["SIGNATURE"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["KS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["AS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["T_RESULTS"])
+
+            self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_START"]))
+            self.window_end.setText(
+                str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_END"]))
+
+
+    def reduce_window(self):
+        if not self.expand_window_offset.toPlainText().isdigit():
+            QMessageBox.warning(self.scene, "Error", "Reduce offset must be an positive integer !")
+        elif self.expand_window_offset.document().isEmpty() is True:
+            QMessageBox.warning(self.scene, "Error", "Select reduce offset !")
+        elif self.expanding_window_index - int(self.expand_window_offset.toPlainText()) > 0:
+            self.expanding_window_index -= int(self.expand_window_offset.toPlainText())
+            self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["RESULT"])
+            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["SIGNATURE"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["KS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["AS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["T_RESULTS"])
+
+            self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_START"]))
+            self.window_end.setText(
+                str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_END"]))
+
 
     def check_if_sample_from_start(self):
         if self.sample_from_start.isChecked():
@@ -508,13 +558,13 @@ class UI_MainPage(QMainWindow):
 
     def remember_results(self, moving_window_results, expanded_window_results):
         for moving_window_result in moving_window_results:
-            self.analysis_results.append({"FILENAME":self.files[self.selected_file_number].file.filename,
+            self.moving_window_analysis_result.append({"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),
-                                          "MOVING_WINDOW_RESULT":moving_window_result})
+                                          "RESULT":moving_window_result})
         for expanded_window_result in expanded_window_results:
-            self.analysis_results.append({"FILENAME":self.files[self.selected_file_number].file.filename,
+            self.expanding_window_analysis_result.append({"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),
-                                          "EXPANDED_WINDOW_RESULT":expanded_window_result})
+                                          "RESULT":expanded_window_result})
 
     def calculate_button_clicker(self):
         if self.number_of_units.document().isEmpty():
@@ -533,16 +583,6 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
         else:
-            # self.window_start = 0
-            # self.window_end = 0
-            # sample_size = 0
-            # if self.window_calculation_mode == WindowModes.FROM_START:
-            #     self.window_start = 0
-            #     self.window_end = number_of_units
-            # elif self.window_calculation_mode == WindowModes.FROM_END:
-            #     self.window_start = self.max_number_of_notes_to_check - number_of_units
-            #     self.window_end = self.max_number_of_notes_to_check
-
             moving_window_results = []
             expanded_window_results = []
 
@@ -582,9 +622,6 @@ class UI_MainPage(QMainWindow):
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results})
 
             self.remember_results(moving_window_results, expanded_window_results)
-            # self.result_information.setText(result_information)
-            # self.draw_signature_graphics_view(self.signature, self.ks_results, self.as_results, self.t_results)
-
 
     def calculate_results(self, actual_window_start, actual_window_end):
         algorithm_info = AlgorithmInfo(
