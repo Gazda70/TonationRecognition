@@ -119,18 +119,10 @@ class UI_MainPage(QMainWindow):
         font.setPointSize(16)
         self.show_signature_checkbox.setFont(font)
         self.show_signature_checkbox.setObjectName("show_signature_checkbox")
-        self.sample_from_start = QtWidgets.QRadioButton(self.centralwidget)
-        self.sample_from_start.setGeometry(QtCore.QRect(30, 500, 151, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
-        self.sample_from_start.setFont(font)
-        self.sample_from_start.setObjectName("sample_from_start")
-        self.sample_from_end = QtWidgets.QRadioButton(self.centralwidget)
-        self.sample_from_end.setGeometry(QtCore.QRect(190, 500, 141, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
-        self.sample_from_end.setFont(font)
-        self.sample_from_end.setObjectName("sample_from_end")
         self.file_list = QtWidgets.QListWidget(self.centralwidget)
         self.file_list.setGeometry(QtCore.QRect(30, 220, 181, 192))
         self.file_list.setObjectName("file_list")
@@ -218,8 +210,6 @@ class UI_MainPage(QMainWindow):
         self.show_mode_axis_checkbox.setText(_translate("MainWindow", "Show mode axis"))
         self.show_cvsf_checkbox.setText(_translate("MainWindow", "Show vector"))
         self.show_signature_checkbox.setText(_translate("MainWindow", "Show signature"))
-        self.sample_from_start.setText(_translate("MainWindow", "From start"))
-        self.sample_from_end.setText(_translate("MainWindow", "From end"))
         self.track_list_label_2.setText(_translate("MainWindow", "File list"))
         self.move_window_forward_button.setText(_translate("MainWindow", "Move forward"))
         self.label_2.setText(_translate("MainWindow", "Move window offset"))
@@ -231,78 +221,40 @@ class UI_MainPage(QMainWindow):
         self.label_8.setText(_translate("MainWindow", "Window end"))
     def __init__(self):
         super(UI_MainPage, self).__init__()
-        #uic.loadUi(MAIN_UI_PAGE, self)
         self.main_window = QMainWindow()
         self.setupUi(self.main_window)
-        #self.load_file_button = self.findChild(QPushButton, "load_files_button")
         self.load_files_button.clicked.connect(self.load_file_button_clicker)
 
-        # self.save_results_button = self.findChild(QPushButton, "save_results_button")
         self.save_results_button.clicked.connect(self.save_results_button_clicker)
 
-        # self.algorithm_type_dropdown = self.findChild(QComboBox, "algorithm_type_dropdown")
         self.algorithm_type_dropdown.addItems(["Signature of fifths with major/minor axis", "Signature of fifths with tonal profiles"])
 
-        # self.sample_calculation_mode = self.findChild(QComboBox, "sample_calculation_mode")
         self.sample_calculation_mode.addItems(SAMPLE_CALCULATION_MODES.keys())
 
-        # self.tonal_profiles_type = self.findChild(QComboBox, "tonal_profiles_type")
         self.tonal_profiles_type.addItems(TONAL_PROFILE_NAMES.keys())
 
-        # self.midi_channel_dropdown = self.findChild(QComboBox, "midi_channel_dropdown")
-
-        # self.calculate_button = self.findChild(QPushButton, "calculate_button")
         self.calculate_button.clicked.connect(self.calculate_button_clicker)
 
         self.move_window_backward_button.clicked.connect(self.move_window_backward)
 
         self.move_window_forward_button.clicked.connect(self.move_window_forward)
 
-        # self.signature_graphics_view = self.findChild(QGraphicsView, "signature_graphic_view")
-
-        # self.track_list = self.findChild(QListWidget, "track_list")
         self.track_list.itemClicked.connect(self.track_list_selection_changed)
 
-        # self.file_list = self.findChild(QListWidget, "file_list")
         self.file_list.itemActivated.connect(self.file_list_selection_changed)
 
-        # self.sample_from_start = self.findChild(QRadioButton, "sample_from_start")
-        self.sample_from_start.toggled.connect(self.check_if_sample_from_start)
-
-        # self.sample_from_end = self.findChild(QRadioButton, "sample_from_end")
-        self.sample_from_end.toggled.connect(self.check_if_sample_from_end)
-
-        # self.result_information = self.findChild(QLabel, "result_information")
-
-        # self.window_start_position = self.findChild(QTextEdit, "window_start_position")
-        #
-        # self.window_end_position = self.findChild(QTextEdit, "window_end_position")
-        #
-        # self.units_from_start = self.findChild(QTextEdit, "units_from_start")
-        #
-        # self.units_from_end = self.findChild(QTextEdit, "units_from_end")
-
-        # self.number_of_units = self.findChild(QTextEdit, "number_of_units")
-
-        # self.max_number_of_notes = self.findChild(QTextEdit, "max_number_of_notes")
-
-        # self.min_rhytmic_value = self.findChild(QComboBox, "min_rhytmic_value")
         self.min_rhytmic_value.addItems(RHYTMIC_VALUES.keys())
         self.min_rhytmic_value.currentTextChanged.connect(self.set_base_rhytmic_value)
 
-        # self.show_main_axis_checkbox = self.findChild(QCheckBox, "show_main_axis_checkbox")
         self.show_main_axis_checkbox.setChecked(True)
         self.show_main_axis_checkbox.stateChanged.connect(self.show_main_axis_state_changed)
 
-        # self.show_mode_axis_checkbox = self.findChild(QCheckBox, "show_mode_axis_checkbox")
         self.show_mode_axis_checkbox.setChecked(True)
         self.show_mode_axis_checkbox.stateChanged.connect(self.show_mode_axis_state_changed)
 
-        # self.show_cvsf_checkbox = self.findChild(QCheckBox, "show_cvsf_checkbox")
         self.show_cvsf_checkbox.setChecked(True)
         self.show_cvsf_checkbox.stateChanged.connect(self.show_cvsf_state_changed)
 
-        # self.show_signature_checkbox = self.findChild(QCheckBox, "show_signature_checkbox")
         self.show_signature_checkbox.setChecked(True)
         self.show_signature_checkbox.stateChanged.connect(self.show_signature_state_changed)
 
@@ -343,8 +295,6 @@ class UI_MainPage(QMainWindow):
 
         self.max_number_of_notes_to_check = 0
 
-        self.window_calculation_mode = WindowModes.FROM_START
-
         self.global_track_length = 0
 
         self.filenames = []
@@ -370,16 +320,16 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self.scene, "Error", "Move offset must be an positive integer !")
         elif self.move_window_offset.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
-        elif self.moving_window_index - int(self.move_window_offset.toPlainText()) > 0:
+        elif self.moving_window_index - int(self.move_window_offset.toPlainText()) + 1 > 0:
             self.moving_window_index -= int(self.move_window_offset.toPlainText())
-            self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["RESULT"])
-            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["SIGNATURE"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["KS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["AS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["T_RESULTS"])
-            self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_START"]))
+            self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
+            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["SIGNATURE"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["KS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["AS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["T_RESULTS"])
+            self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_START"]))
             self.window_end.setText(
-                str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_END"]))
+                str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_END"]))
 
     def move_window_forward(self):
         if not self.move_window_offset.toPlainText().isdigit():
@@ -389,14 +339,14 @@ class UI_MainPage(QMainWindow):
         elif self.moving_window_index + int(self.move_window_offset.toPlainText()) < len(self.moving_window_analysis_result):
             self.moving_window_index += int(self.move_window_offset.toPlainText())
             t = self.moving_window_index
-            self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["RESULT"])
-            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["SIGNATURE"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["KS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["AS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["T_RESULTS"])
-            self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_START"]))
+            self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
+            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["SIGNATURE"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["KS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["AS_RESULTS"],
+                                              self.moving_window_analysis_result[self.moving_window_index]["T_RESULTS"])
+            self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_START"]))
             self.window_end.setText(
-                str(self.moving_window_analysis_result[self.moving_window_index]["RESULT"]["WINDOW_END"]))
+                str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_END"]))
 
 
     def expand_window(self):
@@ -406,15 +356,15 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self.scene, "Error", "Expand move offset !")
         elif self.expanding_window_index + int(self.expand_window_offset.toPlainText()) < len(self.expanding_window_analysis_result):
             self.expanding_window_index += int(self.expand_window_offset.toPlainText())
-            self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["RESULT"])
-            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["SIGNATURE"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["KS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["AS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["T_RESULTS"])
+            self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
+            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["SIGNATURE"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["KS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["AS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["T_RESULTS"])
 
-            self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_START"]))
+            self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["WINDOW_START"]))
             self.window_end.setText(
-                str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_END"]))
+                str(self.expanding_window_analysis_result[self.expanding_window_index]["WINDOW_END"]))
 
 
     def reduce_window(self):
@@ -422,26 +372,17 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self.scene, "Error", "Reduce offset must be an positive integer !")
         elif self.expand_window_offset.document().isEmpty() is True:
             QMessageBox.warning(self.scene, "Error", "Select reduce offset !")
-        elif self.expanding_window_index - int(self.expand_window_offset.toPlainText()) > 0:
+        elif self.expanding_window_index - int(self.expand_window_offset.toPlainText()) + 1 > 0:
             self.expanding_window_index -= int(self.expand_window_offset.toPlainText())
-            self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["RESULT"])
-            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["SIGNATURE"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["KS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["AS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["T_RESULTS"])
+            self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
+            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["SIGNATURE"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["KS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["AS_RESULTS"],
+                                              self.expanding_window_analysis_result[self.expanding_window_index]["T_RESULTS"])
 
-            self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_START"]))
+            self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["WINDOW_START"]))
             self.window_end.setText(
-                str(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"]["WINDOW_END"]))
-
-
-    def check_if_sample_from_start(self):
-        if self.sample_from_start.isChecked():
-            self.window_calculation_mode = WindowModes.FROM_START
-
-    def check_if_sample_from_end(self):
-        if self.sample_from_end.isChecked():
-            self.window_calculation_mode = WindowModes.FROM_END
+                str(self.expanding_window_analysis_result[self.expanding_window_index]["WINDOW_END"]))
 
     def load_file_button_clicker(self):
         self.expanding_window_analysis_result.clear()
