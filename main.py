@@ -11,7 +11,6 @@ def main():
     w = 1800
     h = 900
     widget.resize(w, h)
-#    widget.show()
     app.exec_()
 
 if ( __name__ == '__main__' ):

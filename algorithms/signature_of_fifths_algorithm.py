@@ -69,6 +69,7 @@ class DirectedAxisCreator:
         directed_axis_collection = create_directed_axis_object()
         max_difference = -math.inf
         best_ax = None
+        same_value_axes = []
         for dir_ax in directed_axis_collection.keys():
             positive_notes = set(signature.signature.keys()).intersection(
                 set([element[0] for element in directed_axis_collection[dir_ax]["positive"]]))
@@ -77,10 +78,13 @@ class DirectedAxisCreator:
                 set([element[0] for element in directed_axis_collection[dir_ax]["negative"]]))
             negative_notes_sum = sum([signature.signature[negative_note].length for negative_note in negative_notes])
             difference = positive_notes_sum - negative_notes_sum
-            if difference > max_difference:
+            if difference == max_difference:
+                same_value_axes.append(directed_axis_collection[dir_ax]['note_vector'])
+                same_value_axes.append(directed_axis_collection[best_ax]['note_vector'])
+            elif difference > max_difference:
                 max_difference = difference
                 best_ax = dir_ax
-        return directed_axis_collection[best_ax]['note_vector']
+        return directed_axis_collection[best_ax]['note_vector'], same_value_axes
 
 
 class SignatureOfFifthsUtility:
@@ -117,9 +121,9 @@ class SignatureOfFifthsUtility:
 
     def calculate_mdasf(self, signature: SignatureOfFifths):
         creator = DirectedAxisCreator()
-        mdasf = creator.determine_from_signature(signature)
+        mdasf, same_axes = creator.determine_from_signature(signature)
         signature.mdasf = mdasf
-        return signature
+        return same_axes
 
     def calculate_mode_angle(self, signature: SignatureOfFifths):
         angle_one = (signature.mdasf.direction + 90.0) % 360
