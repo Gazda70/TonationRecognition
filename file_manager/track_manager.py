@@ -134,6 +134,10 @@ class TrackManager:
             lengths.append(len(track.processed_track))
         return min(lengths)
 
+    def activate_all_tracks(self):
+        for track in self.processed_tracks:
+            track.activate()
+
     def process_file(self, midi_file):
         self.ticks_per_beat = midi_file.ticks_per_beat
         self.total_time = midi_file.length

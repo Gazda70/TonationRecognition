@@ -431,12 +431,17 @@ class UI_MainPage(QMainWindow):
         self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
         self.global_track_length = self.files[self.selected_file_number].track_manager.get_operable_range_of_all_tracks()
         self.setup_track_list()
+        self.files[self.selected_file_number].track_manager.activate_all_tracks()
+        for i in range(self.track_list.count()):
+            self.track_list.item(i).setBackground(QColor('green'))
+        self.is_track_selected = True
+
 
 
     def track_list_selection_changed(self, item):
-        self.is_track_selected = True
         self.selected_track = track_number = int(item.text()[-1:]) - 1
         self.files[self.selected_file_number].track_manager.handle_selection(track_number)
+        self.is_track_selected = self.files[self.selected_file_number].track_manager.get_selected_tracks_number() > 0
         if (self.files[self.selected_file_number].track_manager.is_track_selected(track_number) is True):
             item.setBackground(QColor('green'))
         else:
