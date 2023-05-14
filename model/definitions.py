@@ -40,8 +40,8 @@ class Algorithm(Enum):
     SIGNATURE_MODE_AXIS, SIGNATURE_TONAL_PROFILES, CLASSIC_TONAL_PROFILES = range(0, 3)
 
 
-ALGORITHM_NAMES = {"Signature of fifths with major/minor axis": Algorithm.SIGNATURE_MODE_AXIS,
-                   "Signature of fifths with tonal profiles": Algorithm.SIGNATURE_TONAL_PROFILES,
+ALGORITHM_NAMES = {"Major/minor axis": Algorithm.SIGNATURE_MODE_AXIS,
+                   "Tonal profiles": Algorithm.SIGNATURE_TONAL_PROFILES,
                    "Only tonal profiles": Algorithm.CLASSIC_TONAL_PROFILES}
 
 

@@ -20,8 +20,13 @@
       <x>530</x>
       <y>60</y>
       <width>271</width>
-      <height>31</height>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
     </property>
    </widget>
    <widget class="QComboBox" name="tonal_profiles_type">
@@ -30,8 +35,13 @@
       <x>1130</x>
       <y>60</y>
       <width>271</width>
-      <height>31</height>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
     </property>
    </widget>
    <widget class="QPushButton" name="load_files_button">
@@ -104,8 +114,13 @@
       <x>830</x>
       <y>60</y>
       <width>271</width>
-      <height>31</height>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
     </property>
    </widget>
    <widget class="QLabel" name="track_list_label">
@@ -401,8 +416,13 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>Move forward</string>
+     <string>+</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="move_window_offset">
@@ -442,8 +462,13 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>Move backward</string>
+     <string>-</string>
     </property>
    </widget>
    <widget class="QPushButton" name="expand_window_button">
@@ -455,8 +480,13 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>Expand</string>
+     <string>+</string>
     </property>
    </widget>
    <widget class="QPushButton" name="reduce_window_button">
@@ -468,8 +498,13 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>Reduce</string>
+     <string>-</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="expand_window_offset">
