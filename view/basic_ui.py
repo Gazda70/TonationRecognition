@@ -324,6 +324,8 @@ class UI_MainPage(QMainWindow):
             self.moving_window_index -= int(self.move_window_offset.toPlainText())
             if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
                 QMessageBox.warning(self.scene, "Warning", "Multiple axes have the same value !")
+            if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
+                QMessageBox.warning(self.scene, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
             self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["SIGNATURE"],
                                               self.moving_window_analysis_result[self.moving_window_index]["KS_RESULTS"],
@@ -342,6 +344,8 @@ class UI_MainPage(QMainWindow):
             self.moving_window_index += int(self.move_window_offset.toPlainText())
             if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
                 QMessageBox.warning(self.scene, "Warning", "Multiple axes have the same value !")
+            if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
+                QMessageBox.warning(self.scene, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
             self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["SIGNATURE"],
                                               self.moving_window_analysis_result[self.moving_window_index]["KS_RESULTS"],
@@ -359,8 +363,10 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self.scene, "Error", "Expand move offset !")
         elif self.expanding_window_index + int(self.expand_window_offset.toPlainText()) < len(self.expanding_window_analysis_result):
             self.expanding_window_index += int(self.expand_window_offset.toPlainText())
-            if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
+            if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
                 QMessageBox.warning(self.scene, "Warning", "Multiple axes have the same value !")
+            if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
+                QMessageBox.warning(self.scene, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
             self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["SIGNATURE"],
                                               self.expanding_window_analysis_result[self.expanding_window_index]["KS_RESULTS"],
@@ -379,8 +385,10 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self.scene, "Error", "Select reduce offset !")
         elif self.expanding_window_index - int(self.expand_window_offset.toPlainText()) + 1 > 0:
             self.expanding_window_index -= int(self.expand_window_offset.toPlainText())
-            if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
+            if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
                 QMessageBox.warning(self.scene, "Warning", "Multiple axes have the same value !")
+            if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
+                QMessageBox.warning(self.scene, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
             self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["SIGNATURE"],
                                               self.expanding_window_analysis_result[self.expanding_window_index]["KS_RESULTS"],
@@ -545,17 +553,18 @@ class UI_MainPage(QMainWindow):
             algorithm_info = None
             for actual_position in range(0, number_of_samples):
                 actual_window_end += number_of_units
-                result_information, algorithm_info, same_axes = self.calculate_results(actual_window_start, actual_window_end)
+                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end)
                 self.moving_window_analysis_result.append({"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT":result_information,
                                                            "ALGORITHM_INFO":algorithm_info, "BASE_RHYTHMIC_VALUE":self.min_rhytmic_value.currentText(),
                                               "SIGNATURE":self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
                                               "SAMPLE_CALCULATION_MODE":self.sample_calculation_mode.currentText(), "PROFILE":self.tonal_profiles_type.currentText(),
-                                              "KS_RESULTS":self.ks_results, "AS_RESULTS":self.as_results, "T_RESULTS":self.t_results, "SAME_AXES":same_axes})
+                                              "KS_RESULTS":self.ks_results, "AS_RESULTS":self.as_results, "T_RESULTS":self.t_results,
+                                                           "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
                 actual_window_start = actual_window_end
 
             if remainder_size > 0:
-                result_information, algorithm_info, same_axes = self.calculate_results(actual_window_start, actual_window_end + remainder_size)
+                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end + remainder_size)
                 self.moving_window_analysis_result.append(
                     {"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
@@ -563,13 +572,14 @@ class UI_MainPage(QMainWindow):
                      "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
-                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results, "SAME_AXES":same_axes})
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
+                     "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
 
             actual_window_start = 0
             actual_window_end = 0
             for actual_position in range(0, number_of_samples):
                 actual_window_end += number_of_units
-                result_information, algorithm_info, same_axes = self.calculate_results(actual_window_start, actual_window_end)
+                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end)
                 self.expanding_window_analysis_result.append(
                     {"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
@@ -577,10 +587,11 @@ class UI_MainPage(QMainWindow):
                      "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
-                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results, "SAME_AXES":same_axes})
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
+                     "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
 
             if remainder_size > 0:
-                result_information, algorithm_info, same_axes = self.calculate_results(actual_window_end, actual_window_end + remainder_size)
+                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_end, actual_window_end + remainder_size)
                 self.expanding_window_analysis_result.append(
                     {"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
@@ -588,7 +599,8 @@ class UI_MainPage(QMainWindow):
                      "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
-                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results, "SAME_AXES":same_axes})
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
+                     "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
 
         self.result_information.setText(self.moving_window_analysis_result[0]["RESULT"])
         self.draw_signature_graphics_view(self.moving_window_analysis_result[0]["SIGNATURE"],
@@ -604,7 +616,7 @@ class UI_MainPage(QMainWindow):
             algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=TONAL_PROFILE_NAMES[self.tonal_profiles_type.currentText()])
-        result_information, self.signature, same_axes = self.algorithm_manager.execute_algorithm(algorithm_info,
+        result_information, self.signature, same_axes, mode_angle_equal_zero = self.algorithm_manager.execute_algorithm(algorithm_info,
                                                                                       self.files[
                                                                                           self.selected_file_number].track_manager.calculate_sample_vector(
                                                                                           actual_window_start,
@@ -613,7 +625,7 @@ class UI_MainPage(QMainWindow):
                                                                                               self.sample_calculation_mode.currentText()],
                                                                                           self.min_rhytmic_value.currentText()))
 
-        self.ks_results, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+        self.ks_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=Profile.KS),
@@ -623,7 +635,7 @@ class UI_MainPage(QMainWindow):
                     self.sample_calculation_mode.currentText()],
                 self.min_rhytmic_value.currentText()))
 
-        self.as_results, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+        self.as_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=Profile.AS),
@@ -633,7 +645,7 @@ class UI_MainPage(QMainWindow):
                     self.sample_calculation_mode.currentText()],
                 self.min_rhytmic_value.currentText()))
 
-        self.t_results, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
+        self.t_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=Profile.T),
@@ -643,7 +655,7 @@ class UI_MainPage(QMainWindow):
                     self.sample_calculation_mode.currentText()],
                 self.min_rhytmic_value.currentText()))
 
-        return result_information, algorithm_info, same_axes
+        return result_information, algorithm_info, same_axes, mode_angle_equal_zero
 
 '''
 Bug z nie wyświetlaniem tonacji dla wartości przy końcu zakresu, przy zakresie określonym przez wyświetlaną wartość

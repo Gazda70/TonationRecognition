@@ -143,4 +143,4 @@ class SignatureOfFifthsUtility:
         tonation = Tonation(note=tonation_pointed_by_mdasf, mode=Mode.MAJOR)
         if signature.mode_angle < 0:
             tonation = Tonation(note=parallel_tonation, mode=Mode.MINOR)
-        return tonation
+        return tonation, signature.mode_angle == 0
