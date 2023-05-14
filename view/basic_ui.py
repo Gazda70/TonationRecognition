@@ -338,7 +338,6 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self.scene, "Error", "Select move offset !")
         elif self.moving_window_index + int(self.move_window_offset.toPlainText()) < len(self.moving_window_analysis_result):
             self.moving_window_index += int(self.move_window_offset.toPlainText())
-            t = self.moving_window_index
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
             self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["SIGNATURE"],
                                               self.moving_window_analysis_result[self.moving_window_index]["KS_RESULTS"],
@@ -530,7 +529,6 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self.scene, "Error", "Window must match constraints !")
         else:
-
             number_of_samples = int(self.max_number_of_notes_to_check / number_of_units)
             remainder_size = self.max_number_of_notes_to_check % number_of_units
 
@@ -583,6 +581,15 @@ class UI_MainPage(QMainWindow):
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results})
+
+        self.result_information.setText(self.moving_window_analysis_result[0]["RESULT"])
+        self.draw_signature_graphics_view(self.moving_window_analysis_result[0]["SIGNATURE"],
+                                          self.moving_window_analysis_result[0]["KS_RESULTS"],
+                                          self.moving_window_analysis_result[0]["AS_RESULTS"],
+                                          self.moving_window_analysis_result[0]["T_RESULTS"])
+        self.window_start.setText(str(self.moving_window_analysis_result[0]["WINDOW_START"]))
+        self.window_end.setText(
+            str(self.moving_window_analysis_result[0]["WINDOW_END"]))
 
     def calculate_results(self, actual_window_start, actual_window_end):
         algorithm_info = AlgorithmInfo(

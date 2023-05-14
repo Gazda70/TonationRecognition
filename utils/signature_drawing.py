@@ -124,13 +124,13 @@ class SignatureGraphic:
         text.setTransform(textTransform)
 
     def draw_mdasf(self):
-        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction, QPen(Qt.red, 3, Qt.DashLine), "MDASF")
-        self.draw_vector_with_arrow(1.0, self.signature_of_fifths.mdasf.direction - 180.0, QPen(Qt.red, 3, Qt.DashLine), "MDASF", QPen(Qt.red, 3), QBrush(Qt.red))
+        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction - 180.0, QPen(Qt.red, 3, Qt.DashLine), "MDASF")
+        self.draw_vector_with_arrow(1.0, self.signature_of_fifths.mdasf.direction, QPen(Qt.red, 3, Qt.DashLine), "MDASF", QPen(Qt.red, 3), QBrush(Qt.red))
 
     def draw_major_minor_mode_axis(self):
         mode_axis_angle = self.signature_of_fifths.mdasf.direction + 90.0
-        self.draw_vector(1.0, mode_axis_angle, QPen(Qt.green, 3, Qt.DashLine), "MODE")
-        self.draw_vector_with_arrow(1.0, mode_axis_angle - 180.0, QPen(Qt.green, 3, Qt.DashLine), "MODE", QPen(Qt.green, 3), QBrush(Qt.green))
+        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.green, 3, Qt.DashLine), "MODE")
+        self.draw_vector_with_arrow(1.0, mode_axis_angle, QPen(Qt.green, 3, Qt.DashLine), "MODE", QPen(Qt.green, 3), QBrush(Qt.green))
 
     def draw_tonal_profiles_results(self, ks_results, as_results, t_results):
         textTransform = QTransform()
