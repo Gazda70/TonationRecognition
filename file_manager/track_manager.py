@@ -96,12 +96,12 @@ class Track:
                         notes_iter += 1
                         time_passed += note_time
                         actual_note_time += note_time
-                    #if there is a smaller note in track, add its duration to actual_note_time so it can be increased to given note_type duration
-                    #and result in incrementing notes_iter
                     elif actual_note_time == asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note.duration[most_internal_iter].name]:
                         actual_note_time = note_time
                         notes_iter += 1
                         most_internal_iter += 1
+                    #if there is a smaller note in track, add its duration to actual_note_time so it can be increased to given note_type duration
+                    #and result in incrementing notes_iter
                     elif actual_note_time > asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note.duration[most_internal_iter].name]:
                         time_to_full_note += asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note.duration[most_internal_iter].name]
                         most_internal_iter += 1

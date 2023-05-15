@@ -236,7 +236,7 @@ class UI_MainPage(QMainWindow):
         self.show_signature_checkbox.setText(_translate("MainWindow", "Show signature"))
         self.track_list_label_2.setText(_translate("MainWindow", "File list"))
         self.move_window_forward_button.setText(_translate("MainWindow", "+"))
-        self.label_2.setText(_translate("MainWindow", "Move window offset"))
+        self.label_2.setText(_translate("MainWindow", "Move window"))
         self.move_window_backward_button.setText(_translate("MainWindow", "-"))
         self.expand_window_button.setText(_translate("MainWindow", "+"))
         self.reduce_window_button.setText(_translate("MainWindow", "-"))
