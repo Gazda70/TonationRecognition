@@ -1,24 +1,24 @@
 
-from model.definitions import Note, RhytmicValuesDuration, RawElement, ProcessedElement, NoteWithDuration, \
-    RhytmicValues, Tempo, SampleMode, RhytmicValuesDurationWithStartTime
+from model.definitions import Note, RhythmicValuesDuration, RawElement, ProcessedElement, NoteWithDuration, \
+    RhythmicValues, Tempo, SampleMode, RhythmicValuesDurationWithStartTime
 from mido import second2tick
 from dataclasses import asdict
 
 class Track:
-    def __init__(self, processed_track, rhytmic_values=None, activated=False, number=0):
+    def __init__(self, processed_track, rhythmic_values=None, activated=False, number=0):
         self.processed_track = processed_track
         self.activated = activated
         self.number = number
         self.window_start = 0
         self.window_end = 0
-        self.rhytmic_values = rhytmic_values
+        self.rhythmic_values = rhythmic_values
 
     def extract_note_messages_quantity(self, start_time_point, end_time_point, note_type):
         messages = self.get_messages_from_window(start_time_point, end_time_point, note_type)
         notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
         for note_with_duration in messages:
-            if note_with_duration.note != None:
+            if note_with_duration.note is not None:
                 notes[note_with_duration.note] += 1
         return notes
 
@@ -27,7 +27,7 @@ class Track:
         notes = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                  Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
         for msg in messages:
-            if msg.note != None:
+            if msg.note is not None:
                 notes[msg.note] += msg.duration
         return notes
 
@@ -43,7 +43,7 @@ class Track:
 
     def get_messages_from_window(self, start_note, end_note, note_type):
         rhytm_val_iter = 0
-        note_time = asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type]
+        note_time = asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note_type]
         start_time = start_note * note_time
         end_time = end_note * note_time
         time_passed = 0
@@ -56,16 +56,16 @@ class Track:
         while time_passed < end_time and track_iter < len(self.processed_track):
             for element in self.processed_track[track_iter].notes:
                 note_time = 0
-                for rhytmic_value in element.duration:
-                    name = rhytmic_value.name
-                    if rhytmic_value.name == "LOWER_THAN_SIXTY_FOUR":
+                for rhythmic_value in element.duration:
+                    name = rhythmic_value.name
+                    if rhythmic_value.name == "LOWER_THAN_SIXTY_FOUR":
                         name = "SIXTY_FOUR"
                     if note_time >= end_time:
                         break
-                    if rhytm_val_iter + 1 < len(self.rhytmic_values) and time_passed >= self.rhytmic_values[rhytm_val_iter + 1].start_time:
+                    if rhytm_val_iter + 1 < len(self.rhythmic_values) and time_passed >= self.rhythmic_values[rhytm_val_iter + 1].start_time:
                         rhytm_val_iter += 1
-                    note_time += asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[name]
-                    time_passed += asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[name]
+                    note_time += asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[name]
+                    time_passed += asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[name]
                     if not element.is_pause:
                         messages.append(NoteWithDuration(element.note, False, note_time))
             track_iter += 1
@@ -77,42 +77,47 @@ class Track:
     1. Test for tracks with chords.
     2. Test for tracks where too big note has been selected.
     '''
-    def check_base_rhytmic_value_multiplicity(self, note_type):
+    def check_base_rhythmic_value_multiplicity(self, note_type):
         time_passed = 0
         rhytm_val_iter = 0
-        internal_proc_el_note_iter = 0
+        processed_element_internal_index = 0
         notes_iter = 0
-        note_time = asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]
+        note_time = asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note_type.name]
         actual_note_time = note_time
+        time_passed = note_time
         time_to_full_note = 0
-        for processed_element in self.processed_track:
-            while internal_proc_el_note_iter < len(processed_element.notes):
-                note = processed_element.notes[internal_proc_el_note_iter]
-                most_internal_iter = 0
-                while most_internal_iter < len(note.duration) and \
-                        note.duration[most_internal_iter].name in asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration).keys():
-                    # if there is a bigger note in track increment notes iterator and actual_note_time until actual_note_time is bigger than this note
-                    if actual_note_time < asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note.duration[most_internal_iter].name]:
-                        notes_iter += 1
-                        time_passed += note_time
-                        actual_note_time += note_time
-                    #if there is a smaller note in track, add its duration to actual_note_time so it can be increased to given note_type duration
-                    #and result in incrementing notes_iter
-                    elif actual_note_time == asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note.duration[most_internal_iter].name]:
-                        actual_note_time = note_time
-                        notes_iter += 1
-                        most_internal_iter += 1
-                    elif actual_note_time > asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note.duration[most_internal_iter].name]:
-                        time_to_full_note += asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note.duration[most_internal_iter].name]
-                        most_internal_iter += 1
-                    if time_to_full_note >= note_time:
-                        notes_iter += 1
-                        time_to_full_note = time_to_full_note - note_time # what to do with the remainder ?
-                    if rhytm_val_iter + 1 < len(self.rhytmic_values) and time_passed >= self.rhytmic_values[rhytm_val_iter].start_time:
-                        rhytm_val_iter += 1
-                        note_time = asdict(self.rhytmic_values[rhytm_val_iter].rhytmic_values_duration)[note_type.name]
-                internal_proc_el_note_iter += 1
-            internal_proc_el_note_iter = 0
+        #iterate over elements representing chords, pauses and single notes
+        for track_element in self.processed_track:
+            # #iterate over notes that make a chord, pause or single note
+            # while processed_element_internal_index < len(track_element.notes):
+            # note = track_element.notes[processed_element_internal_index]
+            note = track_element.notes[0]
+            note_internal_index = 0
+            #iterate over rhythmic values that make a single note
+            while note_internal_index < len(note.duration) and \
+                    note.duration[note_internal_index].name in asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration).keys():
+                # if there is a bigger note in track increment notes iterator and actual_note_time until actual_note_time is bigger than this note
+                if actual_note_time < asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note.duration[note_internal_index].name]:
+                    notes_iter += 1
+                    time_passed += note_time
+                    actual_note_time += note_time
+                #if there is a smaller note in track, add its duration to actual_note_time so it can be increased to given note_type duration
+                #and result in incrementing notes_iter
+                elif actual_note_time == asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note.duration[note_internal_index].name]:
+                    actual_note_time = note_time
+                    notes_iter += 1
+                    note_internal_index += 1
+                elif actual_note_time > asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note.duration[note_internal_index].name]:
+                    time_to_full_note += asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note.duration[note_internal_index].name]
+                    note_internal_index += 1
+                if time_to_full_note >= note_time:
+                    notes_iter += 1
+                    time_to_full_note = time_to_full_note - note_time # what to do with the remainder ?
+                if rhytm_val_iter + 1 < len(self.rhythmic_values) and time_passed >= self.rhythmic_values[rhytm_val_iter].start_time:
+                    rhytm_val_iter += 1
+                    note_time = asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note_type.name]
+            #     processed_element_internal_index += 1
+            # processed_element_internal_index = 0
         return notes_iter
 
 class TrackManager:
@@ -122,10 +127,10 @@ class TrackManager:
         self.track_count = 0
         self.notes_quantity = 0
         self.total_time = 0
-        self.minimum_rhytmic_value = float('inf')
+        self.minimum_rhythmic_value = float('inf')
         self.tempos = []
-        self.rhytmic_values_duration = RhytmicValuesDuration(2000000, 1000000, 500000, 250000, 125000, 62500, 31250)
-        self.rhytmic_values_multiplicity = 0
+        self.rhythmic_values_duration = RhythmicValuesDuration(2000000, 1000000, 500000, 250000, 125000, 62500, 31250)
+        self.rhythmic_values_multiplicity = 0
         self.ticks_per_beat = 0
 
     def get_operable_range_of_all_tracks(self):
@@ -198,28 +203,28 @@ class TrackManager:
         for raw_track in self.raw_tracks:
             track_iter += 1
             processed_track = []
-            rhytmic_values_with_start_time = []
+            rhythmic_values_with_start_time = []
             total_time = 0
             tempos_index = 0
             actual_tempo = self.tempos[0].tempo
-            self.calculate_rhytmic_values_duration(actual_tempo)
-            rhytmic_values_with_start_time.append(
-                RhytmicValuesDurationWithStartTime(start_time=self.tempos[tempos_index].start_time,
-                                                   rhytmic_values_duration=self.rhytmic_values_duration))
+            self.calculate_rhythmic_values_duration(actual_tempo)
+            rhythmic_values_with_start_time.append(
+                RhythmicValuesDurationWithStartTime(start_time=self.tempos[tempos_index].start_time,
+                                                   rhythmic_values_duration=self.rhythmic_values_duration))
             for raw_element in raw_track:
                 total_time += raw_element.raw_duration
                 if len(self.tempos) > tempos_index + 1 and self.tempos[tempos_index + 1].start_time <= total_time:
                     tempos_index += 1
                     actual_tempo = self.tempos[tempos_index].tempo
-                    self.calculate_rhytmic_values_duration(actual_tempo)
-                    rhytmic_values_with_start_time.append(RhytmicValuesDurationWithStartTime(start_time=self.tempos[tempos_index].start_time,
-                                                                                             rhytmic_values_duration=self.rhytmic_values_duration))
+                    self.calculate_rhythmic_values_duration(actual_tempo)
+                    rhythmic_values_with_start_time.append(RhythmicValuesDurationWithStartTime(start_time=self.tempos[tempos_index].start_time,
+                                                                                             rhythmic_values_duration=self.rhythmic_values_duration))
                 processed_track.append(self.process_raw_element(raw_element))
-            self.processed_tracks.append(Track(processed_track=processed_track, number=track_iter, rhytmic_values=rhytmic_values_with_start_time))
+            self.processed_tracks.append(Track(processed_track=processed_track, number=track_iter, rhythmic_values=rhythmic_values_with_start_time))
 
-    def calculate_rhytmic_values_duration(self, tempo):
+    def calculate_rhythmic_values_duration(self, tempo):
         quarter_note_length = second2tick(float(tempo) / 1000000.0, self.ticks_per_beat, tempo)
-        self.rhytmic_values_duration = RhytmicValuesDuration(quarter_note_length * 4, quarter_note_length * 2,
+        self.rhythmic_values_duration = RhythmicValuesDuration(quarter_note_length * 4, quarter_note_length * 2,
                                                              quarter_note_length, quarter_note_length / 2,
                                                              quarter_note_length / 4, quarter_note_length / 8,
                                                              quarter_note_length / 16)
@@ -229,7 +234,7 @@ class TrackManager:
         for end in element.end_notes:
             if end.time != 0:
                 duration += end.time
-                if element.control != None:
+                if element.control is not None:
                     duration += element.control[1].time
         return duration
 
@@ -237,42 +242,42 @@ class TrackManager:
         notes = []
         if element.is_pause:
             new_pause = NoteWithDuration(note=None, is_pause=True,
-                                          duration=self.map_rhytmic_values(element.start_notes[0].time))
+                                          duration=self.map_rhythmic_values(element.start_notes[0].time))
             notes.append(new_pause)
             return ProcessedElement(is_chord=False, notes=notes, raw_duration=element.start_notes[0].time)
         for end in element.end_notes:
-            new_note = NoteWithDuration(note=Note(end.note % 12), is_pause=False, duration=self.map_rhytmic_values(end.time + 1))
+            new_note = NoteWithDuration(note=Note(end.note % 12), is_pause=False, duration=self.map_rhythmic_values(end.time + 1))
             notes.append(new_note)
 
         return ProcessedElement(is_chord=(len(element.end_notes) != 1), notes=notes, raw_duration=element.raw_duration)
 
-    def map_rhytmic_values(self, time):
+    def map_rhythmic_values(self, time):
         to_return = []
         time = time + 1
         while time > 0:
-            if time >= self.rhytmic_values_duration.WHOLE:
-                to_return.extend([RhytmicValues.WHOLE] * int(time / self.rhytmic_values_duration.WHOLE))
-                time %= self.rhytmic_values_duration.WHOLE
-            elif time >= self.rhytmic_values_duration.HALF:
-                to_return.extend([RhytmicValues.HALF] * int(time / self.rhytmic_values_duration.HALF))
-                time %= self.rhytmic_values_duration.HALF
-            elif time >= self.rhytmic_values_duration.QUARTER:
-                to_return.extend([RhytmicValues.QUARTER] * int(time / self.rhytmic_values_duration.QUARTER))
-                time %= self.rhytmic_values_duration.QUARTER
-            elif time >= self.rhytmic_values_duration.EIGHT:
-                to_return.extend([RhytmicValues.EIGHT] * int(time / self.rhytmic_values_duration.EIGHT))
-                time %= self.rhytmic_values_duration.EIGHT
-            elif time >= self.rhytmic_values_duration.SIXTEEN:
-                to_return.extend([RhytmicValues.SIXTEEN] * int(time / self.rhytmic_values_duration.SIXTEEN))
-                time %= self.rhytmic_values_duration.SIXTEEN
-            elif time >= self.rhytmic_values_duration.THIRTY_TWO:
-                to_return.extend([RhytmicValues.THIRTY_TWO] * int(time / self.rhytmic_values_duration.THIRTY_TWO))
-                time %= self.rhytmic_values_duration.THIRTY_TWO
-            elif time >= self.rhytmic_values_duration.SIXTY_FOUR:
-                to_return.extend([RhytmicValues.SIXTY_FOUR] * int(time / self.rhytmic_values_duration.SIXTY_FOUR))
-                time %= self.rhytmic_values_duration.SIXTY_FOUR
+            if time >= self.rhythmic_values_duration.WHOLE:
+                to_return.extend([RhythmicValues.WHOLE] * int(time / self.rhythmic_values_duration.WHOLE))
+                time %= self.rhythmic_values_duration.WHOLE
+            elif time >= self.rhythmic_values_duration.HALF:
+                to_return.extend([RhythmicValues.HALF] * int(time / self.rhythmic_values_duration.HALF))
+                time %= self.rhythmic_values_duration.HALF
+            elif time >= self.rhythmic_values_duration.QUARTER:
+                to_return.extend([RhythmicValues.QUARTER] * int(time / self.rhythmic_values_duration.QUARTER))
+                time %= self.rhythmic_values_duration.QUARTER
+            elif time >= self.rhythmic_values_duration.EIGHT:
+                to_return.extend([RhythmicValues.EIGHT] * int(time / self.rhythmic_values_duration.EIGHT))
+                time %= self.rhythmic_values_duration.EIGHT
+            elif time >= self.rhythmic_values_duration.SIXTEEN:
+                to_return.extend([RhythmicValues.SIXTEEN] * int(time / self.rhythmic_values_duration.SIXTEEN))
+                time %= self.rhythmic_values_duration.SIXTEEN
+            elif time >= self.rhythmic_values_duration.THIRTY_TWO:
+                to_return.extend([RhythmicValues.THIRTY_TWO] * int(time / self.rhythmic_values_duration.THIRTY_TWO))
+                time %= self.rhythmic_values_duration.THIRTY_TWO
+            elif time >= self.rhythmic_values_duration.SIXTY_FOUR:
+                to_return.extend([RhythmicValues.SIXTY_FOUR] * int(time / self.rhythmic_values_duration.SIXTY_FOUR))
+                time %= self.rhythmic_values_duration.SIXTY_FOUR
             else:
-                to_return.append(RhytmicValues.LOWER_THAN_SIXTY_FOUR)
+                to_return.append(RhythmicValues.LOWER_THAN_SIXTY_FOUR)
                 time = 0
         return to_return
 
@@ -285,7 +290,7 @@ class TrackManager:
             self.processed_tracks[track_number].deactivate()
 
     def handle_selection(self, track_number):
-        if (self.processed_tracks[track_number].activated is True):
+        if self.processed_tracks[track_number].activated is True:
             self.processed_tracks[track_number].deactivate()
         else:
             self.processed_tracks[track_number].activate()
@@ -296,21 +301,21 @@ class TrackManager:
     def get_selected_tracks_numbers(self):
         return [track.number for track in self.processed_tracks if track.activated]
 
-    def calculate_sample_vector(self, window_start, window_end, mode, base_rhytmic_value):
+    def calculate_sample_vector(self, window_start, window_end, mode, base_rhythmic_value):
         notes_dict = {Note.C: 0, Note.C_SHARP: 0, Note.D: 0, Note.D_SHARP: 0, Note.E: 0, Note.F: 0, Note.F_SHARP: 0,
                       Note.G: 0, Note.G_SHARP: 0, Note.A: 0, Note.A_SHARP: 0, Note.B: 0}
         for track in self.processed_tracks:
             if track.activated is True:
                 new_notes_dict = {}
                 if mode == SampleMode.QUANTITY:
-                    new_notes_dict = track.extract_note_messages_quantity(window_start, window_end, base_rhytmic_value)
+                    new_notes_dict = track.extract_note_messages_quantity(window_start, window_end, base_rhythmic_value)
                 elif mode == SampleMode.DURATION:
-                    new_notes_dict = track.extract_note_messages_duration(window_start, window_end, base_rhytmic_value)
+                    new_notes_dict = track.extract_note_messages_duration(window_start, window_end, base_rhythmic_value)
 
                 for key in notes_dict.keys():
                     notes_dict[key] += new_notes_dict[key]
                 #notes_dict = {i: notes_dict.get(i, 0) + new_notes_dict.get(i, 0) for i in set(notes_dict).union(new_notes_dict)}
         return notes_dict
 
-    def calculate_base_rhytmic_value_multiplicity(self, note_type):
-        return self.processed_tracks[0].check_base_rhytmic_value_multiplicity(note_type)
+    def calculate_base_rhythmic_value_multiplicity(self, note_type):
+        return self.processed_tracks[0].check_base_rhythmic_value_multiplicity(note_type)

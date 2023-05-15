@@ -52,7 +52,7 @@ class SampleMode(Enum):
 
 SAMPLE_CALCULATION_MODES = {"Notes quantity": SampleMode.QUANTITY, "Notes duration": SampleMode.DURATION}
 
-class RhytmicValues(Enum):
+class RhythmicValues(Enum):
     WHOLE = 1
     HALF = 2
     QUARTER = 4
@@ -62,8 +62,8 @@ class RhytmicValues(Enum):
     SIXTY_FOUR = 64
     LOWER_THAN_SIXTY_FOUR = 65
 
-RHYTMIC_VALUES = {"WHOLE": RhytmicValues.WHOLE, "HALF": RhytmicValues.HALF, "QUARTER":RhytmicValues.QUARTER, "EIGHT":RhytmicValues.EIGHT,
-                  "SIXTEEN": RhytmicValues.SIXTEEN, "THIRTY_TWO":RhytmicValues.THIRTY_TWO, "SIXTY_FOUR":RhytmicValues.SIXTY_FOUR}
+RHYTHMIC_VALUES = {"WHOLE": RhythmicValues.WHOLE, "HALF": RhythmicValues.HALF, "QUARTER":RhythmicValues.QUARTER, "EIGHT":RhythmicValues.EIGHT,
+                  "SIXTEEN": RhythmicValues.SIXTEEN, "THIRTY_TWO":RhythmicValues.THIRTY_TWO, "SIXTY_FOUR":RhythmicValues.SIXTY_FOUR}
 
 
 @dataclass
@@ -148,7 +148,7 @@ class SignatureCalculationMode(Enum):
 
 
 @dataclass
-class RhytmicValuesDuration:
+class RhythmicValuesDuration:
     WHOLE: int
     HALF: int
     QUARTER: int
@@ -195,6 +195,6 @@ class Tempo:
     start_time: int
 
 @dataclass
-class RhytmicValuesDurationWithStartTime:
-    rhytmic_values_duration: RhytmicValuesDuration
+class RhythmicValuesDurationWithStartTime:
+    rhythmic_values_duration: RhythmicValuesDuration
     start_time: int

@@ -187,7 +187,7 @@
      <string>unknown</string>
     </property>
    </widget>
-   <widget class="QComboBox" name="min_rhytmic_value">
+   <widget class="QComboBox" name="min_rhythmic_value">
     <property name="geometry">
      <rect>
       <x>540</x>
@@ -240,7 +240,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Base rhytmic value</string>
+     <string>Base rhythmic value</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="number_of_units">
