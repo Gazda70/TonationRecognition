@@ -6,7 +6,7 @@ from PyQt5.QtGui import QColor
 from file_manager.file_manager import MidiReader, FileInfo
 from utils.signature_drawing import CircleOfFifths, SignatureGraphic
 from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
-    MAIN_UI_PAGE, AlgorithmInfo, RHYTMIC_VALUES, Algorithm, Profile, WindowModes
+    MAIN_UI_PAGE, AlgorithmInfo, RHYTHMIC_VALUES, Algorithm, Profile, WindowModes
 from algorithms.algorithm_manager import AlgorithmManager
 
 
@@ -77,12 +77,12 @@ class UI_MainPage(QMainWindow):
         font.setPointSize(24)
         self.result_information.setFont(font)
         self.result_information.setObjectName("result_information")
-        self.min_rhytmic_value = QtWidgets.QComboBox(self.centralwidget)
-        self.min_rhytmic_value.setGeometry(QtCore.QRect(540, 545, 211, 51))
-        self.min_rhytmic_value.setObjectName("min_rhytmic_value")
+        self.min_rhythmic_value = QtWidgets.QComboBox(self.centralwidget)
+        self.min_rhythmic_value.setGeometry(QtCore.QRect(540, 545, 211, 51))
+        self.min_rhythmic_value.setObjectName("min_rhythmic_value")
         font = QtGui.QFont()
         font.setPointSize(15)
-        self.min_rhytmic_value.setFont(font)
+        self.min_rhythmic_value.setFont(font)
         self.max_number_of_notes = QtWidgets.QTextEdit(self.centralwidget)
         self.max_number_of_notes.setGeometry(QtCore.QRect(280, 460, 231, 31))
         self.max_number_of_notes.setObjectName("max_number_of_notes")
@@ -228,7 +228,7 @@ class UI_MainPage(QMainWindow):
         self.label_7.setText(_translate("MainWindow", "Tonality:"))
         self.result_information.setText(_translate("MainWindow", "unknown"))
         self.label_4.setText(_translate("MainWindow", "Track length"))
-        self.label.setText(_translate("MainWindow", "Base rhytmic value"))
+        self.label.setText(_translate("MainWindow", "Base rhythmic value"))
         self.label_5.setText(_translate("MainWindow", "Sample"))
         self.show_main_axis_checkbox.setText(_translate("MainWindow", "Show main axis"))
         self.show_mode_axis_checkbox.setText(_translate("MainWindow", "Show mode axis"))
@@ -267,8 +267,8 @@ class UI_MainPage(QMainWindow):
 
         self.file_list.itemActivated.connect(self.file_list_selection_changed)
 
-        self.min_rhytmic_value.addItems(RHYTMIC_VALUES.keys())
-        self.min_rhytmic_value.currentTextChanged.connect(self.set_base_rhytmic_value)
+        self.min_rhythmic_value.addItems(RHYTHMIC_VALUES.keys())
+        self.min_rhythmic_value.currentTextChanged.connect(self.set_base_rhythmic_value)
 
         self.show_main_axis_checkbox.setChecked(True)
         self.show_main_axis_checkbox.stateChanged.connect(self.show_main_axis_state_changed)
@@ -465,7 +465,7 @@ class UI_MainPage(QMainWindow):
             if self.file_list.item(index).text() != item.text():
                 self.file_list.item(index).setBackground(QColor('white'))
         self.max_number_of_notes_to_check = self.files[self.selected_file_number]\
-            .track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])
+            .track_manager.calculate_base_rhythmic_value_multiplicity(RHYTHMIC_VALUES[self.min_rhythmic_value.currentText()])
         self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
         self.global_track_length = self.files[self.selected_file_number].track_manager.get_operable_range_of_all_tracks()
         self.setup_track_list()
@@ -485,11 +485,11 @@ class UI_MainPage(QMainWindow):
         else:
             item.setBackground(QColor('white'))
 
-    def set_base_rhytmic_value(self, note_resolution):
+    def set_base_rhythmic_value(self, note_resolution):
         if not self.is_file_selected:
             QMessageBox.warning(self, "Error", "Select file !")
         else:
-            self.max_number_of_notes_to_check = self.files[self.selected_file_number].track_manager.calculate_base_rhytmic_value_multiplicity(RHYTMIC_VALUES[self.min_rhytmic_value.currentText()])
+            self.max_number_of_notes_to_check = self.files[self.selected_file_number].track_manager.calculate_base_rhythmic_value_multiplicity(RHYTHMIC_VALUES[self.min_rhythmic_value.currentText()])
             self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
 
     def show_main_axis_state_changed(self, item):
@@ -579,7 +579,7 @@ class UI_MainPage(QMainWindow):
                 result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end)
                 self.moving_window_analysis_result.append({"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT":result_information,
-                                                           "ALGORITHM_INFO":algorithm_info, "BASE_RHYTHMIC_VALUE":self.min_rhytmic_value.currentText(),
+                                                           "ALGORITHM_INFO":algorithm_info, "BASE_RHYTHMIC_VALUE":self.min_rhythmic_value.currentText(),
                                               "SIGNATURE":self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
                                               "SAMPLE_CALCULATION_MODE":self.sample_calculation_mode.currentText(), "PROFILE":self.tonal_profiles_type.currentText(),
                                               "KS_RESULTS":self.ks_results, "AS_RESULTS":self.as_results, "T_RESULTS":self.t_results,
@@ -591,7 +591,7 @@ class UI_MainPage(QMainWindow):
                 self.moving_window_analysis_result.append(
                     {"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
-                     "BASE_RHYTHMIC_VALUE": self.min_rhytmic_value.currentText(),
+                     "BASE_RHYTHMIC_VALUE": self.min_rhythmic_value.currentText(),
                      "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
@@ -606,7 +606,7 @@ class UI_MainPage(QMainWindow):
                 self.expanding_window_analysis_result.append(
                     {"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
-                     "BASE_RHYTHMIC_VALUE": self.min_rhytmic_value.currentText(),
+                     "BASE_RHYTHMIC_VALUE": self.min_rhythmic_value.currentText(),
                      "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
@@ -618,7 +618,7 @@ class UI_MainPage(QMainWindow):
                 self.expanding_window_analysis_result.append(
                     {"FILENAME":self.files[self.selected_file_number].file.filename,
                                           "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
-                     "BASE_RHYTHMIC_VALUE": self.min_rhytmic_value.currentText(),
+                     "BASE_RHYTHMIC_VALUE": self.min_rhythmic_value.currentText(),
                      "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
@@ -646,7 +646,7 @@ class UI_MainPage(QMainWindow):
                                                                                           actual_window_end,
                                                                                           SAMPLE_CALCULATION_MODES[
                                                                                               self.sample_calculation_mode.currentText()],
-                                                                                          self.min_rhytmic_value.currentText()))
+                                                                                          self.min_rhythmic_value.currentText()))
 
         self.ks_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
@@ -656,7 +656,7 @@ class UI_MainPage(QMainWindow):
                 actual_window_start, actual_window_end,
                 SAMPLE_CALCULATION_MODES[
                     self.sample_calculation_mode.currentText()],
-                self.min_rhytmic_value.currentText()))
+                self.min_rhythmic_value.currentText()))
 
         self.as_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
@@ -666,7 +666,7 @@ class UI_MainPage(QMainWindow):
                 actual_window_start, actual_window_end,
                 SAMPLE_CALCULATION_MODES[
                     self.sample_calculation_mode.currentText()],
-                self.min_rhytmic_value.currentText()))
+                self.min_rhythmic_value.currentText()))
 
         self.t_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
@@ -676,7 +676,7 @@ class UI_MainPage(QMainWindow):
                 actual_window_start, actual_window_end,
                 SAMPLE_CALCULATION_MODES[
                     self.sample_calculation_mode.currentText()],
-                self.min_rhytmic_value.currentText()))
+                self.min_rhythmic_value.currentText()))
 
         return result_information, algorithm_info, same_axes, mode_angle_equal_zero
 
