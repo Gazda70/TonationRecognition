@@ -4,9 +4,10 @@ from PyQt5 import uic, QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QColor
 
 from file_manager.file_manager import MidiReader, FileInfo
+from utils.mappings import create_main_axis_string
 from utils.signature_drawing import CircleOfFifths, SignatureGraphic
 from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
-    MAIN_UI_PAGE, AlgorithmInfo, RHYTHMIC_VALUES, Algorithm, Profile, WindowModes
+    AlgorithmInfo, RHYTHMIC_VALUES, Algorithm, Profile, NoteVectorDirection
 from algorithms.algorithm_manager import AlgorithmManager
 
 
@@ -347,7 +348,10 @@ class UI_MainPage(QMainWindow):
         elif self.moving_window_index - int(self.move_window_offset.toPlainText()) + 1 > 0:
             self.moving_window_index -= int(self.move_window_offset.toPlainText())
             if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value !")
+                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                                    "".join([str(create_main_axis_string(NoteVectorDirection(
+                                        axis.direction % 360)) + "\n")
+                                             for axis in self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]]))
             if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
@@ -367,7 +371,10 @@ class UI_MainPage(QMainWindow):
         elif self.moving_window_index + int(self.move_window_offset.toPlainText()) < len(self.moving_window_analysis_result):
             self.moving_window_index += int(self.move_window_offset.toPlainText())
             if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value !")
+                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                                    "".join([str(create_main_axis_string(NoteVectorDirection(
+                                        axis.direction % 360)) + "\n")
+                                             for axis in self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]]))
             if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
@@ -388,7 +395,10 @@ class UI_MainPage(QMainWindow):
         elif self.expanding_window_index + int(self.expand_window_offset.toPlainText()) < len(self.expanding_window_analysis_result):
             self.expanding_window_index += int(self.expand_window_offset.toPlainText())
             if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value !")
+                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                                    "".join([str(create_main_axis_string(NoteVectorDirection(
+                                        axis.direction % 360)) + "\n")
+                                             for axis in self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]]))
             if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
@@ -410,7 +420,10 @@ class UI_MainPage(QMainWindow):
         elif self.expanding_window_index - int(self.expand_window_offset.toPlainText()) + 1 > 0:
             self.expanding_window_index -= int(self.expand_window_offset.toPlainText())
             if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value !")
+                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                                    "".join([str(create_main_axis_string(NoteVectorDirection(
+                                        axis.direction % 360)) + "\n")
+                                             for axis in self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]]))
             if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
@@ -479,7 +492,7 @@ class UI_MainPage(QMainWindow):
     def track_list_selection_changed(self, item):
         self.selected_track = track_number = int(item.text()[-1:]) - 1
         self.files[self.selected_file_number].track_manager.handle_selection(track_number)
-        self.is_track_selected = self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers() > 0
+        self.is_track_selected = len(self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers()) > 0
         if (self.files[self.selected_file_number].track_manager.is_track_selected(track_number) is True):
             item.setBackground(QColor('green'))
         else:
