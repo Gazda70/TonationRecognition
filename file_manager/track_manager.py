@@ -42,18 +42,21 @@ class Track:
         self.window_end = end
 
     def get_messages_from_window(self, start_note, end_note, note_type):
-        rhytm_val_iter = 0
-        note_time = asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note_type]
+        rhythm_val_iter = 0
+        note_time = asdict(self.rhythmic_values[rhythm_val_iter].rhythmic_values_duration)[note_type]
         start_time = start_note * note_time
         end_time = end_note * note_time
         time_passed = 0
         track_iter = 0
         messages = []
-        while time_passed < start_time:
+        while time_passed < start_time and track_iter < len(self.processed_track):
+            if rhythm_val_iter + 1 < len(self.rhythmic_values) and time_passed >= self.rhythmic_values[
+                rhythm_val_iter + 1].start_time:
+                rhythm_val_iter += 1
             time_passed += self.processed_track[track_iter].raw_duration
             track_iter += 1
-
         while time_passed < end_time and track_iter < len(self.processed_track):
+            is_first_iteration = True
             for element in self.processed_track[track_iter].notes:
                 note_time = 0
                 for rhythmic_value in element.duration:
@@ -62,14 +65,15 @@ class Track:
                         name = "SIXTY_FOUR"
                     if note_time >= end_time:
                         break
-                    if rhytm_val_iter + 1 < len(self.rhythmic_values) and time_passed >= self.rhythmic_values[rhytm_val_iter + 1].start_time:
-                        rhytm_val_iter += 1
-                    note_time += asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[name]
-                    time_passed += asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[name]
+                    if rhythm_val_iter + 1 < len(self.rhythmic_values) and time_passed >= self.rhythmic_values[rhythm_val_iter + 1].start_time:
+                        rhythm_val_iter += 1
+                    if is_first_iteration:
+                        time_passed += asdict(self.rhythmic_values[rhythm_val_iter].rhythmic_values_duration)[name]
+                    note_time += asdict(self.rhythmic_values[rhythm_val_iter].rhythmic_values_duration)[name]
                     if not element.is_pause:
                         messages.append(NoteWithDuration(element.note, False, note_time))
+                is_first_iteration = False
             track_iter += 1
-
         return messages
 
     '''
@@ -89,8 +93,6 @@ class Track:
         #iterate over elements representing chords, pauses and single notes
         for track_element in self.processed_track:
             # #iterate over notes that make a chord, pause or single note
-            # while processed_element_internal_index < len(track_element.notes):
-            # note = track_element.notes[processed_element_internal_index]
             note = track_element.notes[0]
             note_internal_index = 0
             #iterate over rhythmic values that make a single note
@@ -116,8 +118,6 @@ class Track:
                 if rhytm_val_iter + 1 < len(self.rhythmic_values) and time_passed >= self.rhythmic_values[rhytm_val_iter].start_time:
                     rhytm_val_iter += 1
                     note_time = asdict(self.rhythmic_values[rhytm_val_iter].rhythmic_values_duration)[note_type.name]
-            #     processed_element_internal_index += 1
-            # processed_element_internal_index = 0
         return notes_iter
 
 class TrackManager:
@@ -231,11 +231,10 @@ class TrackManager:
 
     def calculate_notes_raw_duration(self, element):
         duration = 0
-        for end in element.end_notes:
-            if end.time != 0:
-                duration += end.time
-                if element.control is not None:
-                    duration += element.control[1].time
+        if element.end_notes[0].time != 0:
+            duration += element.end_notes[0].time
+        if element.control is not None:
+            duration += element.control[1].time
         return duration
 
     def process_raw_element(self, element):
