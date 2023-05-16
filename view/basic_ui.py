@@ -269,7 +269,6 @@ class UI_MainPage(QMainWindow):
         self.file_list.itemActivated.connect(self.file_list_selection_changed)
 
         self.min_rhythmic_value.addItems(RHYTHMIC_VALUES.keys())
-        self.min_rhythmic_value.currentTextChanged.connect(self.set_base_rhythmic_value)
 
         self.show_main_axis_checkbox.setChecked(True)
         self.show_main_axis_checkbox.stateChanged.connect(self.show_main_axis_state_changed)
@@ -498,7 +497,7 @@ class UI_MainPage(QMainWindow):
         else:
             item.setBackground(QColor('white'))
 
-    def set_base_rhythmic_value(self, note_resolution):
+    def set_base_rhythmic_value(self):
         if not self.is_file_selected:
             QMessageBox.warning(self, "Error", "Select file !")
         else:
@@ -581,6 +580,7 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self, "Error", "Window must match constraints !")
         else:
+            self.set_base_rhythmic_value()
             number_of_samples = int(self.max_number_of_notes_to_check / number_of_units)
             remainder_size = self.max_number_of_notes_to_check % number_of_units
 
