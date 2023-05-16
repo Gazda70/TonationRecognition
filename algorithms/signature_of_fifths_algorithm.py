@@ -70,6 +70,7 @@ class DirectedAxisCreator:
         max_difference = -math.inf
         best_ax = None
         same_value_axes = []
+        axes = []
         for dir_ax in directed_axis_collection.keys():
             positive_notes = set(signature.signature.keys()).intersection(
                 set([element[0] for element in directed_axis_collection[dir_ax]["positive"]]))
@@ -78,12 +79,14 @@ class DirectedAxisCreator:
                 set([element[0] for element in directed_axis_collection[dir_ax]["negative"]]))
             negative_notes_sum = sum([signature.signature[negative_note].length for negative_note in negative_notes])
             difference = positive_notes_sum - negative_notes_sum
-            if difference == max_difference:
-                same_value_axes.append(directed_axis_collection[dir_ax]['note_vector'])
-                same_value_axes.append(directed_axis_collection[best_ax]['note_vector'])
-            elif difference > max_difference:
+            axes.append((dir_ax, difference))
+            if difference > max_difference:
                 max_difference = difference
                 best_ax = dir_ax
+        for axis in axes:
+            if axis[1] == max_difference and axis[0] is not best_ax:
+                same_value_axes.append(directed_axis_collection[axis[0]]['note_vector'])
+
         return directed_axis_collection[best_ax]['note_vector'], same_value_axes
 
 
@@ -136,7 +139,7 @@ class SignatureOfFifthsUtility:
         tonation_pointed_by_mdasf = NoteVectorDirection((signature.mdasf.direction + 30.0) % 360)
         return Note.from_string(tonation_pointed_by_mdasf.name)
 
-    def calculate_tonation_with_mode_axis(self, signature: SignatureOfFifths) -> Tonation:
+    def calculate_tonation_with_mode_axis(self, signature: SignatureOfFifths):
         tonation_pointed_by_mdasf = NoteVectorDirection((signature.mdasf.direction + 30.0) % 360)
         parallel_tonation = NoteVectorDirection((signature.mdasf.direction + 120.0) % 360)
         self.calculate_mode_angle(signature)
