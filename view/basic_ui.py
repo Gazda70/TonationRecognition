@@ -638,14 +638,20 @@ class UI_MainPage(QMainWindow):
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
                      "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
 
-        self.result_information.setText(self.moving_window_analysis_result[0]["RESULT"])
-        self.draw_signature_graphics_view(self.moving_window_analysis_result[0]["SIGNATURE"],
-                                          self.moving_window_analysis_result[0]["KS_RESULTS"],
-                                          self.moving_window_analysis_result[0]["AS_RESULTS"],
-                                          self.moving_window_analysis_result[0]["T_RESULTS"])
-        self.window_start.setText(str(self.moving_window_analysis_result[0]["WINDOW_START"]))
+        if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
+            QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                                "".join([str(create_main_axis_string(NoteVectorDirection(
+                                    axis.direction % 360)) + "\n")
+                                         for axis in self.expanding_window_analysis_result[0][
+                                             "SAME_AXES"]]))
+        self.result_information.setText(self.expanding_window_analysis_result[0]["RESULT"])
+        self.draw_signature_graphics_view(self.expanding_window_analysis_result[0]["SIGNATURE"],
+                                          self.expanding_window_analysis_result[0]["KS_RESULTS"],
+                                          self.expanding_window_analysis_result[0]["AS_RESULTS"],
+                                          self.expanding_window_analysis_result[0]["T_RESULTS"])
+        self.window_start.setText(str(self.expanding_window_analysis_result[0]["WINDOW_START"]))
         self.window_end.setText(
-            str(self.moving_window_analysis_result[0]["WINDOW_END"]))
+            str(self.expanding_window_analysis_result[0]["WINDOW_END"]))
 
     def calculate_results(self, actual_window_start, actual_window_end):
         algorithm_info = AlgorithmInfo(
