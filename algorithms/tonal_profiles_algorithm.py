@@ -13,8 +13,11 @@ class TonalProfilesUtility:
 
     def get_tonal_profile(self, tonation_note: Note, tonation_mode: Mode, profile: Profile):
         base_profile = TONAL_PROFILES[(profile, tonation_mode)]
-        for _ in range(0, tonation_note.value):
-            base_profile.append(base_profile.pop(0))
+        notes = [Note.C, Note.C_SHARP, Note.D, Note.D_SHARP, Note.E,
+                 Note.F, Note.F_SHARP, Note.G, Note.G_SHARP, Note.A,
+                 Note.A_SHARP, Note.B]
+        for _ in range(0, notes.index(tonation_note)):
+            base_profile = base_profile[-1:] + base_profile[:-1]
         return base_profile
 
     def calculate_correlation_with_tonal_profile(self, sample_vector, tonation_note: Note, tonation_mode: Mode,
