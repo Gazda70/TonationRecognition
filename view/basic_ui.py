@@ -3,14 +3,14 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton, QGraphicsScene, QGraphicsV
 from PyQt5 import uic, QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QColor
 
-from file_manager.file_manager import MidiReader, FileInfo
+from file_manager.file_manager import MidiReader, FileInfo, read_config_file, write_multifile_results
 from utils.mappings import create_main_axis_string
 from utils.signature_drawing import CircleOfFifths, SignatureGraphic
 from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_PROFILE_NAMES, MIDI_FILES_PATH, \
     AlgorithmInfo, RHYTHMIC_VALUES, Algorithm, Profile, NoteVectorDirection
 from algorithms.algorithm_manager import AlgorithmManager
 
-
+MODE = "MULTIFILE"
 class UI_MainPage(QMainWindow):
 
     def setupUi(self, MainWindow):
@@ -323,8 +323,6 @@ class UI_MainPage(QMainWindow):
 
         self.filenames = []
 
-        self.analysis_results = []
-
         self.moving_window_analysis_result = []
 
         self.expanding_window_analysis_result = []
@@ -336,6 +334,8 @@ class UI_MainPage(QMainWindow):
         self.files = []
 
         self.selected_file_number = 0
+
+        self.all_files_results = []
 
         self.main_window.show()
 
@@ -451,6 +451,7 @@ class UI_MainPage(QMainWindow):
 
     def read_midi(self, filename, reader, file_number):
         file, track_manager = reader.read_file(filename)
+        track_manager.activate_all_tracks()
         self.files.append(FileInfo(file, track_manager, False, file_number))
 
     def setup_track_list(self):
@@ -461,7 +462,6 @@ class UI_MainPage(QMainWindow):
 
 
     def setup_file_list(self):
-        self.analysis_results.clear()
         self.file_list.clear()
         for filename in self.filenames:
             item = QListWidgetItem(filename)
@@ -571,7 +571,22 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self, "Error", "Window size be an positive integer !")
             return
         number_of_units = int(self.number_of_units.toPlainText())
-        if self.is_file_selected == False:
+        if MODE == "MULTIFILE":
+            configuration = read_config_file("config.txt")
+            for file, config in zip(self.files, configuration):
+                max_number_of_notes_to_check = file.track_manager.calculate_base_rhythmic_value_multiplicity(
+                    RHYTHMIC_VALUES[config["BASE_RHYTMIC_VALUE"]])
+                sample_size_to_find_tonation, decision_changes_counter, sample_size_to_find_tonation_profile_KS, decision_change_counter_profile_KS, \
+                    sample_size_to_find_tonation_profile_AS, decision_change_counter_profile_AS, sample_size_to_find_tonation_profile_T, decision_change_counter_profile_T = self.perform_calculation(number_of_units, max_number_of_notes_to_check,
+                                                                      file, config["BASE_RHYTMIC_VALUE"],
+                                                                      config["TONATION"])
+                self.all_files_results.append({"FILENAME": file.file.filename, "NOTES_TO_DETERMINE": sample_size_to_find_tonation,
+                                               "DECISION_CHANGES": decision_changes_counter,"KS_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_KS,
+                                               "KS_DECISION_CHANGES": decision_change_counter_profile_KS,"AS_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_AS,
+                                               "AS_DECISION_CHANGES": decision_change_counter_profile_AS,"T_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_T,
+                                               "T_DECISION_CHANGES": decision_change_counter_profile_T, })
+            write_multifile_results(self.all_files_results)
+        elif self.is_file_selected == False:
             QMessageBox.warning(self, "Error", "Select file !")
         elif self.is_track_selected == False:
             QMessageBox.warning(self, "Error", "Select track !")
@@ -580,122 +595,209 @@ class UI_MainPage(QMainWindow):
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
             QMessageBox.warning(self, "Error", "Window must match constraints !")
         else:
-            self.set_base_rhythmic_value()
-            number_of_samples = int(self.max_number_of_notes_to_check / number_of_units)
-            remainder_size = self.max_number_of_notes_to_check % number_of_units
+            #TODO
+            #self.perform_calculation(number_of_units)
+            if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
+                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                                    "".join([str(create_main_axis_string(NoteVectorDirection(
+                                        axis.direction % 360)) + "\n")
+                                             for axis in self.expanding_window_analysis_result[0][
+                                                 "SAME_AXES"]]))
+            self.result_information.setText(self.expanding_window_analysis_result[0]["RESULT"])
+            self.draw_signature_graphics_view(self.expanding_window_analysis_result[0]["SIGNATURE"],
+                                              self.expanding_window_analysis_result[0]["KS_RESULTS"],
+                                              self.expanding_window_analysis_result[0]["AS_RESULTS"],
+                                              self.expanding_window_analysis_result[0]["T_RESULTS"])
+            self.window_start.setText(str(self.expanding_window_analysis_result[0]["WINDOW_START"]))
+            self.window_end.setText(
+                str(self.expanding_window_analysis_result[0]["WINDOW_END"]))
 
-            actual_window_start = 0
-            actual_window_end = 0
-            algorithm_info = None
-            for actual_position in range(0, number_of_samples):
-                actual_window_end += number_of_units
-                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end)
-                self.moving_window_analysis_result.append({"FILENAME":self.files[self.selected_file_number].file.filename,
-                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT":result_information,
-                                                           "ALGORITHM_INFO":algorithm_info, "BASE_RHYTHMIC_VALUE":self.min_rhythmic_value.currentText(),
-                                              "SIGNATURE":self.signature, "WINDOW_START":actual_window_start, "WINDOW_END":actual_window_end,
-                                              "SAMPLE_CALCULATION_MODE":self.sample_calculation_mode.currentText(), "PROFILE":self.tonal_profiles_type.currentText(),
-                                              "KS_RESULTS":self.ks_results, "AS_RESULTS":self.as_results, "T_RESULTS":self.t_results,
-                                                           "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
-                actual_window_start = actual_window_end
+
+
+    def perform_calculation(self, number_of_units, max_number_of_notes_to_check, file, min_rhythmic_value, searched_tonation):
+        number_of_samples = int(max_number_of_notes_to_check / number_of_units)
+        remainder_size = max_number_of_notes_to_check % number_of_units
+        moving_window_analysis_result = []
+        expanding_window_analysis_result = []
+        actual_window_start = 0
+        actual_window_end = 0
+        algorithm_info = None
+        for actual_position in range(0, number_of_samples):
+            actual_window_end += number_of_units
+            result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(
+                actual_window_start, actual_window_end, file, min_rhythmic_value)
+            moving_window_analysis_result.append({"FILENAME": file.file.filename,
+                                                       "SELECTED_TRACKS": file.track_manager.get_selected_tracks_numbers(),
+                                                       "RESULT": result_information,
+                                                       "ALGORITHM_INFO": algorithm_info,
+                                                       "BASE_RHYTHMIC_VALUE": min_rhythmic_value,
+                                                       "SIGNATURE": self.signature, "WINDOW_START": actual_window_start,
+                                                       "WINDOW_END": actual_window_end,
+                                                       "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
+                                                       "PROFILE": self.tonal_profiles_type.currentText(),
+                                                       "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results,
+                                                       "T_RESULTS": self.t_results,
+                                                       "SAME_AXES": same_axes,
+                                                       "MODE_ANGLE_EQUAL_ZERO": mode_angle_equal_zero})
+            actual_window_start = actual_window_end
+
+        if remainder_size > 0:
+            result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(
+                actual_window_start, actual_window_end + remainder_size, file, min_rhythmic_value)
+            moving_window_analysis_result.append(
+                {"FILENAME": file.file.filename,
+                 "SELECTED_TRACKS": file.track_manager.get_selected_tracks_numbers(),
+                 "RESULT": result_information,
+                 "ALGORITHM_INFO": algorithm_info,
+                 "BASE_RHYTHMIC_VALUE": min_rhythmic_value,
+                 "SIGNATURE": self.signature, "WINDOW_START": actual_window_start,
+                 "WINDOW_END": actual_window_end,
+                 "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
+                 "PROFILE": self.tonal_profiles_type.currentText(),
+                 "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results,
+                 "T_RESULTS": self.t_results,
+                 "SAME_AXES": same_axes,
+                 "MODE_ANGLE_EQUAL_ZERO": mode_angle_equal_zero})
+
+        actual_window_start = 0
+        actual_window_end = 0
+        found_tonation = False
+        found_tonation_profile_KS = False
+        found_tonation_profile_AS = False
+        found_tonation_profile_T = False
+        sample_size_to_find_tonation = 1
+        sample_size_to_find_tonation_profile_KS = 1
+        sample_size_to_find_tonation_profile_AS = 1
+        sample_size_to_find_tonation_profile_T = 1
+        decision_changes_counter = 0
+        decision_change_counter_profile_KS = 0
+        decision_change_counter_profile_AS = 0
+        decision_change_counter_profile_T = 0
+        previous_tonation = None
+        previous_tonation_profile_KS = None
+        previous_tonation_profile_AS = None
+        previous_tonation_profile_T = None
+        for actual_position in range(0, number_of_samples):
+            actual_window_end += number_of_units
+            result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(
+                actual_window_start, actual_window_end, file, min_rhythmic_value)
+            if not found_tonation and result_information == searched_tonation:
+                found_tonation = True
+                sample_size_to_find_tonation = actual_window_end
+            if not found_tonation_profile_KS and result_information == searched_tonation:
+                found_tonation = True
+                sample_size_to_find_tonation_profile_KS = actual_window_end
+            if not found_tonation_profile_AS and result_information == searched_tonation:
+                found_tonation = True
+                sample_size_to_find_tonation_profile_AS = actual_window_end
+            if not found_tonation_profile_T and result_information == searched_tonation:
+                found_tonation = True
+                sample_size_to_find_tonation_profile_T = actual_window_end
+            expanding_window_analysis_result.append(
+                {"FILENAME": file.file.filename,
+                 "SELECTED_TRACKS": file.track_manager.get_selected_tracks_numbers(),
+                 "RESULT": result_information,
+                 "ALGORITHM_INFO": algorithm_info,
+                 "BASE_RHYTHMIC_VALUE": min_rhythmic_value,
+                 "SIGNATURE": self.signature, "WINDOW_START": actual_window_start,
+                 "WINDOW_END": actual_window_end,
+                 "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
+                 "PROFILE": self.tonal_profiles_type.currentText(),
+                 "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results,
+                 "T_RESULTS": self.t_results,
+                 "SAME_AXES": same_axes,
+                 "MODE_ANGLE_EQUAL_ZERO": mode_angle_equal_zero})
 
             if remainder_size > 0:
-                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end + remainder_size)
-                self.moving_window_analysis_result.append(
-                    {"FILENAME":self.files[self.selected_file_number].file.filename,
-                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
-                     "BASE_RHYTHMIC_VALUE": self.min_rhythmic_value.currentText(),
-                     "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
+                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(
+                    actual_window_end, actual_window_end + remainder_size, file, min_rhythmic_value)
+                expanding_window_analysis_result.append(
+                    {"FILENAME": file.file.filename,
+                     "SELECTED_TRACKS": file.track_manager.get_selected_tracks_numbers(),
+                     "RESULT": result_information,
+                     "ALGORITHM_INFO": algorithm_info,
+                     "BASE_RHYTHMIC_VALUE": min_rhythmic_value,
+                     "SIGNATURE": self.signature, "WINDOW_START": actual_window_start,
+                     "WINDOW_END": actual_window_end,
                      "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
                      "PROFILE": self.tonal_profiles_type.currentText(),
-                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
-                     "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
+                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results,
+                     "T_RESULTS": self.t_results,
+                     "SAME_AXES": same_axes,
+                     "MODE_ANGLE_EQUAL_ZERO": mode_angle_equal_zero})
 
-            actual_window_start = 0
-            actual_window_end = 0
-            for actual_position in range(0, number_of_samples):
-                actual_window_end += number_of_units
-                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end)
-                self.expanding_window_analysis_result.append(
-                    {"FILENAME":self.files[self.selected_file_number].file.filename,
-                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
-                     "BASE_RHYTHMIC_VALUE": self.min_rhythmic_value.currentText(),
-                     "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
-                     "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
-                     "PROFILE": self.tonal_profiles_type.currentText(),
-                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
-                     "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
+                if not found_tonation and result_information == searched_tonation:
+                    found_tonation = True
+                    sample_size_to_find_tonation = actual_window_end + remainder_size
+                if not found_tonation_profile_KS and result_information == searched_tonation:
+                    found_tonation = True
+                    sample_size_to_find_tonation_profile_KS = actual_window_end + remainder_size
+                if not found_tonation_profile_AS and result_information == searched_tonation:
+                    found_tonation = True
+                    sample_size_to_find_tonation_profile_AS = actual_window_end + remainder_size
+                if not found_tonation_profile_T and result_information == searched_tonation:
+                    found_tonation = True
+                    sample_size_to_find_tonation_profile_T = actual_window_end + remainder_size
 
-            if remainder_size > 0:
-                result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_end, actual_window_end + remainder_size)
-                self.expanding_window_analysis_result.append(
-                    {"FILENAME":self.files[self.selected_file_number].file.filename,
-                                          "SELECTED_TRACKS":self.files[self.selected_file_number].track_manager.get_selected_tracks_numbers(),"RESULT": result_information, "ALGORITHM_INFO": algorithm_info,
-                     "BASE_RHYTHMIC_VALUE": self.min_rhythmic_value.currentText(),
-                     "SIGNATURE": self.signature, "WINDOW_START": actual_window_start, "WINDOW_END": actual_window_end,
-                     "SAMPLE_CALCULATION_MODE": self.sample_calculation_mode.currentText(),
-                     "PROFILE": self.tonal_profiles_type.currentText(),
-                     "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
-                     "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
+            if previous_tonation is not None and result_information != previous_tonation:
+                decision_changes_counter += 1
+            previous_tonation = result_information
 
-        if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
-            QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
-                                "".join([str(create_main_axis_string(NoteVectorDirection(
-                                    axis.direction % 360)) + "\n")
-                                         for axis in self.expanding_window_analysis_result[0][
-                                             "SAME_AXES"]]))
-        self.result_information.setText(self.expanding_window_analysis_result[0]["RESULT"])
-        self.draw_signature_graphics_view(self.expanding_window_analysis_result[0]["SIGNATURE"],
-                                          self.expanding_window_analysis_result[0]["KS_RESULTS"],
-                                          self.expanding_window_analysis_result[0]["AS_RESULTS"],
-                                          self.expanding_window_analysis_result[0]["T_RESULTS"])
-        self.window_start.setText(str(self.expanding_window_analysis_result[0]["WINDOW_START"]))
-        self.window_end.setText(
-            str(self.expanding_window_analysis_result[0]["WINDOW_END"]))
+            if previous_tonation_profile_KS is not None and result_information != previous_tonation_profile_KS:
+                decision_change_counter_profile_KS += 1
+            previous_tonation_profile_KS = result_information
 
-    def calculate_results(self, actual_window_start, actual_window_end):
+            if previous_tonation_profile_AS is not None and result_information != previous_tonation_profile_AS:
+                decision_change_counter_profile_AS += 1
+            previous_tonation_profile_AS = result_information
+
+            if previous_tonation_profile_T is not None and result_information != previous_tonation_profile_T:
+                decision_change_counter_profile_T += 1
+            previous_tonation_profile_T = result_information
+
+        return sample_size_to_find_tonation, decision_changes_counter, sample_size_to_find_tonation_profile_KS, decision_change_counter_profile_KS, \
+            sample_size_to_find_tonation_profile_AS, decision_change_counter_profile_AS,  sample_size_to_find_tonation_profile_T, decision_change_counter_profile_T
+
+
+    def calculate_results(self, actual_window_start, actual_window_end, file, min_rhythmic_value):
         algorithm_info = AlgorithmInfo(
             algorithm_type=ALGORITHM_NAMES[self.algorithm_type_dropdown.currentText()],
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=TONAL_PROFILE_NAMES[self.tonal_profiles_type.currentText()])
         result_information, self.signature, same_axes, mode_angle_equal_zero = self.algorithm_manager.execute_algorithm(algorithm_info,
-                                                                                      self.files[
-                                                                                          self.selected_file_number].track_manager.calculate_sample_vector(
+                                                                                      file.track_manager.calculate_sample_vector(
                                                                                           actual_window_start,
                                                                                           actual_window_end,
                                                                                           SAMPLE_CALCULATION_MODES[
                                                                                               self.sample_calculation_mode.currentText()],
-                                                                                          self.min_rhythmic_value.currentText()))
+                                                                                          min_rhythmic_value))
 
         self.ks_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=Profile.KS),
-            self.files[self.selected_file_number].track_manager.calculate_sample_vector(
+            file.track_manager.calculate_sample_vector(
                 actual_window_start, actual_window_end,
                 SAMPLE_CALCULATION_MODES[
-                    self.sample_calculation_mode.currentText()],
-                self.min_rhythmic_value.currentText()))
+                    self.sample_calculation_mode.currentText()], min_rhythmic_value))
 
         self.as_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=Profile.AS),
-            self.files[self.selected_file_number].track_manager.calculate_sample_vector(
+            file.track_manager.calculate_sample_vector(
                 actual_window_start, actual_window_end,
                 SAMPLE_CALCULATION_MODES[
-                    self.sample_calculation_mode.currentText()],
-                self.min_rhythmic_value.currentText()))
+                    self.sample_calculation_mode.currentText()], min_rhythmic_value))
 
         self.t_results, _, _, _ = self.algorithm_manager.execute_algorithm(AlgorithmInfo(
             algorithm_type=Algorithm.CLASSIC_TONAL_PROFILES,
             sample_calculation_mode=SAMPLE_CALCULATION_MODES[self.sample_calculation_mode.currentText()],
             profile=Profile.T),
-            self.files[self.selected_file_number].track_manager.calculate_sample_vector(
+            file.track_manager.calculate_sample_vector(
                 actual_window_start, actual_window_end,
                 SAMPLE_CALCULATION_MODES[
-                    self.sample_calculation_mode.currentText()],
-                self.min_rhythmic_value.currentText()))
+                    self.sample_calculation_mode.currentText()], min_rhythmic_value))
 
         return result_information, algorithm_info, same_axes, mode_angle_equal_zero
 

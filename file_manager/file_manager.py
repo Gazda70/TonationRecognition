@@ -15,6 +15,66 @@ class FileInfo:
     track_manager:TrackManager
     is_selected:bool
     file_number:int
+
+
+def read_config_file(config_file_name):
+    config_file = open(config_file_name)
+    config = []
+    for line in config_file:
+        new_file_config = line.split(':')
+        config.append({"FILENAME":new_file_config[0], "TONATION":new_file_config[1], "BASE_RHYTMIC_VALUE":new_file_config[2].strip()})
+    return config
+
+
+self.all_files_results.append({"FILENAME": file.file.filename, "NOTES_TO_DETERMINE": sample_size_to_find_tonation,
+                               "DECISION_CHANGES": decision_changes_counter,
+                               "KS_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_KS,
+                               "KS_DECISION_CHANGES": decision_change_counter_profile_KS,
+                               "AS_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_AS,
+                               "AS_DECISION_CHANGES": decision_change_counter_profile_AS,
+                               "T_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_T,
+                               "T_DECISION_CHANGES": decision_change_counter_profile_T, })
+
+def write_multifile_results(results):
+    # filename = QFileDialog.getSaveFileName(ui_object, 'Save File',
+    #                                        'E:\\PracaMagisterska\\midi\\Pliki MIDI\\Bach\\WTC_I\\experiments_results\\sof_profile_quantity',
+    #                                        ".xlsx(*.xlsx)")
+    # Workbook() takes one, non-optional, argument
+    # which is the filename that we want to create.
+    # if filename[0] == "":
+    #     return
+    workbook = xlsxwriter.Workbook('results.xlsx')
+
+    # The workbook object is then used to add new
+    # worksheet via the add_worksheet() method.
+    worksheet = workbook.add_worksheet()
+    row_counter = 1
+    worksheet.write('A' + str(row_counter), "Number")
+    worksheet.write('B' + str(row_counter), "Filename")
+    worksheet.write('C' + str(row_counter), "Main algorithm notes to determine tonation")
+    worksheet.write('D' + str(row_counter), "Main algorithm number of decision changes")
+    worksheet.write('E' + str(row_counter), "KS notes to determine tonation")
+    worksheet.write('F' + str(row_counter), "KS number of decision changes")
+    worksheet.write('G' + str(row_counter), "AS notes to determine tonation")
+    worksheet.write('H' + str(row_counter), "AS number of decision changes")
+    worksheet.write('I' + str(row_counter), "T notes to determine tonation")
+    worksheet.write('J' + str(row_counter), "T number of decision changes")
+    row_counter += 1
+    for result in results:
+        worksheet.write('A' + str(row_counter), str(row_counter))
+        worksheet.write('B' + str(row_counter), result["FILENAME"])
+        worksheet.write('C' + str(row_counter), result["NOTES_TO_DETERMINE"])
+        worksheet.write('D' + str(row_counter), result["DECISION_CHANGES"])
+        worksheet.write('E' + str(row_counter), result["KS_NOTES_TO_DETERMINE"])
+        worksheet.write('F' + str(row_counter), result["KS_DECISION_CHANGES"])
+        worksheet.write('G' + str(row_counter), result["AS_NOTES_TO_DETERMINE"])
+        worksheet.write('H' + str(row_counter), result["AS_DECISION_CHANGES"])
+        worksheet.write('I' + str(row_counter), result["T_NOTES_TO_DETERMINE"])
+        worksheet.write('J' + str(row_counter), result["T_DECISION_CHANGES"])
+        row_counter += 1
+    workbook.close()
+
+
 class MidiReader:
 
     def read_file(self, midi_path):
@@ -24,9 +84,8 @@ class MidiReader:
 
         return new_file, track_manager
 
-
     def write_results(self, ui_object, moving_window_results, expanding_window_results):
-        filename = QFileDialog.getSaveFileName(ui_object, 'Save File', '', ".xlsx(*.xlsx)")
+        filename = QFileDialog.getSaveFileName(ui_object, 'Save File', 'E:\\PracaMagisterska\\midi\\Pliki MIDI\\Bach\\WTC_I\\experiments_results\\sof_profile_quantity', ".xlsx(*.xlsx)")
         # Workbook() takes one, non-optional, argument
         # which is the filename that we want to create.
         if filename[0] == "":
@@ -116,10 +175,10 @@ class MidiReader:
         decision_change_index_profile_KS = 1
         decision_change_index_profile_AS = 1
         decision_change_index_profile_T = 1
-        decision_change_counter = 1
-        decision_change_counter_profile_KS = 1
-        decision_change_counter_profile_AS = 1
-        decision_change_counter_profile_T = 1
+        decision_change_counter = 0
+        decision_change_counter_profile_KS = 0
+        decision_change_counter_profile_AS = 0
+        decision_change_counter_profile_T = 0
         worksheet.write('I' + str(multiple_axes_cases_number), "MAIN ALGORITHM DECISION CHANGES")
         decision_change_index += 1
         worksheet.write('K' + str(decision_change_index_profile_KS), "KS PROFILE DECISION CHANGES")
@@ -206,7 +265,7 @@ class MidiReader:
                 decision_change_index_profile_KS += 1
                 worksheet.write('K' + str(decision_change_index_profile_KS), "WINDOW_END")
                 worksheet.write('L' + str(decision_change_index_profile_KS), result["WINDOW_END"])
-                decision_change_index += 4
+                decision_change_index_profile_KS += 4
             previous_tonation_profile_KS = result["KS_RESULTS"]
 
             worksheet.write('A' + str(analysis_result_number), "AS_RESULTS")
