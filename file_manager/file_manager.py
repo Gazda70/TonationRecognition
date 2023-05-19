@@ -25,16 +25,6 @@ def read_config_file(config_file_name):
         config.append({"FILENAME":new_file_config[0], "TONATION":new_file_config[1], "BASE_RHYTMIC_VALUE":new_file_config[2].strip()})
     return config
 
-
-self.all_files_results.append({"FILENAME": file.file.filename, "NOTES_TO_DETERMINE": sample_size_to_find_tonation,
-                               "DECISION_CHANGES": decision_changes_counter,
-                               "KS_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_KS,
-                               "KS_DECISION_CHANGES": decision_change_counter_profile_KS,
-                               "AS_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_AS,
-                               "AS_DECISION_CHANGES": decision_change_counter_profile_AS,
-                               "T_NOTES_TO_DETERMINE": sample_size_to_find_tonation_profile_T,
-                               "T_DECISION_CHANGES": decision_change_counter_profile_T, })
-
 def write_multifile_results(results):
     # filename = QFileDialog.getSaveFileName(ui_object, 'Save File',
     #                                        'E:\\PracaMagisterska\\midi\\Pliki MIDI\\Bach\\WTC_I\\experiments_results\\sof_profile_quantity',
@@ -43,7 +33,7 @@ def write_multifile_results(results):
     # which is the filename that we want to create.
     # if filename[0] == "":
     #     return
-    workbook = xlsxwriter.Workbook('results.xlsx')
+    workbook = xlsxwriter.Workbook('sof_profiles_T_duration.xlsx')
 
     # The workbook object is then used to add new
     # worksheet via the add_worksheet() method.

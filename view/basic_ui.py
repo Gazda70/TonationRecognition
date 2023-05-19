@@ -577,7 +577,8 @@ class UI_MainPage(QMainWindow):
                 max_number_of_notes_to_check = file.track_manager.calculate_base_rhythmic_value_multiplicity(
                     RHYTHMIC_VALUES[config["BASE_RHYTMIC_VALUE"]])
                 sample_size_to_find_tonation, decision_changes_counter, sample_size_to_find_tonation_profile_KS, decision_change_counter_profile_KS, \
-                    sample_size_to_find_tonation_profile_AS, decision_change_counter_profile_AS, sample_size_to_find_tonation_profile_T, decision_change_counter_profile_T = self.perform_calculation(number_of_units, max_number_of_notes_to_check,
+                    sample_size_to_find_tonation_profile_AS, decision_change_counter_profile_AS, sample_size_to_find_tonation_profile_T, \
+                    decision_change_counter_profile_T = self.perform_calculation(number_of_units, max_number_of_notes_to_check,
                                                                       file, config["BASE_RHYTMIC_VALUE"],
                                                                       config["TONATION"])
                 self.all_files_results.append({"FILENAME": file.file.filename, "NOTES_TO_DETERMINE": sample_size_to_find_tonation,
@@ -684,14 +685,14 @@ class UI_MainPage(QMainWindow):
             if not found_tonation and result_information == searched_tonation:
                 found_tonation = True
                 sample_size_to_find_tonation = actual_window_end
-            if not found_tonation_profile_KS and result_information == searched_tonation:
-                found_tonation = True
+            if not found_tonation_profile_KS and self.ks_results == searched_tonation:
+                found_tonation_profile_KS = True
                 sample_size_to_find_tonation_profile_KS = actual_window_end
-            if not found_tonation_profile_AS and result_information == searched_tonation:
-                found_tonation = True
+            if not found_tonation_profile_AS and self.as_results == searched_tonation:
+                found_tonation_profile_AS = True
                 sample_size_to_find_tonation_profile_AS = actual_window_end
-            if not found_tonation_profile_T and result_information == searched_tonation:
-                found_tonation = True
+            if not found_tonation_profile_T and self.t_results == searched_tonation:
+                found_tonation_profile_T = True
                 sample_size_to_find_tonation_profile_T = actual_window_end
             expanding_window_analysis_result.append(
                 {"FILENAME": file.file.filename,
@@ -729,13 +730,13 @@ class UI_MainPage(QMainWindow):
                 if not found_tonation and result_information == searched_tonation:
                     found_tonation = True
                     sample_size_to_find_tonation = actual_window_end + remainder_size
-                if not found_tonation_profile_KS and result_information == searched_tonation:
+                if not found_tonation_profile_KS and self.ks_results == searched_tonation:
                     found_tonation = True
                     sample_size_to_find_tonation_profile_KS = actual_window_end + remainder_size
-                if not found_tonation_profile_AS and result_information == searched_tonation:
+                if not found_tonation_profile_AS and self.as_results == searched_tonation:
                     found_tonation = True
                     sample_size_to_find_tonation_profile_AS = actual_window_end + remainder_size
-                if not found_tonation_profile_T and result_information == searched_tonation:
+                if not found_tonation_profile_T and self.t_results == searched_tonation:
                     found_tonation = True
                     sample_size_to_find_tonation_profile_T = actual_window_end + remainder_size
 
@@ -743,17 +744,17 @@ class UI_MainPage(QMainWindow):
                 decision_changes_counter += 1
             previous_tonation = result_information
 
-            if previous_tonation_profile_KS is not None and result_information != previous_tonation_profile_KS:
+            if previous_tonation_profile_KS is not None and self.ks_results != previous_tonation_profile_KS:
                 decision_change_counter_profile_KS += 1
-            previous_tonation_profile_KS = result_information
+            previous_tonation_profile_KS = self.ks_results
 
-            if previous_tonation_profile_AS is not None and result_information != previous_tonation_profile_AS:
+            if previous_tonation_profile_AS is not None and self.as_results != previous_tonation_profile_AS:
                 decision_change_counter_profile_AS += 1
-            previous_tonation_profile_AS = result_information
+            previous_tonation_profile_AS = self.as_results
 
-            if previous_tonation_profile_T is not None and result_information != previous_tonation_profile_T:
+            if previous_tonation_profile_T is not None and self.t_results != previous_tonation_profile_T:
                 decision_change_counter_profile_T += 1
-            previous_tonation_profile_T = result_information
+            previous_tonation_profile_T = self.t_results
 
         return sample_size_to_find_tonation, decision_changes_counter, sample_size_to_find_tonation_profile_KS, decision_change_counter_profile_KS, \
             sample_size_to_find_tonation_profile_AS, decision_change_counter_profile_AS,  sample_size_to_find_tonation_profile_T, decision_change_counter_profile_T
