@@ -61,17 +61,26 @@ class Track:
                 note_time = 0
                 for rhythmic_value in element.duration:
                     name = rhythmic_value.name
+                    '''
+                    A rounding for values with duration shorter than current tempo's sixty-four.
+                    '''
                     if rhythmic_value.name == "LOWER_THAN_SIXTY_FOUR":
                         name = "SIXTY_FOUR"
-                    if note_time >= end_time:
-                        break
                     if rhythm_val_iter + 1 < len(self.rhythmic_values) and time_passed >= self.rhythmic_values[rhythm_val_iter + 1].start_time:
                         rhythm_val_iter += 1
+                    '''
+                    This check is needed because when a chord is analysed, multiple notes are played continuously, and their
+                    duration time should only be added once to the total duration time. Possible improvement: if the notes
+                    in the self.processed_track[track_iter].notes have not equal duration, choose the longest/smallest/mean
+                    duration. Now the algorithm adds the first encountered duration and adds it to the total passed time of the piece.
+                    '''
                     if is_first_iteration:
                         time_passed += asdict(self.rhythmic_values[rhythm_val_iter].rhythmic_values_duration)[name]
                     note_time += asdict(self.rhythmic_values[rhythm_val_iter].rhythmic_values_duration)[name]
-                    if not element.is_pause:
-                        messages.append(NoteWithDuration(element.note, False, note_time))
+                    if note_time >= end_time:
+                        break
+                if not element.is_pause:
+                    messages.append(NoteWithDuration(element.note, False, note_time))
                 is_first_iteration = False
             track_iter += 1
         return messages
