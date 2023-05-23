@@ -583,6 +583,8 @@ class UI_MainPage(QMainWindow):
             self.set_base_rhythmic_value()
             number_of_samples = int(self.max_number_of_notes_to_check / number_of_units)
             remainder_size = self.max_number_of_notes_to_check % number_of_units
+            self.moving_window_analysis_result.clear()
+            self.expanding_window_analysis_result.clear()
 
             actual_window_start = 0
             actual_window_end = 0
