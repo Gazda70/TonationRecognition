@@ -354,10 +354,11 @@ class UI_MainPage(QMainWindow):
             if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
-            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["SIGNATURE"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["KS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["AS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["T_RESULTS"])
+            self.populate_signature_and_tonal_profiles_results(self.moving_window_analysis_result[self.moving_window_index])
+            self.draw_signature_graphics_view(self.signature,
+                                              self.ks_results,
+                                              self.as_results,
+                                              self.t_results)
             self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_START"]))
             self.window_end.setText(
                 str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_END"]))
@@ -377,10 +378,11 @@ class UI_MainPage(QMainWindow):
             if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
-            self.draw_signature_graphics_view(self.moving_window_analysis_result[self.moving_window_index]["SIGNATURE"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["KS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["AS_RESULTS"],
-                                              self.moving_window_analysis_result[self.moving_window_index]["T_RESULTS"])
+            self.populate_signature_and_tonal_profiles_results(self.moving_window_analysis_result[self.moving_window_index])
+            self.draw_signature_graphics_view(self.signature,
+                                              self.ks_results,
+                                              self.as_results,
+                                              self.t_results)
             self.window_start.setText(str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_START"]))
             self.window_end.setText(
                 str(self.moving_window_analysis_result[self.moving_window_index]["WINDOW_END"]))
@@ -401,10 +403,11 @@ class UI_MainPage(QMainWindow):
             if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
-            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["SIGNATURE"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["KS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["AS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["T_RESULTS"])
+            self.populate_signature_and_tonal_profiles_results(self.expanding_window_analysis_result[self.expanding_window_index])
+            self.draw_signature_graphics_view(self.signature,
+                                              self.ks_results,
+                                              self.as_results,
+                                              self.t_results)
 
             self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["WINDOW_START"]))
             self.window_end.setText(
@@ -426,14 +429,22 @@ class UI_MainPage(QMainWindow):
             if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
                 QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
-            self.draw_signature_graphics_view(self.expanding_window_analysis_result[self.expanding_window_index]["SIGNATURE"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["KS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["AS_RESULTS"],
-                                              self.expanding_window_analysis_result[self.expanding_window_index]["T_RESULTS"])
+            self.populate_signature_and_tonal_profiles_results(self.expanding_window_analysis_result[self.expanding_window_index])
+            self.draw_signature_graphics_view(self.signature,
+                                              self.ks_results,
+                                              self.as_results,
+                                              self.t_results)
 
             self.window_start.setText(str(self.expanding_window_analysis_result[self.expanding_window_index]["WINDOW_START"]))
             self.window_end.setText(
                 str(self.expanding_window_analysis_result[self.expanding_window_index]["WINDOW_END"]))
+
+
+    def populate_signature_and_tonal_profiles_results(self, results):
+            self.signature = results["SIGNATURE"]
+            self.ks_results = results["KS_RESULTS"]
+            self.as_results = results["AS_RESULTS"]
+            self.t_results = results["T_RESULTS"]
 
     def load_file_button_clicker(self):
         self.expanding_window_analysis_result.clear()
@@ -647,10 +658,11 @@ class UI_MainPage(QMainWindow):
                                          for axis in self.expanding_window_analysis_result[0][
                                              "SAME_AXES"]]))
         self.result_information.setText(self.expanding_window_analysis_result[0]["RESULT"])
-        self.draw_signature_graphics_view(self.expanding_window_analysis_result[0]["SIGNATURE"],
-                                          self.expanding_window_analysis_result[0]["KS_RESULTS"],
-                                          self.expanding_window_analysis_result[0]["AS_RESULTS"],
-                                          self.expanding_window_analysis_result[0]["T_RESULTS"])
+        self.populate_signature_and_tonal_profiles_results(self.moving_window_analysis_result[self.moving_window_index])
+        self.draw_signature_graphics_view(self.signature,
+                                          self.ks_results,
+                                          self.as_results,
+                                          self.t_results)
         self.window_start.setText(str(self.expanding_window_analysis_result[0]["WINDOW_START"]))
         self.window_end.setText(
             str(self.expanding_window_analysis_result[0]["WINDOW_END"]))
