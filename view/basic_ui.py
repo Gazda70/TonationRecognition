@@ -568,7 +568,7 @@ class UI_MainPage(QMainWindow):
             QMessageBox.warning(self, "Error", "Select window !")
             return
         if not self.number_of_units.toPlainText().isdigit():
-            QMessageBox.warning(self, "Error", "Window size be an positive integer !")
+            QMessageBox.warning(self, "Error", "Window size must be an positive integer !")
             return
         number_of_units = int(self.number_of_units.toPlainText())
         if MODE == "MULTIFILE":
