@@ -300,6 +300,10 @@ class UI_MainPage(QMainWindow):
 
         self.max_number_of_notes.setReadOnly(True)
 
+        self.window_start.setReadOnly(True)
+
+        self.window_end.setReadOnly(True)
+
         self.scene = None
 
         self.algorithm_manager = AlgorithmManager()
@@ -633,8 +637,7 @@ class UI_MainPage(QMainWindow):
                 actual_window_start = actual_window_end
                 actual_progress += progress_unit
                 if progress.wasCanceled():
-                    self.moving_window_analysis_result.clear()
-                    self.expanding_window_analysis_result.clear()
+                    self.clear_results()
                     return
                 if int(actual_progress) == 1:
                     total_progress += int(actual_progress)
@@ -654,8 +657,7 @@ class UI_MainPage(QMainWindow):
                      "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
                 actual_progress += progress_unit
                 if progress.wasCanceled():
-                    self.moving_window_analysis_result.clear()
-                    self.expanding_window_analysis_result.clear()
+                    self.clear_results()
                     return
                 if int(actual_progress) == 1:
                     total_progress += int(actual_progress)
@@ -678,8 +680,7 @@ class UI_MainPage(QMainWindow):
                      "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
                 actual_progress += progress_unit
                 if progress.wasCanceled():
-                    self.moving_window_analysis_result.clear()
-                    self.expanding_window_analysis_result.clear()
+                    self.clear_results()
                     return
                 if int(actual_progress) == 1:
                     total_progress += int(actual_progress)
@@ -714,6 +715,15 @@ class UI_MainPage(QMainWindow):
         self.window_start.setText(str(self.expanding_window_analysis_result[0]["WINDOW_START"]))
         self.window_end.setText(
             str(self.expanding_window_analysis_result[0]["WINDOW_END"]))
+
+
+    def clear_results(self):
+        self.moving_window_analysis_result.clear()
+        self.expanding_window_analysis_result.clear()
+        self.moving_window_index = 0
+        self.expanding_window_index = 0
+        self.window_start.setText("")
+        self.window_end.setText("")
 
     def calculate_results(self, actual_window_start, actual_window_end):
         algorithm_info = AlgorithmInfo(
