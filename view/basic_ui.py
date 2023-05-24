@@ -1,8 +1,5 @@
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox, QRadioButton, QFileDialog, \
-    QProgressDialog
-from PyQt5 import uic, QtWidgets, QtCore, QtGui, Qt
+from PyQt5.QtWidgets import QMainWindow, QGraphicsScene, QListWidgetItem, QMessageBox, QFileDialog, QProgressDialog
+from PyQt5 import uic, QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QColor
 
 from file_manager.file_manager import MidiReader, FileInfo
@@ -573,6 +570,11 @@ class UI_MainPage(QMainWindow):
             signature_graphic.draw_legend()
             signature_graphic.draw_tonal_profiles_results(ks_results, as_results, t_results)
 
+    def clear_signature_graphics_view(self):
+        if self.scene is not None and self.signature_graphic_view is not None:
+            self.scene.clear()
+            self.signature_graphic_view.viewport().update()
+
     def save_results_button_clicker(self):
         reader = MidiReader()
         reader.write_results(self, self.moving_window_analysis_result, self.expanding_window_analysis_result)
@@ -724,6 +726,8 @@ class UI_MainPage(QMainWindow):
         self.expanding_window_index = 0
         self.window_start.setText("")
         self.window_end.setText("")
+        self.clear_signature_graphics_view()
+        self.result_information.setText("unknown")
 
     def calculate_results(self, actual_window_start, actual_window_end):
         algorithm_info = AlgorithmInfo(
