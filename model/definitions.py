@@ -50,7 +50,7 @@ class SampleMode(Enum):
     DURATION = 2
 
 
-SAMPLE_CALCULATION_MODES = {"Notes quantity": SampleMode.QUANTITY, "Notes duration": SampleMode.DURATION}
+SAMPLE_CALCULATION_MODES = {"Notes multiplicity": SampleMode.QUANTITY, "Notes duration": SampleMode.DURATION}
 
 class RhythmicValues(Enum):
     WHOLE = 1
