@@ -1,9 +1,9 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QPushButton, QGraphicsScene, QGraphicsView, \
-    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox, QRadioButton, QFileDialog
-from PyQt5 import uic, QtWidgets, QtCore, QtGui
-from PyQt5.QtGui import QColor, QMovie
-from pyqtspinner import WaitingSpinner
+    QComboBox, QListWidget, QTextEdit, QListWidgetItem, QLabel, QMessageBox, QCheckBox, QRadioButton, QFileDialog, \
+    QProgressDialog
+from PyQt5 import uic, QtWidgets, QtCore, QtGui, Qt
+from PyQt5.QtGui import QColor
 
 from file_manager.file_manager import MidiReader, FileInfo
 from utils.mappings import create_main_axis_string
@@ -216,10 +216,6 @@ class UI_MainPage(QMainWindow):
         self.window_end = QtWidgets.QTextEdit(self.centralwidget)
         self.window_end.setGeometry(QtCore.QRect(350, 690, 191, 31))
         self.window_end.setObjectName("window_end")
-        self.calculate_progress_bar = QtWidgets.QProgressBar(self.centralwidget)
-        self.calculate_progress_bar.setGeometry(QtCore.QRect(30, 560, 451, 23))
-        self.calculate_progress_bar.setProperty("value", 24)
-        self.calculate_progress_bar.setObjectName("calculate_progress_bar")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1653, 26))
@@ -349,8 +345,6 @@ class UI_MainPage(QMainWindow):
         self.files = []
 
         self.selected_file_number = 0
-
-        self.calculate_progress_bar.setValue(0)
 
         self.main_window.show()
 
@@ -611,6 +605,10 @@ class UI_MainPage(QMainWindow):
             remainder_size = self.max_number_of_notes_to_check % number_of_units
             self.moving_window_analysis_result.clear()
             self.expanding_window_analysis_result.clear()
+            progress = QProgressDialog("Calculating samples...", "Abort calculation", 0, 100, self)
+            progress.resize(800, 400)
+            progress.setMinimumDuration(0)
+            progress.setModal(True)
             if remainder_size > 0:
                 progress_unit = 100/(2 * number_of_samples + 2)
             else:
@@ -633,10 +631,14 @@ class UI_MainPage(QMainWindow):
                                                            "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
                 actual_window_start = actual_window_end
                 actual_progress += progress_unit
+                if progress.wasCanceled():
+                    self.moving_window_analysis_result.clear()
+                    self.expanding_window_analysis_result.clear()
+                    return
                 if int(actual_progress) == 1:
                     total_progress += int(actual_progress)
                     actual_progress = 0
-                    self.calculate_progress_bar.setValue(total_progress)
+                    progress.setValue(total_progress)
 
             if remainder_size > 0:
                 result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_start, actual_window_end + remainder_size)
@@ -650,10 +652,14 @@ class UI_MainPage(QMainWindow):
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
                      "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
                 actual_progress += progress_unit
+                if progress.wasCanceled():
+                    self.moving_window_analysis_result.clear()
+                    self.expanding_window_analysis_result.clear()
+                    return
                 if int(actual_progress) == 1:
                     total_progress += int(actual_progress)
                     actual_progress = 0
-                    self.calculate_progress_bar.setValue(total_progress)
+                    progress.setValue(total_progress)
 
             actual_window_start = 0
             actual_window_end = 0
@@ -670,10 +676,14 @@ class UI_MainPage(QMainWindow):
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
                      "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
                 actual_progress += progress_unit
+                if progress.wasCanceled():
+                    self.moving_window_analysis_result.clear()
+                    self.expanding_window_analysis_result.clear()
+                    return
                 if int(actual_progress) == 1:
                     total_progress += int(actual_progress)
                     actual_progress = 0
-                    self.calculate_progress_bar.setValue(total_progress)
+                    progress.setValue(total_progress)
 
             if remainder_size > 0:
                 result_information, algorithm_info, same_axes, mode_angle_equal_zero = self.calculate_results(actual_window_end, actual_window_end + remainder_size)
@@ -686,7 +696,7 @@ class UI_MainPage(QMainWindow):
                      "PROFILE": self.tonal_profiles_type.currentText(),
                      "KS_RESULTS": self.ks_results, "AS_RESULTS": self.as_results, "T_RESULTS": self.t_results,
                      "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
-            self.calculate_progress_bar.setValue(100)
+            progress.setValue(100)
 
         if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
             QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
