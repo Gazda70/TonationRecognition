@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QBrush, QPen, QTransform, QFont, QPainterPath, QPolygonF, QPainter
-from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtGui import QBrush, QPen, QTransform, QFont, QPainterPath, QPolygonF, QPainter, QPolygon
+from PyQt5.QtCore import Qt, QPointF, QRect, QRectF
 from PyQt5 import QtWidgets
 from model.definitions import SignatureOfFifths
 from algorithms.signature_of_fifths_algorithm import SignatureOfFifthsUtility
@@ -53,8 +53,7 @@ class SignatureGraphic:
             self.draw_vector(value.length, value.direction, QPen(Qt.blue))
 
     def draw_cvsf(self):
-        self.draw_vector(1, self.signature_of_fifths.cvsf.direction,
-                         QPen(Qt.black, 5), "CVSF")
+        self.draw_vector(1, self.signature_of_fifths.cvsf.direction, QPen(Qt.black, 5))
 
 
     def arrowCalc(self, start_point=None, end_point=None):  # calculates the point where the arrow should be drawn
@@ -102,7 +101,7 @@ class SignatureGraphic:
             textTransform.rotate(-vector_angle)
             text.setTransform(textTransform)
 
-    def draw_vector_with_arrow(self, vector_magnitude, vector_angle, pen: QPen, text_to_display, arrow_pen:QPen, arrow_brush:QBrush):
+    def draw_vector_with_arrow(self, vector_magnitude, vector_angle, pen: QPen, arrow_pen:QPen, arrow_brush:QBrush, text_to_display=None):
         note_vector_length_normalised = vector_magnitude * self.rec_start_y
         note_vector_direction = vector_angle
         transform = QTransform()
@@ -114,23 +113,23 @@ class SignatureGraphic:
         arrow_polygon = self.scene.addPolygon(arrow, arrow_pen, arrow_brush)
         arrow_polygon.setTransform(transform)
         textTransform = QTransform()
+        if text_to_display != None:
+            text = self.scene.addText(text_to_display)
 
-        text = self.scene.addText(text_to_display)
-
-        textTransform.rotate(vector_angle)
-        move = self.rec_start_y + 50
-        textTransform.translate(20, move)
-        textTransform.rotate(-vector_angle)
-        text.setTransform(textTransform)
+            textTransform.rotate(vector_angle)
+            move = self.rec_start_y + 50
+            textTransform.translate(20, move)
+            textTransform.rotate(-vector_angle)
+            text.setTransform(textTransform)
 
     def draw_mdasf(self):
-        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction - 180.0, QPen(Qt.red, 3, Qt.DashLine), "MDASF")
-        self.draw_vector_with_arrow(1.0, self.signature_of_fifths.mdasf.direction, QPen(Qt.red, 3, Qt.DashLine), "MDASF", QPen(Qt.red, 3), QBrush(Qt.red))
+        self.draw_vector(1.0, self.signature_of_fifths.mdasf.direction - 180.0, QPen(Qt.red, 3, Qt.DashLine))
+        self.draw_vector_with_arrow(1.0, self.signature_of_fifths.mdasf.direction, QPen(Qt.red, 3, Qt.DashLine), QPen(Qt.red, 3), QBrush(Qt.red))
 
     def draw_major_minor_mode_axis(self):
         mode_axis_angle = self.signature_of_fifths.mdasf.direction + 90.0
-        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.green, 3, Qt.DashLine), "MODE")
-        self.draw_vector_with_arrow(1.0, mode_axis_angle, QPen(Qt.green, 3, Qt.DashLine), "MODE", QPen(Qt.green, 3), QBrush(Qt.green))
+        self.draw_vector(1.0, mode_axis_angle - 180.0, QPen(Qt.green, 3, Qt.DashLine))
+        self.draw_vector_with_arrow(1.0, mode_axis_angle, QPen(Qt.green, 3, Qt.DashLine), QPen(Qt.green, 3), QBrush(Qt.green))
 
     def draw_tonal_profiles_results(self, ks_results, as_results, t_results):
         textTransform = QTransform()
@@ -145,3 +144,36 @@ class SignatureGraphic:
         textTransform.translate(-200, 340)
         third_text = self.scene.addText("Temperley: " + t_results)
         third_text.setTransform(textTransform)
+
+    def draw_legend(self):
+        brush = QBrush(Qt.blue)
+        pen = QPen(Qt.blue)
+        textTransform = QTransform()
+        textTransform.translate(100, 280)
+        first_text = self.scene.addText("Signature vectors")
+        first_text.setTransform(textTransform)
+        self.scene.addPolygon(QPolygonF(QRectF(80.0, 287.0, 20.0, 10.0)), pen, brush)
+
+        brush = QBrush(Qt.red)
+        pen = QPen(Qt.red)
+        textTransform = QTransform()
+        textTransform.translate(100, 300)
+        first_text = self.scene.addText("Main axis")
+        first_text.setTransform(textTransform)
+        self.scene.addPolygon(QPolygonF(QRectF(80.0, 307.0, 20.0, 10.0)), pen, brush)
+
+        brush = QBrush(Qt.black)
+        pen = QPen(Qt.black)
+        textTransform = QTransform()
+        textTransform.translate(100, 320)
+        second_text = self.scene.addText("Characteristic vector")
+        second_text.setTransform(textTransform)
+        self.scene.addPolygon(QPolygonF(QRectF(80.0, 327.0, 20.0, 10.0)), pen, brush)
+
+        brush = QBrush(Qt.green)
+        pen = QPen(Qt.green)
+        textTransform = QTransform()
+        textTransform.translate(100, 340)
+        third_text = self.scene.addText("Mode axis")
+        third_text.setTransform(textTransform)
+        self.scene.addPolygon(QPolygonF(QRectF(80.0, 347.0, 20.0, 10.0)), pen, brush)

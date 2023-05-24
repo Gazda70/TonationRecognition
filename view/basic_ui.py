@@ -566,6 +566,7 @@ class UI_MainPage(QMainWindow):
                 signature_graphic.draw_mdasf()
             if self.draw_mode:
                 signature_graphic.draw_major_minor_mode_axis()
+            signature_graphic.draw_legend()
             signature_graphic.draw_tonal_profiles_results(ks_results, as_results, t_results)
 
     def save_results_button_clicker(self):
