@@ -702,21 +702,21 @@ class UI_MainPage(QMainWindow):
                      "SAME_AXES":same_axes, "MODE_ANGLE_EQUAL_ZERO":mode_angle_equal_zero})
             progress.setValue(100)
 
-        if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
-            QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
-                                "".join([str(create_main_axis_string(NoteVectorDirection(
-                                    axis.direction % 360)) + "\n")
-                                         for axis in self.expanding_window_analysis_result[0][
-                                             "SAME_AXES"]]))
-        self.result_information.setText(self.expanding_window_analysis_result[0]["RESULT"])
-        self.populate_signature_and_tonal_profiles_results(self.moving_window_analysis_result[self.moving_window_index])
-        self.draw_signature_graphics_view(self.signature,
-                                          self.ks_results,
-                                          self.as_results,
-                                          self.t_results)
-        self.window_start.setText(str(self.expanding_window_analysis_result[0]["WINDOW_START"]))
-        self.window_end.setText(
-            str(self.expanding_window_analysis_result[0]["WINDOW_END"]))
+            if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
+                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                                    "".join([str(create_main_axis_string(NoteVectorDirection(
+                                        axis.direction % 360)) + "\n")
+                                             for axis in self.expanding_window_analysis_result[0][
+                                                 "SAME_AXES"]]))
+            self.result_information.setText(self.expanding_window_analysis_result[0]["RESULT"])
+            self.populate_signature_and_tonal_profiles_results(self.moving_window_analysis_result[self.moving_window_index])
+            self.draw_signature_graphics_view(self.signature,
+                                              self.ks_results,
+                                              self.as_results,
+                                              self.t_results)
+            self.window_start.setText(str(self.expanding_window_analysis_result[0]["WINDOW_START"]))
+            self.window_end.setText(
+                str(self.expanding_window_analysis_result[0]["WINDOW_END"]))
 
 
     def clear_results(self):
