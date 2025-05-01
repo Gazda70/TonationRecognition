@@ -17,12 +17,65 @@ class UI_MainPage(QMainWindow):
         MainWindow.resize(1653, 934)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
+        #define visual application widgets
+        self.algorithm_type_dropdown_setup()
+        self.tonal_profiles_type_setup()
+        self.load_files_button_setup()
+        self.save_results_button_setup()
+        self.signature_graphic_view_setup()
+        self.calculate_button_setup()
+        self.sample_calculation_mode_setup()
+        self.track_list_label_setup()
+        self.track_list_setup()
+        self.label_7_setup()
+        self.label_setup()
+        self.number_of_units_setup()
+        self.label_5_setup()
+        self.main_axis_checkbox_setup()
+        self.mode_axis_checkbox_setup()
+        self.show_cvsf_checkbox_setup()
+        self.show_signature_scheckbox_setup()
+        self.file_list_setup()
+        self.track_list_label_2_setup()
+        self.mode_window_forward_button_setup()
+        self.move_window_offset_setup()
+        self.label_2_setup()
+        self.result_information_setup()
+        self.min_rhytmic_value_setup()
+        self.max_number_of_notes_setup()
+        self.label_4_setup()
+        self.move_window_backward_button_setup()
+        self.expand_window_button_setup()
+        self.reduce_window_button_setup()
+        self.expand_window_offset_setup()
+        self.label_6_setup()
+        self.window_start_setup()
+        self.label_3_setup()
+        self.label_8_setup()
+        self.window_end_setup()
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1653, 26))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+
+    def algorithm_type_dropdown_setup(self):
         self.algorithm_type_dropdown = QtWidgets.QComboBox(self.centralwidget)
         self.algorithm_type_dropdown.setGeometry(QtCore.QRect(490, 60, 321, 51))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.algorithm_type_dropdown.setFont(font)
         self.algorithm_type_dropdown.setObjectName("algorithm_type_dropdown")
+
+    def tonal_profiles_type_setup(self):
         self.tonal_profiles_type = QtWidgets.QComboBox(self.centralwidget)
         self.tonal_profiles_type.setGeometry(QtCore.QRect(1190, 60, 361, 51))
         self.tonal_profiles_type.setMinimumSize(QtCore.QSize(271, 51))
@@ -30,33 +83,46 @@ class UI_MainPage(QMainWindow):
         font.setPointSize(15)
         self.tonal_profiles_type.setFont(font)
         self.tonal_profiles_type.setObjectName("tonal_profiles_type")
+
+    def load_files_button_setup(self):
         self.load_files_button = QtWidgets.QPushButton(self.centralwidget)
         self.load_files_button.setGeometry(QtCore.QRect(20, 60, 161, 61))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.load_files_button.setFont(font)
         self.load_files_button.setObjectName("load_files_button")
+
+    def save_results_button_setup(self):
         self.save_results_button = QtWidgets.QPushButton(self.centralwidget)
         self.save_results_button.setGeometry(QtCore.QRect(200, 60, 181, 61))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.save_results_button.setFont(font)
         self.save_results_button.setObjectName("save_results_button")
+
+
+    def signature_graphic_view_setup(self):
         self.signature_graphic_view = QtWidgets.QGraphicsView(self.centralwidget)
         self.signature_graphic_view.setGeometry(QtCore.QRect(800, 230, 751, 631))
         self.signature_graphic_view.setObjectName("signature_graphic_view")
+
+    def calculate_button_setup(self):
         self.calculate_button = QtWidgets.QPushButton(self.centralwidget)
         self.calculate_button.setGeometry(QtCore.QRect(560, 440, 181, 51))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.calculate_button.setFont(font)
         self.calculate_button.setObjectName("calculate_button")
+
+    def sample_calculation_mode_setup(self):
         self.sample_calculation_mode = QtWidgets.QComboBox(self.centralwidget)
         self.sample_calculation_mode.setGeometry(QtCore.QRect(840, 60, 321, 51))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.sample_calculation_mode.setFont(font)
         self.sample_calculation_mode.setObjectName("sample_calculation_mode")
+
+    def track_list_label_setup(self):
         self.track_list_label = QtWidgets.QLabel(self.centralwidget)
         self.track_list_label.setGeometry(QtCore.QRect(240, 180, 181, 31))
         self.track_list_label.setMinimumSize(QtCore.QSize(121, 31))
@@ -64,9 +130,13 @@ class UI_MainPage(QMainWindow):
         font.setPointSize(18)
         self.track_list_label.setFont(font)
         self.track_list_label.setObjectName("track_list_label")
+
+    def track_list_setup(self):
         self.track_list = QtWidgets.QListWidget(self.centralwidget)
         self.track_list.setGeometry(QtCore.QRect(240, 220, 181, 192))
         self.track_list.setObjectName("track_list")
+
+    def label_7_setup(self):
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
         self.label_7.setGeometry(QtCore.QRect(800, 170, 301, 51))
         self.label_7.setMinimumSize(QtCore.QSize(301, 51))
@@ -74,6 +144,107 @@ class UI_MainPage(QMainWindow):
         font.setPointSize(24)
         self.label_7.setFont(font)
         self.label_7.setObjectName("label_7")
+
+
+    def label_setup(self):
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(520, 500, 281, 41))
+        self.label.setMinimumSize(QtCore.QSize(221, 41))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+
+
+    def number_of_units_setup(self):
+        self.number_of_units = QtWidgets.QTextEdit(self.centralwidget)
+        self.number_of_units.setGeometry(QtCore.QRect(30, 460, 231, 31))
+        self.number_of_units.setObjectName("number_of_units")
+
+
+    def label_5_setup(self):
+        self.label_5 = QtWidgets.QLabel(self.centralwidget)
+        self.label_5.setGeometry(QtCore.QRect(30, 420, 131, 41))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.label_5.setFont(font)
+        self.label_5.setObjectName("label_5")
+
+
+    def main_axis_checkbox_setup(self):
+        self.show_main_axis_checkbox = QtWidgets.QCheckBox(self.centralwidget)
+        self.show_main_axis_checkbox.setGeometry(QtCore.QRect(530, 230, 271, 41))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.show_main_axis_checkbox.setFont(font)
+        self.show_main_axis_checkbox.setObjectName("show_main_axis_checkbox")
+
+
+    def mode_axis_checkbox_setup(self):
+        self.show_mode_axis_checkbox = QtWidgets.QCheckBox(self.centralwidget)
+        self.show_mode_axis_checkbox.setGeometry(QtCore.QRect(530, 280, 271, 41))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.show_mode_axis_checkbox.setFont(font)
+        self.show_mode_axis_checkbox.setObjectName("show_mode_axis_checkbox")
+
+
+    def show_cvsf_checkbox_setup(self):
+        self.show_cvsf_checkbox = QtWidgets.QCheckBox(self.centralwidget)
+        self.show_cvsf_checkbox.setGeometry(QtCore.QRect(530, 330, 221, 41))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.show_cvsf_checkbox.setFont(font)
+        self.show_cvsf_checkbox.setObjectName("show_cvsf_checkbox")
+
+
+    def show_signature_scheckbox_setup(self):
+        self.show_signature_checkbox = QtWidgets.QCheckBox(self.centralwidget)
+        self.show_signature_checkbox.setGeometry(QtCore.QRect(530, 380, 271, 41))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.show_signature_checkbox.setFont(font)
+        self.show_signature_checkbox.setObjectName("show_signature_checkbox")
+
+
+    def file_list_setup(self):
+        self.file_list = QtWidgets.QListWidget(self.centralwidget)
+        self.file_list.setGeometry(QtCore.QRect(30, 220, 181, 192))
+        self.file_list.setObjectName("file_list")
+
+
+    def track_list_label_2_setup(self):
+        self.track_list_label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.track_list_label_2.setGeometry(QtCore.QRect(30, 180, 181, 31))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.track_list_label_2.setFont(font)
+        self.track_list_label_2.setObjectName("track_list_label_2")
+
+
+    def mode_window_forward_button_setup(self):
+        self.move_window_forward_button = QtWidgets.QPushButton(self.centralwidget)
+        self.move_window_forward_button.setGeometry(QtCore.QRect(180, 810, 151, 41))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.move_window_forward_button.setFont(font)
+        self.move_window_forward_button.setObjectName("move_window_forward_button")
+
+    def move_window_offset_setup(self):
+        self.move_window_offset = QtWidgets.QTextEdit(self.centralwidget)
+        self.move_window_offset.setGeometry(QtCore.QRect(20, 770, 311, 31))
+        self.move_window_offset.setObjectName("move_window_offset")
+
+
+    def label_2_setup(self):
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setGeometry(QtCore.QRect(20, 730, 261, 31))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        self.label_2.setFont(font)
+        self.label_2.setObjectName("label_2")
+
+    def result_information_setup(self):
         self.result_information = QtWidgets.QLabel(self.centralwidget)
         self.result_information.setGeometry(QtCore.QRect(1000, 170, 431, 51))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -89,141 +260,104 @@ class UI_MainPage(QMainWindow):
         font.setPointSize(24)
         self.result_information.setFont(font)
         self.result_information.setObjectName("result_information")
+
+
+    def min_rhytmic_value_setup(self):
         self.min_rhythmic_value = QtWidgets.QComboBox(self.centralwidget)
         self.min_rhythmic_value.setGeometry(QtCore.QRect(520, 540, 221, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.min_rhythmic_value.setFont(font)
         self.min_rhythmic_value.setObjectName("min_rhythmic_value")
+
+
+    def max_number_of_notes_setup(self):
         self.max_number_of_notes = QtWidgets.QTextEdit(self.centralwidget)
         self.max_number_of_notes.setGeometry(QtCore.QRect(280, 460, 231, 31))
         self.max_number_of_notes.setObjectName("max_number_of_notes")
+
+
+    def label_4_setup(self):
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
         self.label_4.setGeometry(QtCore.QRect(280, 420, 231, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label_4.setFont(font)
         self.label_4.setObjectName("label_4")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(520, 500, 281, 41))
-        self.label.setMinimumSize(QtCore.QSize(221, 41))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.label.setFont(font)
-        self.label.setObjectName("label")
-        self.number_of_units = QtWidgets.QTextEdit(self.centralwidget)
-        self.number_of_units.setGeometry(QtCore.QRect(30, 460, 231, 31))
-        self.number_of_units.setObjectName("number_of_units")
-        self.label_5 = QtWidgets.QLabel(self.centralwidget)
-        self.label_5.setGeometry(QtCore.QRect(30, 420, 131, 41))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.label_5.setFont(font)
-        self.label_5.setObjectName("label_5")
-        self.show_main_axis_checkbox = QtWidgets.QCheckBox(self.centralwidget)
-        self.show_main_axis_checkbox.setGeometry(QtCore.QRect(530, 230, 271, 41))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.show_main_axis_checkbox.setFont(font)
-        self.show_main_axis_checkbox.setObjectName("show_main_axis_checkbox")
-        self.show_mode_axis_checkbox = QtWidgets.QCheckBox(self.centralwidget)
-        self.show_mode_axis_checkbox.setGeometry(QtCore.QRect(530, 280, 271, 41))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.show_mode_axis_checkbox.setFont(font)
-        self.show_mode_axis_checkbox.setObjectName("show_mode_axis_checkbox")
-        self.show_cvsf_checkbox = QtWidgets.QCheckBox(self.centralwidget)
-        self.show_cvsf_checkbox.setGeometry(QtCore.QRect(530, 330, 221, 41))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.show_cvsf_checkbox.setFont(font)
-        self.show_cvsf_checkbox.setObjectName("show_cvsf_checkbox")
-        self.show_signature_checkbox = QtWidgets.QCheckBox(self.centralwidget)
-        self.show_signature_checkbox.setGeometry(QtCore.QRect(530, 380, 271, 41))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.show_signature_checkbox.setFont(font)
-        self.show_signature_checkbox.setObjectName("show_signature_checkbox")
-        self.file_list = QtWidgets.QListWidget(self.centralwidget)
-        self.file_list.setGeometry(QtCore.QRect(30, 220, 181, 192))
-        self.file_list.setObjectName("file_list")
-        self.track_list_label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.track_list_label_2.setGeometry(QtCore.QRect(30, 180, 181, 31))
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self.track_list_label_2.setFont(font)
-        self.track_list_label_2.setObjectName("track_list_label_2")
-        self.move_window_forward_button = QtWidgets.QPushButton(self.centralwidget)
-        self.move_window_forward_button.setGeometry(QtCore.QRect(180, 810, 151, 41))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.move_window_forward_button.setFont(font)
-        self.move_window_forward_button.setObjectName("move_window_forward_button")
-        self.move_window_offset = QtWidgets.QTextEdit(self.centralwidget)
-        self.move_window_offset.setGeometry(QtCore.QRect(20, 770, 311, 31))
-        self.move_window_offset.setObjectName("move_window_offset")
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(20, 730, 261, 31))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.label_2.setFont(font)
-        self.label_2.setObjectName("label_2")
+
+
+    def move_window_backward_button_setup(self):
         self.move_window_backward_button = QtWidgets.QPushButton(self.centralwidget)
         self.move_window_backward_button.setGeometry(QtCore.QRect(20, 810, 151, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.move_window_backward_button.setFont(font)
         self.move_window_backward_button.setObjectName("move_window_backward_button")
+
+
+    def expand_window_button_setup(self):
         self.expand_window_button = QtWidgets.QPushButton(self.centralwidget)
         self.expand_window_button.setGeometry(QtCore.QRect(510, 810, 151, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.expand_window_button.setFont(font)
         self.expand_window_button.setObjectName("expand_window_button")
+
+
+    def reduce_window_button_setup(self):
         self.reduce_window_button = QtWidgets.QPushButton(self.centralwidget)
         self.reduce_window_button.setGeometry(QtCore.QRect(350, 810, 151, 41))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.reduce_window_button.setFont(font)
         self.reduce_window_button.setObjectName("reduce_window_button")
+
+
+    def expand_window_offset_setup(self):
         self.expand_window_offset = QtWidgets.QTextEdit(self.centralwidget)
         self.expand_window_offset.setGeometry(QtCore.QRect(350, 770, 311, 31))
         self.expand_window_offset.setObjectName("expand_window_offset")
+
+
+    def label_6_setup(self):
         self.label_6 = QtWidgets.QLabel(self.centralwidget)
         self.label_6.setGeometry(QtCore.QRect(350, 730, 261, 31))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label_6.setFont(font)
         self.label_6.setObjectName("label_6")
+
+
+    def window_start_setup(self):
         self.window_start = QtWidgets.QTextEdit(self.centralwidget)
         self.window_start.setGeometry(QtCore.QRect(20, 690, 191, 31))
         self.window_start.setObjectName("window_start")
+
+
+    def label_3_setup(self):
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setGeometry(QtCore.QRect(20, 650, 191, 31))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
+
+
+    def label_8_setup(self):
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
         self.label_8.setGeometry(QtCore.QRect(350, 650, 191, 31))
         font = QtGui.QFont()
         font.setPointSize(15)
         self.label_8.setFont(font)
         self.label_8.setObjectName("label_8")
+
+
+    def window_end_setup(self):
         self.window_end = QtWidgets.QTextEdit(self.centralwidget)
         self.window_end.setGeometry(QtCore.QRect(350, 690, 191, 31))
         self.window_end.setObjectName("window_end")
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1653, 26))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
