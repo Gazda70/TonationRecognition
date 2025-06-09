@@ -10,7 +10,7 @@ from model.definitions import ALGORITHM_NAMES, SAMPLE_CALCULATION_MODES, TONAL_P
 from algorithms.algorithm_manager import AlgorithmManager
 
 
-class UI_MainPage(QMainWindow):
+class UI_MainPage(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -445,22 +445,83 @@ class UI_MainPage(QMainWindow):
         self.files = []
         self.selected_file_number = 0
 
-        self.main_window.show()
+
+    # def __init__(self):
+    #     super(UI_MainPage, self).__init__()
+    #     self.main_window = QMainWindow()
+    #     self.setupUi(self.main_window)
+    #
+    #     self.load_files_button.clicked.connect(self.load_file_button_clicker)
+    #     self.save_results_button.clicked.connect(self.save_results_button_clicker)
+    #     self.calculate_button.clicked.connect(self.calculate_button_clicker)
+    #     self.move_window_backward_button.clicked.connect(self.move_window_backward)
+    #     self.move_window_forward_button.clicked.connect(self.move_window_forward)
+    #     self.track_list.itemClicked.connect(self.track_list_selection_changed)
+    #     self.file_list.itemActivated.connect(self.file_list_selection_changed)
+    #     self.show_main_axis_checkbox.setChecked(True)
+    #     self.show_main_axis_checkbox.stateChanged.connect(self.show_main_axis_state_changed)
+    #     self.show_mode_axis_checkbox.setChecked(True)
+    #     self.show_mode_axis_checkbox.stateChanged.connect(self.show_mode_axis_state_changed)
+    #     self.show_cvsf_checkbox.setChecked(True)
+    #     self.show_cvsf_checkbox.stateChanged.connect(self.show_cvsf_state_changed)
+    #     self.show_signature_checkbox.setChecked(True)
+    #     self.show_signature_checkbox.stateChanged.connect(self.show_signature_state_changed)
+    #     self.expand_window_button.clicked.connect(self.expand_window)
+    #     self.reduce_window_button.clicked.connect(self.reduce_window)
+    #
+    #     self.algorithm_type_dropdown.addItems(["Major/minor axis", "Tonal profiles"])
+    #     self.sample_calculation_mode.addItems(SAMPLE_CALCULATION_MODES.keys())
+    #     self.tonal_profiles_type.addItems(TONAL_PROFILE_NAMES.keys())
+    #     self.min_rhythmic_value.addItems(RHYTHMIC_VALUES.keys())
+    #
+    #     self.number_of_units.setText(str(1))
+    #     self.move_window_offset.setText(str(1))
+    #     self.expand_window_offset.setText(str(1))
+    #
+    #     self.max_number_of_notes.setReadOnly(True)
+    #     self.window_start.setReadOnly(True)
+    #     self.window_end.setReadOnly(True)
+    #
+    #     self.scene = None
+    #     self.algorithm_manager = AlgorithmManager()
+    #     self.signature = None
+    #     self.ks_results = None
+    #     self.as_results = None
+    #     self.t_results = None
+    #     self.draw_mdasf = True
+    #     self.draw_mode = True
+    #     self.draw_cvsf = True
+    #     self.draw_signature = True
+    #     self.selected_track = 0
+    #     self.is_file_selected = False
+    #     self.is_track_selected = False
+    #     self.max_number_of_notes_to_check = 0
+    #     self.global_track_length = 0
+    #     self.filenames = []
+    #     self.analysis_results = []
+    #     self.moving_window_analysis_result = []
+    #     self.expanding_window_analysis_result = []
+    #     self.moving_window_index = 0
+    #     self.expanding_window_index = 0
+    #     self.files = []
+    #     self.selected_file_number = 0
+    #
+    #     self.main_window.show()
 
     def move_window_backward(self):
         if not self.move_window_offset.toPlainText().isdigit():
-            QMessageBox.warning(self, "Error", "Move offset must be an positive integer !")
+            QMessageBox.warning(self.centralwidget, "Error", "Move offset must be an positive integer !")
         elif self.move_window_offset.document().isEmpty() is True:
-            QMessageBox.warning(self, "Error", "Select move offset !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select move offset !")
         elif self.moving_window_index - int(self.move_window_offset.toPlainText()) >= 0:
             self.moving_window_index -= int(self.move_window_offset.toPlainText())
             if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                QMessageBox.warning(self.centralwidget, "Warning", "Multiple axes have the same value: \n" +
                                     "".join([str(create_main_axis_string(NoteVectorDirection(
                                         axis.direction % 360)) + "\n")
                                              for axis in self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]]))
             if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
-                QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
+                QMessageBox.warning(self.centralwidget, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
             self.populate_signature_and_tonal_profiles_results(self.moving_window_analysis_result[self.moving_window_index])
             self.draw_signature_graphics_view(self.signature,
@@ -472,18 +533,18 @@ class UI_MainPage(QMainWindow):
 
     def move_window_forward(self):
         if not self.move_window_offset.toPlainText().isdigit():
-            QMessageBox.warning(self, "Error", "Move offset must be an positive integer !")
+            QMessageBox.warning(self.centralwidget, "Error", "Move offset must be an positive integer !")
         elif self.move_window_offset.document().isEmpty() is True:
-            QMessageBox.warning(self, "Error", "Select move offset !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select move offset !")
         elif self.moving_window_index + int(self.move_window_offset.toPlainText()) < len(self.moving_window_analysis_result):
             self.moving_window_index += int(self.move_window_offset.toPlainText())
             if len(self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                QMessageBox.warning(self.centralwidget, "Warning", "Multiple axes have the same value: \n" +
                                     "".join([str(create_main_axis_string(NoteVectorDirection(
                                         axis.direction % 360)) + "\n")
                                              for axis in self.moving_window_analysis_result[self.moving_window_index]["SAME_AXES"]]))
             if self.moving_window_analysis_result[self.moving_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
-                QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
+                QMessageBox.warning(self.centralwidget, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.moving_window_analysis_result[self.moving_window_index]["RESULT"])
             self.populate_signature_and_tonal_profiles_results(self.moving_window_analysis_result[self.moving_window_index])
             self.draw_signature_graphics_view(self.signature,
@@ -496,18 +557,18 @@ class UI_MainPage(QMainWindow):
 
     def expand_window(self):
         if not self.expand_window_offset.toPlainText().isdigit():
-            QMessageBox.warning(self, "Error", "Expand offset must be an positive integer !")
+            QMessageBox.warning(self.centralwidget, "Error", "Expand offset must be an positive integer !")
         elif self.expand_window_offset.document().isEmpty() is True:
-            QMessageBox.warning(self, "Error", "Expand move offset !")
+            QMessageBox.warning(self.centralwidget, "Error", "Expand move offset !")
         elif self.expanding_window_index + int(self.expand_window_offset.toPlainText()) < len(self.expanding_window_analysis_result):
             self.expanding_window_index += int(self.expand_window_offset.toPlainText())
             if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                QMessageBox.warning(self.centralwidget, "Warning", "Multiple axes have the same value: \n" +
                                     "".join([str(create_main_axis_string(NoteVectorDirection(
                                         axis.direction % 360)) + "\n")
                                              for axis in self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]]))
             if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
-                QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
+                QMessageBox.warning(self.centralwidget, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
             self.populate_signature_and_tonal_profiles_results(self.expanding_window_analysis_result[self.expanding_window_index])
             self.draw_signature_graphics_view(self.signature,
@@ -521,18 +582,18 @@ class UI_MainPage(QMainWindow):
 
     def reduce_window(self):
         if not self.expand_window_offset.toPlainText().isdigit():
-            QMessageBox.warning(self, "Error", "Reduce offset must be an positive integer !")
+            QMessageBox.warning(self.centralwidget, "Error", "Reduce offset must be an positive integer !")
         elif self.expand_window_offset.document().isEmpty() is True:
-            QMessageBox.warning(self, "Error", "Select reduce offset !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select reduce offset !")
         elif self.expanding_window_index - int(self.expand_window_offset.toPlainText()) >= 0:
             self.expanding_window_index -= int(self.expand_window_offset.toPlainText())
             if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                QMessageBox.warning(self.centralwidget, "Warning", "Multiple axes have the same value: \n" +
                                     "".join([str(create_main_axis_string(NoteVectorDirection(
                                         axis.direction % 360)) + "\n")
                                              for axis in self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]]))
             if self.expanding_window_analysis_result[self.expanding_window_index]["MODE_ANGLE_EQUAL_ZERO"]:
-                QMessageBox.warning(self, "Warning", "Mode angle equal zero !")
+                QMessageBox.warning(self.centralwidget, "Warning", "Mode angle equal zero !")
             self.result_information.setText(self.expanding_window_analysis_result[self.expanding_window_index]["RESULT"])
             self.populate_signature_and_tonal_profiles_results(self.expanding_window_analysis_result[self.expanding_window_index])
             self.draw_signature_graphics_view(self.signature,
@@ -553,7 +614,7 @@ class UI_MainPage(QMainWindow):
     def load_file_button_clicker(self):
         self.expanding_window_analysis_result.clear()
         self.moving_window_analysis_result.clear()
-        self.filenames, _ = QFileDialog.getOpenFileNames(self, "Open MIDI file", MIDI_FILES_PATH, "MIDI files (*.mid);;")
+        self.filenames, _ = QFileDialog.getOpenFileNames(self.centralwidget, "Open MIDI file", MIDI_FILES_PATH, "MIDI files (*.mid);;")
         file_number = 0
         if len(self.filenames) > 0:
             self.track_list.clear()
@@ -614,7 +675,7 @@ class UI_MainPage(QMainWindow):
 
     def set_base_rhythmic_value(self):
         if not self.is_file_selected:
-            QMessageBox.warning(self, "Error", "Select file !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select file !")
         else:
             self.max_number_of_notes_to_check = self.files[self.selected_file_number].track_manager.calculate_base_rhythmic_value_multiplicity(RHYTHMIC_VALUES[self.min_rhythmic_value.currentText()])
             self.max_number_of_notes.setText(str(self.max_number_of_notes_to_check))
@@ -686,28 +747,29 @@ class UI_MainPage(QMainWindow):
                                           "RESULT":expanded_window_result})
 
     def calculate_button_clicker(self):
+        # self.calculate_all_input_combinations()
         if self.number_of_units.document().isEmpty():
-            QMessageBox.warning(self, "Error", "Select window !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select window !")
             return
         if not self.number_of_units.toPlainText().isdigit():
-            QMessageBox.warning(self, "Error", "Window size be an positive integer !")
+            QMessageBox.warning(self.centralwidget, "Error", "Window size be an positive integer !")
             return
         number_of_units = int(self.number_of_units.toPlainText())
         if not self.is_file_selected:
-            QMessageBox.warning(self, "Error", "Select file !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select file !")
         elif not self.is_track_selected:
-            QMessageBox.warning(self, "Error", "Select track !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select track !")
         elif self.max_number_of_notes.document().isEmpty() is True:
-            QMessageBox.warning(self, "Error", "Select time window !")
+            QMessageBox.warning(self.centralwidget, "Error", "Select time window !")
         elif number_of_units < 0 or number_of_units > self.max_number_of_notes_to_check:
-            QMessageBox.warning(self, "Error", "Window must match constraints !")
+            QMessageBox.warning(self.centralwidget, "Error", "Window must match constraints !")
         else:
             self.set_base_rhythmic_value()
             number_of_samples = int(self.max_number_of_notes_to_check / number_of_units)
             remainder_size = self.max_number_of_notes_to_check % number_of_units
             self.moving_window_analysis_result.clear()
             self.expanding_window_analysis_result.clear()
-            progress = QProgressDialog("Calculating samples...", "Abort calculation", 0, 100, self)
+            progress = QProgressDialog("Calculating samples...", "Abort calculation", 0, 100, self.centralwidget)
             progress.resize(800, 400)
             progress.setMinimumDuration(0)
             progress.setModal(True)
@@ -797,7 +859,7 @@ class UI_MainPage(QMainWindow):
             progress.setValue(100)
 
             if len(self.expanding_window_analysis_result[self.expanding_window_index]["SAME_AXES"]) > 0:
-                QMessageBox.warning(self, "Warning", "Multiple axes have the same value: \n" +
+                QMessageBox.warning(self.centralwidget, "Warning", "Multiple axes have the same value: \n" +
                                     "".join([str(create_main_axis_string(NoteVectorDirection(
                                         axis.direction % 360)) + "\n")
                                              for axis in self.expanding_window_analysis_result[0][

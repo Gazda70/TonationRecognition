@@ -9,6 +9,8 @@ MAIN_UI_PAGE = "main_window.py"
 
 MIDI_FILES_PATH = "E:\\PracaMagisterska\\TonationRecognition\\midi_files"
 
+BATCH_PROCESSING_SAVE_FILES_PATH="C:\\Users\\gazda\Desktop\\artykul\\utwory"
+
 KS_PROFILE_MAJOR = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88]
 KS_PROFILE_MINOR = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 2.98, 2.69, 3.34, 3.17]
 T_PROFILE_MAJOR = [0.75, 0.06, 0.49, 0.08, 0.67, 0.46, 0.10, 0.72, 0.10, 0.37, 0.06, 0.40]

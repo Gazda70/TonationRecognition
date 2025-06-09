@@ -1,12 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from PyQt5 import QtWidgets, uic
-from view.basic_ui import UI_MainPage
+from PyQt5 import QtWidgets
+from view.application_mode_selection_window import Ui_ApplicationModeSelectionWindow
 
 def main():
     app = QApplication(sys.argv)
     widget = QtWidgets.QStackedWidget()
-    main_ui_page = UI_MainPage()
+    main_ui_page = Ui_ApplicationModeSelectionWindow()
     widget.addWidget(main_ui_page)
     w = 1800
     h = 900

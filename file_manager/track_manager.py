@@ -293,6 +293,10 @@ class TrackManager:
         if track_number < self.track_count:
             self.processed_tracks[track_number].activate()
 
+    def activate_all_tracks(self):
+        for track in self.processed_tracks:
+            track.activate()
+
     def deactivate_track(self, track_number):
         if track_number < self.track_count:
             self.processed_tracks[track_number].deactivate()
